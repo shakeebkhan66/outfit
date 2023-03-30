@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:outfit/app_localization.dart';
 import 'package:outfit/src/base/assets.dart';
 import 'package:outfit/src/base/nav.dart';
 import 'package:outfit/src/base/theme.dart';
 import 'package:outfit/src/components/auth/social_auth_page.dart';
+import 'package:outfit/src/providers/language_provider.dart';
+import 'package:outfit/src/utils/const.dart';
 import 'package:outfit/src/widgets/app_button_widget.dart';
+import 'package:provider/provider.dart';
 
 class LanguageSelectionPage extends StatefulWidget {
   const LanguageSelectionPage({Key? key}) : super(key: key);
@@ -31,8 +35,8 @@ class _LanguageSelectionPageState extends State<LanguageSelectionPage> {
           padding: const EdgeInsets.symmetric(vertical: 45),
           physics: const BouncingScrollPhysics(),
           child: Column(children: [
-            Text(
-              'Choose Language',
+            Text(AppLocalization.of(context)!
+                        .getTranslatedValues('chooselanguage')!,
               style: GoogleFonts.montserrat(
                 fontWeight: FontWeight.w600,
                 fontSize: 22,
@@ -41,6 +45,7 @@ class _LanguageSelectionPageState extends State<LanguageSelectionPage> {
             GestureDetector(
               onTap: () {
                 _selectedLanguage = 'en_us';
+                Provider.of<LanguageProvider>(context,listen: false).changeLanguage(supporatedLocales[0]);
                 setState(() {});
               },
               child: Container(
@@ -75,6 +80,7 @@ class _LanguageSelectionPageState extends State<LanguageSelectionPage> {
             GestureDetector(
               onTap: () {
                 _selectedLanguage = 'ar';
+                Provider.of<LanguageProvider>(context,listen: false).changeLanguage(supporatedLocales[1]);
                 setState(() {});
               },
               child: Container(
