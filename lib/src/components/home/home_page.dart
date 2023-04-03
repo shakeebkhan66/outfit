@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:outfit/app_localization.dart';
 import 'package:outfit/src/base/assets.dart';
 import 'package:outfit/src/base/nav.dart';
 import 'package:outfit/src/base/theme.dart';
@@ -121,8 +122,8 @@ class _HomePageState extends State<HomePage> {
                           : AppColors.blackColor,
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      'Outfit ideas',
+                    Text(AppLocalization.of(context)!
+                        .getTranslatedValues('outfitideas')!,
                       style: GoogleFonts.roboto(
                         fontSize: 10,
                         color: _pageIndex == 0
@@ -149,8 +150,8 @@ class _HomePageState extends State<HomePage> {
                           : AppColors.blackColor,
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      'My wardrobe',
+                    Text(AppLocalization.of(context)!
+                        .getTranslatedValues('mywardrobe')!,
                       style: GoogleFonts.roboto(
                         fontSize: 10,
                         color: _pageIndex == 1

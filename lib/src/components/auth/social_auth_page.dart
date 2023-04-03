@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:outfit/app_localization.dart';
 import 'package:outfit/src/base/assets.dart';
 import 'package:outfit/src/base/nav.dart';
 import 'package:outfit/src/base/theme.dart';
 import 'package:outfit/src/components/home/home_page.dart';
+import 'package:outfit/src/components/login_pages/login_page.dart';
 
 class SocialAuthPage extends StatefulWidget {
   const SocialAuthPage({Key? key}) : super(key: key);
@@ -38,8 +40,8 @@ class _SocialAuthPageState extends State<SocialAuthPage> {
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 35, bottom: 30),
-                child: Text(
-                  'Login With',
+                child: Text(AppLocalization.of(context)!
+                        .getTranslatedValues('loginwith')!,
                   style: GoogleFonts.montserrat(
                     fontSize: 19,
                     fontWeight: FontWeight.w600,
@@ -94,7 +96,7 @@ class _SocialAuthPageState extends State<SocialAuthPage> {
               const SizedBox(height: 20),
               _AuthButtonWidget(
                 onTap: () {
-                  AppNavigation.navigateRemoveUntil(context, const HomePage());
+                  AppNavigation.to(context, LoginPage());
                 },
                 title: 'Email',
                 icon: Image.asset(

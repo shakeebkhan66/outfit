@@ -120,7 +120,7 @@ class _LanguageSelectionPageState extends State<LanguageSelectionPage> {
                 onTap: () {
                   AppNavigation.to(context, const SocialAuthPage());
                 },
-                title: 'Continue',
+                title: 'continue',
                 buttonRadius: 15,
               ),
             ),

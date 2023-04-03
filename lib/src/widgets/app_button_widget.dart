@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:outfit/app_localization.dart';
 import 'package:outfit/src/base/theme.dart';
 
 class AppButtonWidget extends StatelessWidget {
@@ -38,8 +39,8 @@ class AppButtonWidget extends StatelessWidget {
           ),
         ),
         onPressed: onTap,
-        child: Text(
-          title,
+        child: Text(AppLocalization.of(context)!
+                        .getTranslatedValues(title)!,
           style: GoogleFonts.montserrat(
             color: Colors.white,
             fontWeight: FontWeight.w600,
