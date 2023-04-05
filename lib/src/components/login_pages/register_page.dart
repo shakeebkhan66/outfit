@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:outfit/app_localization.dart';
 import 'package:outfit/src/base/assets.dart';
+import 'package:outfit/src/base/nav.dart';
 import 'package:outfit/src/base/theme.dart';
+import 'package:outfit/src/components/login_pages/login_page.dart';
+import 'package:outfit/src/data/model/user_model.dart';
+import 'package:outfit/src/data/view_model/auth_view_model.dart';
 import 'package:outfit/src/widgets/app_button_widget.dart';
+import 'package:outfit/src/widgets/custom_loader.dart';
+import 'package:provider/provider.dart';
 
 class RegisterPage extends StatelessWidget {
   final TextEditingController _firstNameController = TextEditingController();
@@ -14,6 +20,8 @@ class RegisterPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final authViewModel = Provider.of<AuthViewModel>(context);
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -56,12 +64,22 @@ class RegisterPage extends StatelessWidget {
                 controller: _passwordController,
                 hintText: 'password',
                 obscureText: true,
+                keyboardType: TextInputType.visiblePassword,
               ),
               const SizedBox(height: 40.0),
+              authViewModel.signUpLoading ? 
+              const CustomLoader() : 
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 28.0),
                 child: AppButtonWidget(
                   onTap: () {
+                    authViewModel.signUpApi(UserModel(
+                      first_name: _firstNameController.text,
+                      last_name: _lastNameController.text,
+                      email: _emailController.text,
+                      type: 'user',
+                      password: _passwordController.text,
+                    ).toJson(), context);
                   },
                   title: 'register',
                   buttonRadius: 15,
@@ -120,7 +138,7 @@ class RegisterPage extends StatelessWidget {
                         .getTranslatedValues('alreadyhaveaccount')!),
                   TextButton(
                     onPressed: () {
-                      // navigate to login page
+                      AppNavigation.to(context, LoginPage());
                     },
                     child: Text(AppLocalization.of(context)!
                         .getTranslatedValues('login')!,
@@ -139,7 +157,7 @@ class RegisterPage extends StatelessWidget {
   }
 }
 
-class CustomTextField extends StatelessWidget {
+class CustomTextField extends StatefulWidget {
   final TextEditingController controller;
   final String hintText;
   final TextInputType keyboardType;
@@ -156,15 +174,28 @@ class CustomTextField extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<CustomTextField> createState() => _CustomTextFieldState();
+}
+
+class _CustomTextFieldState extends State<CustomTextField> {
+  bool hidePassword = true;
+  bool get isPasswordField =>
+      widget.keyboardType == TextInputType.visiblePassword;
+   void _togglePasswordVisibility() {
+    setState(() {
+      hidePassword = !hidePassword;
+    });
+  }
+  @override
   Widget build(BuildContext context) {
     return TextField(
-      controller: controller,
+      controller: widget.controller,
       decoration: InputDecoration(
-        hintText: AppLocalization.of(context)!.getTranslatedValues(hintText)!,
+        hintText: AppLocalization.of(context)!.getTranslatedValues(widget.hintText)!,
         filled: true,
         isDense: true,
         fillColor: Colors.grey[200],
-        prefixIcon: Icon(prefixIcon,color: AppColors.primaryColor,),
+        prefixIcon: Icon(widget.prefixIcon,color: AppColors.primaryColor,),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10.0),
           borderSide: BorderSide.none,
@@ -176,9 +207,19 @@ class CustomTextField extends StatelessWidget {
               width: 1.0,
             ),
           ),
+        suffixIcon: isPasswordField
+          ? InkWell(
+              onTap: _togglePasswordVisibility,
+              child: Icon(hidePassword ?
+                Icons.visibility : Icons.visibility_off,
+                color: AppColors.primaryColor,
+                size: 22,
+              ),
+            )
+          : null,
         ),
-        keyboardType: keyboardType,
-        obscureText: obscureText,
+        keyboardType: widget.keyboardType,
+        obscureText: isPasswordField && hidePassword,
       );
   }
 }

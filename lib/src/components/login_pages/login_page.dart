@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:outfit/app_localization.dart';
 import 'package:outfit/src/base/assets.dart';
+import 'package:outfit/src/base/nav.dart';
 import 'package:outfit/src/base/theme.dart';
 import 'package:outfit/src/components/login_pages/register_page.dart';
+import 'package:outfit/src/data/model/user_model.dart';
+import 'package:outfit/src/data/view_model/auth_view_model.dart';
 import 'package:outfit/src/widgets/app_button_widget.dart';
+import 'package:outfit/src/widgets/custom_loader.dart';
+import 'package:provider/provider.dart';
 class LoginPage extends StatelessWidget {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -12,6 +17,7 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final authViewModel = Provider.of<AuthViewModel>(context);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -40,13 +46,19 @@ class LoginPage extends StatelessWidget {
                 prefixIcon: Icons.lock,
                 controller: _passwordController,
                 hintText: 'password',
+                keyboardType: TextInputType.visiblePassword,
                 obscureText: true,
               ),
               const SizedBox(height: 40.0),
+              authViewModel.loading ? const CustomLoader(): 
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 28.0),
                 child: AppButtonWidget(
                   onTap: () {
+                    authViewModel.loginApi(UserModel(
+                      email: _emailController.text,
+                      password: _passwordController.text,
+                    ).toJson(), context);
                   },
                   title: 'login',
                   buttonRadius: 15,
@@ -105,7 +117,7 @@ class LoginPage extends StatelessWidget {
                         .getTranslatedValues('donthaveaccount')!),
                   TextButton(
                     onPressed: () {
-                      // navigate to login page
+                      AppNavigation.to(context, RegisterPage());
                     },
                     child: Text(AppLocalization.of(context)!
                         .getTranslatedValues('register')!,

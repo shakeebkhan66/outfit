@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:outfit/app_localization.dart';
-import 'package:outfit/src/components/language/language_selection_page.dart';
+import 'package:outfit/src/components/home/home_page.dart';
+import 'package:outfit/src/data/view_model/auth_view_model.dart';
 import 'package:outfit/src/providers/language_provider.dart';
 import 'package:outfit/src/services/local_storage_service.dart';
 import 'package:outfit/src/utils/app_utils.dart';
@@ -20,7 +21,8 @@ class MyApp extends StatelessWidget {
     runApp(
       MultiProvider(
         providers: [
-          ChangeNotifierProvider(create: (_)=> LanguageProvider(SettingsLocalDataSource()))
+          ChangeNotifierProvider(create: (_)=> LanguageProvider(SettingsLocalDataSource())),
+          ChangeNotifierProvider(create: (_)=> AuthViewModel()),
         ],
         child: const MyApp(),
       ),
@@ -33,6 +35,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Outfit',
       theme: AppTheme.lightTheme,
+      debugShowCheckedModeBanner: false,
       locale: currentLanguage,
       localizationsDelegates: const [
         AppLocalization.delegate,
@@ -43,7 +46,7 @@ class MyApp extends StatelessWidget {
       supportedLocales: supporatedLocales.map((languageCode) {
         return AppUtils.getLocaleFromLanguageCode(languageCode);
       }).toList(),
-      home: const LanguageSelectionPage(),
+      home: const HomePage(),
     );
   }
 }

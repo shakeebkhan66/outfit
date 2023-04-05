@@ -28,8 +28,7 @@ class DressDetailPage extends StatelessWidget {
             SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11.5),
               child: Column(children: [
-                Image.asset(
-                  AppAssets.productDetail,
+                Image.network(dress,
                   height: 460,
                   fit: BoxFit.fill,
                 ),

@@ -78,5 +78,7 @@
     "items": "Items",
     "choosenearestcolor": "Choose nearest color",
     "choosestyle": "Choose style",
-    "search": "Search"
+    "search": "Search",
+    "previouspage": "Previous page",
+    "nextpage": "Next page"
 }

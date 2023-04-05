@@ -78,5 +78,7 @@
     "items": "Items",
     "choosenearestcolor": "اختر أقرب لون للقطعة",
     "choosestyle": "اختر نوع القطعة",
-    "search": "بحث"
+    "search": "بحث",
+    "previouspage": "الصفحة السابقة",
+    "nextpage": "الصفحة التالية"
 }
