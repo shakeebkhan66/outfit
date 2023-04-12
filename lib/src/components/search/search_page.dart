@@ -1,19 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:outfit/app_localization.dart';
 import 'package:outfit/src/base/nav.dart';
 import 'package:outfit/src/components/search/widget/color_style_widget.dart';
+import 'package:outfit/src/data/model/pair_search_model.dart';
+import 'package:outfit/src/data/view_model/colors_view_model.dart';
+import 'package:outfit/src/data/view_model/photos_view_model.dart';
+import 'package:outfit/src/providers/filter_pair_provider.dart';
 import 'package:outfit/src/widgets/app_button_widget.dart';
+import 'package:provider/provider.dart';
 
 class SearchPage extends StatefulWidget {
-  const SearchPage({Key? key}) : super(key: key);
+  final ProductsViewModel productsViewModel;
+  const SearchPage({Key? key, required this.productsViewModel}) : super(key: key);
 
   @override
   State<SearchPage> createState() => _SearchPageState();
 }
 
 class _SearchPageState extends State<SearchPage> {
+  ColorsAndStylesViewModel colorsViewModel = ColorsAndStylesViewModel();
   @override
   Widget build(BuildContext context) {
+    final filterPairProvider = Provider.of<FilterPairProvider>(context);
     final padding = MediaQuery.of(context).padding;
     return Scaffold(
       body: Padding(
@@ -35,8 +44,7 @@ class _SearchPageState extends State<SearchPage> {
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: Text(
-                    'Let us help you dress like\na Fashionista!',
+                  child: Text(AppLocalization.of(context)!.getTranslatedValues("letushelpyoudress")!,
                     textAlign: TextAlign.center,
                     style: GoogleFonts.montserrat(
                       fontWeight: FontWeight.w500,
@@ -65,9 +73,11 @@ class _SearchPageState extends State<SearchPage> {
               child: SingleChildScrollView(
                 padding: const EdgeInsets.only(bottom: 120),
                 physics: const BouncingScrollPhysics(),
-                child: Column(children: const [
-                  SizedBox(height: 37),
-                  ColorStyleWidget(),
+                child: Column(children: [
+                  const SizedBox(height: 37),
+                  ColorStyleWidget(
+                    colorsViewModel: colorsViewModel,
+                  ),
                 ]),
               ),
             ),
@@ -77,8 +87,23 @@ class _SearchPageState extends State<SearchPage> {
       bottomSheet: Padding(
         padding: const EdgeInsets.only(left: 28, right: 28, bottom: 32),
         child: AppButtonWidget(
-          onTap: () => AppNavigation.pop(context),
-          title: 'Search',
+          onTap: () {
+            AppNavigation.pop(context);
+            widget.productsViewModel.setCurrentPage(Pages.search);
+              widget.productsViewModel.fetchFilterPairList(
+                FilterPairModel(
+                  pairs: [
+                    for (var i = 0; i < filterPairProvider.getSearchColor.length; i++)
+                    Pairs(
+                      type: filterPairProvider.getSearchType[i],
+                      color: filterPairProvider.getSearchColor[i],
+                    ),
+                  ],
+                  ptn: filterPairProvider.getSearchPattern[0],
+                ),
+              );
+          },
+          title: 'search',
         ),
       ),
     );
@@ -96,17 +121,4 @@ class _SearchPageState extends State<SearchPage> {
       child: child,
     );
   }
-}
-
-enum SearchStyle {
-  trousers('Trousers'),
-  shirts('Shirts'),
-  tops('Tops (sweater-blouse-t shirt....)'),
-  skirts('Skirts'),
-  dressJumpsuitAbaya('Dress-Jumpsuit-Abaya'),
-  jacketCoat('Jacket Coat');
-
-  final String value;
-
-  const SearchStyle(this.value);
 }

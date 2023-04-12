@@ -46,7 +46,6 @@ class AuthViewModel with ChangeNotifier {
       if(kDebugMode){
         print(error.toString());
       }
-
     });
   }
 

@@ -23,10 +23,13 @@ class _CustomShimmerLoaderState extends State<CustomShimmerLoader> {
         ),
         delegate: SliverChildBuilderDelegate(
           (context, index) {
-            return GridTile(
-              child: ShimmerLoader(
-                child: Container(
-                  color: Colors.grey[300],
+            return ClipRRect(
+              borderRadius: BorderRadius.circular(5.0),
+              child: GridTile(
+                child: ShimmerLoader(
+                  child: Container(
+                    color: Colors.grey[300],
+                  ),
                 ),
               ),
             );
@@ -96,3 +99,45 @@ class _ShimmerLoaderState extends State<ShimmerLoader> with SingleTickerProvider
   }
 }
 
+class FavFolderShimmerLoader extends StatefulWidget {
+
+  const FavFolderShimmerLoader({Key? key}) : super(key: key);
+
+  @override
+  State<FavFolderShimmerLoader> createState() => _FavFolderShimmerLoaderState();
+}
+
+class _FavFolderShimmerLoaderState extends State<FavFolderShimmerLoader> {
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.only(
+          left: 35,
+          right: 34,
+          top: 70,
+          bottom: 30,
+        ),
+        child: GridView(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            mainAxisExtent: 145,
+            crossAxisSpacing: 34,
+            mainAxisSpacing: 34,
+          ),
+          children: List.generate(4, (index) => ClipRRect(
+            borderRadius: BorderRadius.circular(12.0),
+            child: GridTile(
+                child: ShimmerLoader(
+                  child: Container(
+                    color: Colors.grey[300],
+                  ),
+                ),
+              ),
+          )
+          ),
+        ),
+      ),
+    );
+  }
+}

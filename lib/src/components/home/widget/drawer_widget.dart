@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:outfit/app_localization.dart';
 import 'package:outfit/src/base/nav.dart';
 import 'package:outfit/src/base/theme.dart';
 import 'package:outfit/src/components/home/views/outfit_ideas_view.dart';
+import 'package:outfit/src/data/view_model/photos_view_model.dart';
 import 'package:outfit/src/widgets/radio_button_widget.dart';
 
 class DrawerWidget extends StatefulWidget {
@@ -12,18 +14,21 @@ class DrawerWidget extends StatefulWidget {
     required this.hijab,
     required this.season,
     required this.callback,
+    required this.productsViewModel,
   }) : super(key: key);
 
   final Styles style;
   final Hijab hijab;
   final Seasons season;
   final void Function(Styles, Hijab, Seasons) callback;
+  final ProductsViewModel productsViewModel;
 
   @override
   State<DrawerWidget> createState() => _DrawerWidgetState();
 }
 
 class _DrawerWidgetState extends State<DrawerWidget> {
+  final ProductsViewModel _productsViewModel = ProductsViewModel();
   late Styles _style;
   late Hijab _hijab;
   late Seasons _season;
@@ -116,9 +121,16 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                       ),
                       minimumSize: const Size(115, 42),
                     ),
-                    onPressed: () => AppNavigation.pop(context),
-                    child: Text(
-                      'Apply',
+                    onPressed: () {
+                      dynamic styleValue = getValueFromStyle(_style);
+                      dynamic hijabValue = getValueFromHjiab(_hijab);
+                      dynamic seasonValue = getValueFromSeason(_season);
+                      widget.productsViewModel.setFilterValues(styleValue, hijabValue, seasonValue);
+                      widget.productsViewModel.setCurrentPage(Pages.filter);
+                      widget.productsViewModel.filterPhotoPhotosList();
+                      AppNavigation.pop(context);
+                    },
+                    child: Text(AppLocalization.of(context)!.getTranslatedValues("apply")!,
                       style: GoogleFonts.roboto(
                         fontWeight: FontWeight.w500,
                         color: const Color(0xFFFFFBF9),
@@ -159,5 +171,38 @@ class _DrawerWidgetState extends State<DrawerWidget> {
         indent: 32,
       ),
     );
+  }
+}
+
+dynamic getValueFromStyle(Styles style){
+  switch (style) {
+    case Styles.allStyle:
+      return null;
+    case Styles.trousersOutfits:
+      return 2;
+    case Styles.stylesWithSkirts:
+      return 3;
+    case Styles.dressesAndJumpsuits:
+      return 4;
+  }
+}
+dynamic getValueFromHjiab(Hijab hijab){
+  switch (hijab) {
+    case Hijab.all:
+      return null;
+    case Hijab.withoutHijab:
+      return 0;
+    case Hijab.withHijab:
+      return 1;
+  }
+}
+dynamic getValueFromSeason(Seasons seasons){
+  switch (seasons) {
+    case Seasons.allSeasons:
+      return null;
+    case Seasons.summerOutfits:
+      return "summer";
+    case Seasons.winterOutfits:
+      return "winter";
   }
 }

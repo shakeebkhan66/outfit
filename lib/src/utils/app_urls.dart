@@ -10,5 +10,10 @@ class AppUrl {
 
   static var registerApiEndPoint =  '$baseUrl/register' ;
   static var allphotosApi =  '$baseUrl/photos' ;
+  static var filterPhotoApi = "$baseUrl/photos/filter?";
+  static var listofColors = "$baseUrl/colors";
+  static var listofTypes = "$baseUrl/types";
+  static var findByPairs = "$baseUrl/photos/find-by-pairs";
+  static var favouritesFolders = "$baseUrl/folders";
 
 }

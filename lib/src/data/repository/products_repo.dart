@@ -1,3 +1,5 @@
+
+import 'package:outfit/src/data/model/filter_model.dart';
 import 'package:outfit/src/data/model/products_model.dart';
 import 'package:outfit/src/data/network/base_api_service.dart';
 import 'package:outfit/src/data/network/network_api_service.dart';
@@ -19,4 +21,44 @@ class ProductsRepository {
     }
   }
 
+  Future<ProductsModel> filterAllPhotos(dynamic style,dynamic hijab, dynamic season,int page)async{
+    FilterModel queryParams = FilterModel(
+      style: style,
+      hijab: hijab,
+      season: season,
+      page: page,
+    );
+    try{
+      dynamic response = await _apiServices.getGetApiResponse(AppUrl.filterPhotoApi,queryParameters: queryParams.toJson());
+      return response = ProductsModel.fromJson(response);
+    }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<dynamic> likePhoto({String? email, String? id})async{
+    try{
+      dynamic response = await _apiServices.getPutApiResponse("${AppUrl.allphotosApi}/$id/like",
+        data: {
+          "email": email,
+        }
+      );
+      return response;
+    }catch(e){
+      rethrow;
+    }
+  }
+  
+  Future<dynamic> unLikePhoto({String? email, String? id})async{
+    try{
+      dynamic response = await _apiServices.getPutApiResponse("${AppUrl.allphotosApi}/$id/unlike",
+        data: {
+          "email": email,
+        }
+      );
+      return response;
+    }catch(e){
+      rethrow;
+    }
+  }
 }

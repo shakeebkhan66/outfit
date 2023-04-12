@@ -52,9 +52,9 @@ int? color4,
 int? hijab,
 String? description,
 DateTime? time,
-int? likes,
-int? comments,
-int? favourit,
+dynamic likes,
+dynamic comments,
+String? favourit,
 int? approved,
 String? source,
 int? ptn,
@@ -81,4 +81,35 @@ bool? active,
 	}) = _Links;
 
 	factory Links.fromJson(Map<String, dynamic> json) => _$LinksFromJson(json);
+}
+class LikesList {
+  List<Likes>? likes;
+
+  LikesList({this.likes});
+
+  LikesList.fromJson(Map<String, dynamic> json) {
+    if (json['likes'] != null) {
+      likes = <Likes>[];
+      json['likes'].forEach((v) {
+        likes!.add(Likes.fromJson(v));
+      });
+    }
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    if (likes != null) {
+      data['likes'] = likes!.map((v) => v.toJson()).toList();
+    }
+    return data;
+  }
+}
+@freezed
+class Likes with _$Likes {
+	const factory Likes({
+String? ip,
+String? email,
+	}) = _Likes;
+
+	factory Likes.fromJson(Map<String, dynamic> json) => _$LikesFromJson(json);
 }

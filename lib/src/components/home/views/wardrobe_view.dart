@@ -608,7 +608,7 @@ class _WardrobeViewState extends State<WardrobeView> {
                                       // },
                                       buttonSize: const Size.fromHeight(50),
                                       onTap: widget.onSaveTap,
-                                      title: 'Save',
+                                      title: 'save',
                                       titleSize: 18,
                                     ),
                                   ),

@@ -37,6 +37,7 @@
     "hijab": "Hijab",
     "all": "All",
     "withouthijab": "Without hijab",
+    "withhijab": "With hijab",
     "season": "Season",
     "allseasons": "All seasons",
     "summeroutfits": "Summer outfits",
@@ -80,5 +81,6 @@
     "choosestyle": "Choose style",
     "search": "Search",
     "previouspage": "Previous page",
-    "nextpage": "Next page"
+    "nextpage": "Next page",
+    "refresh": "Refresh"
 }

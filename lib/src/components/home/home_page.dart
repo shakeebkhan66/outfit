@@ -8,6 +8,7 @@ import 'package:outfit/src/components/home/views/outfit_ideas_view.dart';
 import 'package:outfit/src/components/home/views/wardrobe_view.dart';
 import 'package:outfit/src/components/save_wardrobe/save_wardrobe_page.dart';
 import 'package:outfit/src/components/search/search_page.dart';
+import 'package:outfit/src/data/view_model/photos_view_model.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -17,19 +18,23 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final ProductsViewModel _productsViewModel = ProductsViewModel();
   var _pageIndex = 0;
   late List<Map<String, Widget>> _pages;
-
   void _selectPage(int index) {
     _pageIndex = index;
     if (_pageIndex == 0) {
       _pages = [
-        {'page': const OutfitIdeasView()},
+        {'page': OutfitIdeasView(
+          productViewModel: _productsViewModel,
+        )},
         {
           'page': WardrobeView(
             onSaveTap: () {
               _pages = [
-                {'page': const OutfitIdeasView()},
+                {'page': OutfitIdeasView(
+                  productViewModel: _productsViewModel,
+                )},
                 {'page': const SaveWardrobePage()},
               ];
               setState(() {});
@@ -44,12 +49,16 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     _pages = [
-      {'page': const OutfitIdeasView()},
+      {'page': OutfitIdeasView(
+        productViewModel: _productsViewModel,
+      )},
       {
         'page': WardrobeView(
           onSaveTap: () {
             _pages = [
-              {'page': const OutfitIdeasView()},
+              {'page': OutfitIdeasView(
+                productViewModel: _productsViewModel,
+              )},
               {'page': const SaveWardrobePage()},
             ];
             setState(() {});
@@ -72,7 +81,9 @@ class _HomePageState extends State<HomePage> {
           backgroundColor: AppColors.primaryColor,
           child: const Icon(Icons.search),
           onPressed: () {
-            AppNavigation.to(context, const SearchPage());
+            AppNavigation.to(context, SearchPage(
+              productsViewModel: _productsViewModel,
+            ));
           },
         ),
       );

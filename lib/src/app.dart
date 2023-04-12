@@ -3,6 +3,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:outfit/app_localization.dart';
 import 'package:outfit/src/components/home/home_page.dart';
 import 'package:outfit/src/data/view_model/auth_view_model.dart';
+import 'package:outfit/src/providers/filter_pair_provider.dart';
 import 'package:outfit/src/providers/language_provider.dart';
 import 'package:outfit/src/services/local_storage_service.dart';
 import 'package:outfit/src/utils/app_utils.dart';
@@ -23,6 +24,7 @@ class MyApp extends StatelessWidget {
         providers: [
           ChangeNotifierProvider(create: (_)=> LanguageProvider(SettingsLocalDataSource())),
           ChangeNotifierProvider(create: (_)=> AuthViewModel()),
+          ChangeNotifierProvider(create: (_)=> FilterPairProvider()),
         ],
         child: const MyApp(),
       ),

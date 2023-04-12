@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:outfit/app_localization.dart';
 import 'package:outfit/src/base/theme.dart';
 import 'package:outfit/src/components/home/views/outfit_ideas_view.dart';
-import 'package:outfit/src/components/search/search_page.dart';
+import 'package:outfit/src/data/model/types_model.dart';
 import 'package:reusables/reusables.dart';
 
 class RadioWidgetController<T> extends ChangeNotifier {
@@ -50,12 +51,16 @@ class _AppRadioGroupState<T> extends State<AppRadioGroup<T>>
               onChanged: widget.controller.change,
               title: Text(
                 e is Styles
-                    ? e.value
+                    ? AppLocalization.of(context)!
+                        .getTranslatedValues(e.value)!
                     : e is Hijab
-                        ? e.value
+                        ? AppLocalization.of(context)!
+                        .getTranslatedValues(e.value)!
                         : e is Seasons
-                            ? e.value
-                            : e.toString(),
+                            ? AppLocalization.of(context)!
+                        .getTranslatedValues(e.value)!
+                            : AppLocalization.of(context)!
+                        .getTranslatedValues(e.toString())!,
                 style: GoogleFonts.roboto(
                   fontSize: 12,
                   color: AppColors.blackColor,
@@ -95,10 +100,10 @@ class _SearchStyleRadioWidgetState<T> extends State<SearchStyleRadioWidget<T>>
             controlAffinity: ListTileControlAffinity.trailing,
             groupValue: widget.controller.value,
             onChanged: widget.controller.change,
-            title: Text(
-              e is SearchStyle
-                  ? e.value
-                  : e is Hijab
+            title: Text( 
+               e is Data ?
+               e.en_name!:
+               e is Hijab
                       ? e.value
                       : e is Seasons
                           ? e.value
@@ -111,8 +116,8 @@ class _SearchStyleRadioWidgetState<T> extends State<SearchStyleRadioWidget<T>>
               ),
             ),
           ),
-          if (!(e is SearchStyle && e == SearchStyle.jacketCoat))
-            const Divider(color: Color(0xFFE1DFDF), thickness: 1, height: 0),
+          // if (!(e is SearchStyle && e == SearchStyle.jacketCoat))
+          //   const Divider(color: Color(0xFFE1DFDF), thickness: 1, height: 0),
         ]);
       }).toList(),
     );

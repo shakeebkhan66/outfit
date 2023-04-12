@@ -28,9 +28,12 @@ class DressDetailPage extends StatelessWidget {
             SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11.5),
               child: Column(children: [
-                Image.network(dress,
-                  height: 460,
-                  fit: BoxFit.fill,
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(5.0),
+                  child: Image.network(dress,
+                    height: 460,
+                    fit: BoxFit.fill,
+                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(34, 16, 31, 90),

@@ -615,9 +615,9 @@ mixin _$ProductsData {
   int? get hijab => throw _privateConstructorUsedError;
   String? get description => throw _privateConstructorUsedError;
   DateTime? get time => throw _privateConstructorUsedError;
-  int? get likes => throw _privateConstructorUsedError;
-  int? get comments => throw _privateConstructorUsedError;
-  int? get favourit => throw _privateConstructorUsedError;
+  dynamic get likes => throw _privateConstructorUsedError;
+  dynamic get comments => throw _privateConstructorUsedError;
+  String? get favourit => throw _privateConstructorUsedError;
   int? get approved => throw _privateConstructorUsedError;
   String? get source => throw _privateConstructorUsedError;
   int? get ptn => throw _privateConstructorUsedError;
@@ -659,9 +659,9 @@ abstract class $ProductsDataCopyWith<$Res> {
       int? hijab,
       String? description,
       DateTime? time,
-      int? likes,
-      int? comments,
-      int? favourit,
+      dynamic likes,
+      dynamic comments,
+      String? favourit,
       int? approved,
       String? source,
       int? ptn,
@@ -784,15 +784,15 @@ class _$ProductsDataCopyWithImpl<$Res, $Val extends ProductsData>
       likes: freezed == likes
           ? _value.likes
           : likes // ignore: cast_nullable_to_non_nullable
-              as int?,
+              as dynamic,
       comments: freezed == comments
           ? _value.comments
           : comments // ignore: cast_nullable_to_non_nullable
-              as int?,
+              as dynamic,
       favourit: freezed == favourit
           ? _value.favourit
           : favourit // ignore: cast_nullable_to_non_nullable
-              as int?,
+              as String?,
       approved: freezed == approved
           ? _value.approved
           : approved // ignore: cast_nullable_to_non_nullable
@@ -869,9 +869,9 @@ abstract class _$$_ProductsDataCopyWith<$Res>
       int? hijab,
       String? description,
       DateTime? time,
-      int? likes,
-      int? comments,
-      int? favourit,
+      dynamic likes,
+      dynamic comments,
+      String? favourit,
       int? approved,
       String? source,
       int? ptn,
@@ -992,15 +992,15 @@ class __$$_ProductsDataCopyWithImpl<$Res>
       likes: freezed == likes
           ? _value.likes
           : likes // ignore: cast_nullable_to_non_nullable
-              as int?,
+              as dynamic,
       comments: freezed == comments
           ? _value.comments
           : comments // ignore: cast_nullable_to_non_nullable
-              as int?,
+              as dynamic,
       favourit: freezed == favourit
           ? _value.favourit
           : favourit // ignore: cast_nullable_to_non_nullable
-              as int?,
+              as String?,
       approved: freezed == approved
           ? _value.approved
           : approved // ignore: cast_nullable_to_non_nullable
@@ -1122,11 +1122,11 @@ class _$_ProductsData implements _ProductsData {
   @override
   final DateTime? time;
   @override
-  final int? likes;
+  final dynamic likes;
   @override
-  final int? comments;
+  final dynamic comments;
   @override
-  final int? favourit;
+  final String? favourit;
   @override
   final int? approved;
   @override
@@ -1178,9 +1178,8 @@ class _$_ProductsData implements _ProductsData {
             (identical(other.description, description) ||
                 other.description == description) &&
             (identical(other.time, time) || other.time == time) &&
-            (identical(other.likes, likes) || other.likes == likes) &&
-            (identical(other.comments, comments) ||
-                other.comments == comments) &&
+            const DeepCollectionEquality().equals(other.likes, likes) &&
+            const DeepCollectionEquality().equals(other.comments, comments) &&
             (identical(other.favourit, favourit) ||
                 other.favourit == favourit) &&
             (identical(other.approved, approved) ||
@@ -1220,8 +1219,8 @@ class _$_ProductsData implements _ProductsData {
         hijab,
         description,
         time,
-        likes,
-        comments,
+        const DeepCollectionEquality().hash(likes),
+        const DeepCollectionEquality().hash(comments),
         favourit,
         approved,
         source,
@@ -1268,9 +1267,9 @@ abstract class _ProductsData implements ProductsData {
       final int? hijab,
       final String? description,
       final DateTime? time,
-      final int? likes,
-      final int? comments,
-      final int? favourit,
+      final dynamic likes,
+      final dynamic comments,
+      final String? favourit,
       final int? approved,
       final String? source,
       final int? ptn,
@@ -1318,11 +1317,11 @@ abstract class _ProductsData implements ProductsData {
   @override
   DateTime? get time;
   @override
-  int? get likes;
+  dynamic get likes;
   @override
-  int? get comments;
+  dynamic get comments;
   @override
-  int? get favourit;
+  String? get favourit;
   @override
   int? get approved;
   @override
@@ -1512,5 +1511,150 @@ abstract class _Links implements Links {
   @override
   @JsonKey(ignore: true)
   _$$_LinksCopyWith<_$_Links> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+Likes _$LikesFromJson(Map<String, dynamic> json) {
+  return _Likes.fromJson(json);
+}
+
+/// @nodoc
+mixin _$Likes {
+  String? get ip => throw _privateConstructorUsedError;
+  String? get email => throw _privateConstructorUsedError;
+
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+  @JsonKey(ignore: true)
+  $LikesCopyWith<Likes> get copyWith => throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $LikesCopyWith<$Res> {
+  factory $LikesCopyWith(Likes value, $Res Function(Likes) then) =
+      _$LikesCopyWithImpl<$Res, Likes>;
+  @useResult
+  $Res call({String? ip, String? email});
+}
+
+/// @nodoc
+class _$LikesCopyWithImpl<$Res, $Val extends Likes>
+    implements $LikesCopyWith<$Res> {
+  _$LikesCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? ip = freezed,
+    Object? email = freezed,
+  }) {
+    return _then(_value.copyWith(
+      ip: freezed == ip
+          ? _value.ip
+          : ip // ignore: cast_nullable_to_non_nullable
+              as String?,
+      email: freezed == email
+          ? _value.email
+          : email // ignore: cast_nullable_to_non_nullable
+              as String?,
+    ) as $Val);
+  }
+}
+
+/// @nodoc
+abstract class _$$_LikesCopyWith<$Res> implements $LikesCopyWith<$Res> {
+  factory _$$_LikesCopyWith(_$_Likes value, $Res Function(_$_Likes) then) =
+      __$$_LikesCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({String? ip, String? email});
+}
+
+/// @nodoc
+class __$$_LikesCopyWithImpl<$Res> extends _$LikesCopyWithImpl<$Res, _$_Likes>
+    implements _$$_LikesCopyWith<$Res> {
+  __$$_LikesCopyWithImpl(_$_Likes _value, $Res Function(_$_Likes) _then)
+      : super(_value, _then);
+
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? ip = freezed,
+    Object? email = freezed,
+  }) {
+    return _then(_$_Likes(
+      ip: freezed == ip
+          ? _value.ip
+          : ip // ignore: cast_nullable_to_non_nullable
+              as String?,
+      email: freezed == email
+          ? _value.email
+          : email // ignore: cast_nullable_to_non_nullable
+              as String?,
+    ));
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$_Likes implements _Likes {
+  const _$_Likes({this.ip, this.email});
+
+  factory _$_Likes.fromJson(Map<String, dynamic> json) =>
+      _$$_LikesFromJson(json);
+
+  @override
+  final String? ip;
+  @override
+  final String? email;
+
+  @override
+  String toString() {
+    return 'Likes(ip: $ip, email: $email)';
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$_Likes &&
+            (identical(other.ip, ip) || other.ip == ip) &&
+            (identical(other.email, email) || other.email == email));
+  }
+
+  @JsonKey(ignore: true)
+  @override
+  int get hashCode => Object.hash(runtimeType, ip, email);
+
+  @JsonKey(ignore: true)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$_LikesCopyWith<_$_Likes> get copyWith =>
+      __$$_LikesCopyWithImpl<_$_Likes>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$_LikesToJson(
+      this,
+    );
+  }
+}
+
+abstract class _Likes implements Likes {
+  const factory _Likes({final String? ip, final String? email}) = _$_Likes;
+
+  factory _Likes.fromJson(Map<String, dynamic> json) = _$_Likes.fromJson;
+
+  @override
+  String? get ip;
+  @override
+  String? get email;
+  @override
+  @JsonKey(ignore: true)
+  _$$_LikesCopyWith<_$_Likes> get copyWith =>
       throw _privateConstructorUsedError;
 }

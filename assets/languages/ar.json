@@ -37,6 +37,7 @@
     "hijab": "حجاب",
     "all": "عرض جميع الستايلات",
     "withouthijab": "بدون حجاب فقط",
+    "withhijab": "بالحجاب",
     "season": "الموسم",
     "allseasons": "جميع المواسم",
     "summeroutfits": "ستايلات صيفية",
@@ -80,5 +81,6 @@
     "choosestyle": "اختر نوع القطعة",
     "search": "بحث",
     "previouspage": "الصفحة السابقة",
-    "nextpage": "الصفحة التالية"
+    "nextpage": "الصفحة التالية",
+    "refresh": "ينعش"
 }
