@@ -730,3 +730,197 @@ abstract class _Photo implements Photo {
   _$$_PhotoCopyWith<_$_Photo> get copyWith =>
       throw _privateConstructorUsedError;
 }
+
+UpdateFolderData _$UpdateFolderDataFromJson(Map<String, dynamic> json) {
+  return _UpdateFolderData.fromJson(json);
+}
+
+/// @nodoc
+mixin _$UpdateFolderData {
+  String? get user => throw _privateConstructorUsedError;
+  String? get list_name => throw _privateConstructorUsedError;
+  String? get description => throw _privateConstructorUsedError;
+  String? get type => throw _privateConstructorUsedError;
+
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+  @JsonKey(ignore: true)
+  $UpdateFolderDataCopyWith<UpdateFolderData> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $UpdateFolderDataCopyWith<$Res> {
+  factory $UpdateFolderDataCopyWith(
+          UpdateFolderData value, $Res Function(UpdateFolderData) then) =
+      _$UpdateFolderDataCopyWithImpl<$Res, UpdateFolderData>;
+  @useResult
+  $Res call(
+      {String? user, String? list_name, String? description, String? type});
+}
+
+/// @nodoc
+class _$UpdateFolderDataCopyWithImpl<$Res, $Val extends UpdateFolderData>
+    implements $UpdateFolderDataCopyWith<$Res> {
+  _$UpdateFolderDataCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? user = freezed,
+    Object? list_name = freezed,
+    Object? description = freezed,
+    Object? type = freezed,
+  }) {
+    return _then(_value.copyWith(
+      user: freezed == user
+          ? _value.user
+          : user // ignore: cast_nullable_to_non_nullable
+              as String?,
+      list_name: freezed == list_name
+          ? _value.list_name
+          : list_name // ignore: cast_nullable_to_non_nullable
+              as String?,
+      description: freezed == description
+          ? _value.description
+          : description // ignore: cast_nullable_to_non_nullable
+              as String?,
+      type: freezed == type
+          ? _value.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as String?,
+    ) as $Val);
+  }
+}
+
+/// @nodoc
+abstract class _$$_UpdateFolderDataCopyWith<$Res>
+    implements $UpdateFolderDataCopyWith<$Res> {
+  factory _$$_UpdateFolderDataCopyWith(
+          _$_UpdateFolderData value, $Res Function(_$_UpdateFolderData) then) =
+      __$$_UpdateFolderDataCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call(
+      {String? user, String? list_name, String? description, String? type});
+}
+
+/// @nodoc
+class __$$_UpdateFolderDataCopyWithImpl<$Res>
+    extends _$UpdateFolderDataCopyWithImpl<$Res, _$_UpdateFolderData>
+    implements _$$_UpdateFolderDataCopyWith<$Res> {
+  __$$_UpdateFolderDataCopyWithImpl(
+      _$_UpdateFolderData _value, $Res Function(_$_UpdateFolderData) _then)
+      : super(_value, _then);
+
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? user = freezed,
+    Object? list_name = freezed,
+    Object? description = freezed,
+    Object? type = freezed,
+  }) {
+    return _then(_$_UpdateFolderData(
+      user: freezed == user
+          ? _value.user
+          : user // ignore: cast_nullable_to_non_nullable
+              as String?,
+      list_name: freezed == list_name
+          ? _value.list_name
+          : list_name // ignore: cast_nullable_to_non_nullable
+              as String?,
+      description: freezed == description
+          ? _value.description
+          : description // ignore: cast_nullable_to_non_nullable
+              as String?,
+      type: freezed == type
+          ? _value.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as String?,
+    ));
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$_UpdateFolderData implements _UpdateFolderData {
+  const _$_UpdateFolderData(
+      {this.user, this.list_name, this.description, this.type});
+
+  factory _$_UpdateFolderData.fromJson(Map<String, dynamic> json) =>
+      _$$_UpdateFolderDataFromJson(json);
+
+  @override
+  final String? user;
+  @override
+  final String? list_name;
+  @override
+  final String? description;
+  @override
+  final String? type;
+
+  @override
+  String toString() {
+    return 'UpdateFolderData(user: $user, list_name: $list_name, description: $description, type: $type)';
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$_UpdateFolderData &&
+            (identical(other.user, user) || other.user == user) &&
+            (identical(other.list_name, list_name) ||
+                other.list_name == list_name) &&
+            (identical(other.description, description) ||
+                other.description == description) &&
+            (identical(other.type, type) || other.type == type));
+  }
+
+  @JsonKey(ignore: true)
+  @override
+  int get hashCode =>
+      Object.hash(runtimeType, user, list_name, description, type);
+
+  @JsonKey(ignore: true)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$_UpdateFolderDataCopyWith<_$_UpdateFolderData> get copyWith =>
+      __$$_UpdateFolderDataCopyWithImpl<_$_UpdateFolderData>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$_UpdateFolderDataToJson(
+      this,
+    );
+  }
+}
+
+abstract class _UpdateFolderData implements UpdateFolderData {
+  const factory _UpdateFolderData(
+      {final String? user,
+      final String? list_name,
+      final String? description,
+      final String? type}) = _$_UpdateFolderData;
+
+  factory _UpdateFolderData.fromJson(Map<String, dynamic> json) =
+      _$_UpdateFolderData.fromJson;
+
+  @override
+  String? get user;
+  @override
+  String? get list_name;
+  @override
+  String? get description;
+  @override
+  String? get type;
+  @override
+  @JsonKey(ignore: true)
+  _$$_UpdateFolderDataCopyWith<_$_UpdateFolderData> get copyWith =>
+      throw _privateConstructorUsedError;
+}

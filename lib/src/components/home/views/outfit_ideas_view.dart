@@ -7,6 +7,7 @@ import 'package:outfit/src/base/theme.dart';
 import 'package:outfit/src/components/favorites/favorites_folders_page.dart';
 import 'package:outfit/src/components/home/dress_detail/dress_detail_page.dart';
 import 'package:outfit/src/components/home/widget/drawer_widget.dart';
+import 'package:outfit/src/components/search/search_page.dart';
 import 'package:outfit/src/data/model/pair_search_model.dart';
 import 'package:outfit/src/data/model/products_model.dart';
 import 'package:outfit/src/data/response/api_response.dart';
@@ -43,46 +44,10 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
 
   OutlineInputBorder get _inputBorder => OutlineInputBorder(
         borderRadius: BorderRadius.circular(100),
-        borderSide: const BorderSide(color: Colors.transparent),
+        borderSide: const BorderSide(color: Color(0x00000000)),
       );
   
   final scaffoldKey = GlobalKey<ScaffoldState>();
-
-  // final _allItems = <SearchModel>[
-  //   SearchModel(
-  //     title: 'Tops',
-  //     icon: AppAssets.tops,
-  //     padding: const EdgeInsets.only(left: 7.5, right: 9.5),
-  //   ),
-  //   SearchModel(
-  //     title: 'Jacket',
-  //     icon: AppAssets.jackets,
-  //     padding: const EdgeInsets.only(left: 5, right: 6),
-  //   ),
-  //   SearchModel(
-  //     title: 'Trousers',
-  //     icon: AppAssets.trousers,
-  //     padding: const EdgeInsets.symmetric(vertical: 5),
-  //   ),
-  //   SearchModel(
-  //     title: 'Shirt',
-  //     icon: AppAssets.shirt,
-  //     padding: const EdgeInsets.only(left: 5, right: 13),
-  //   ),
-  //   SearchModel(
-  //     title: 'Trousers',
-  //     icon: AppAssets.trousersTwo,
-  //     padding: const EdgeInsets.only(left: 7, right: 7),
-  //   ),
-  //   SearchModel(
-  //     title: 'Skirt',
-  //     icon: AppAssets.skirt,
-  //     padding: const EdgeInsets.only(left: 7, right: 11),
-  //   ),
-  // ];
-
-  // var _searchedItem = <SearchModel>[];
-
   @override
   Widget build(BuildContext context) {
     final filterPairProvider = Provider.of<FilterPairProvider>(context);
@@ -93,6 +58,9 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
         hijab: hijab,
         style: style,
         season: season,
+        updateList: (d){
+          favList.clear();
+        },
         callback: (newStyle, newHijab, newSeason) {
           hijab = newHijab;
           season = newSeason;
@@ -131,38 +99,35 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(16, 27.8, 16, 0),
               sliver: SliverToBoxAdapter(
-                child: TextFormField(
-                  focusNode: _searchFocusNode,
-                  controller: _searchController,
-                  onChanged: (_) {
-                    // if (_.isEmpty) {
-                    //   _searchedItem = _allItems;
-                    // } else {
-                    //   _searchedItem = _allItems
-                    //       .where((e) => e.title
-                    //           .trim()
-                    //           .toLowerCase()
-                    //           .contains(_.trim().toLowerCase()))
-                    //       .toList();
-                    // }
-                    // setState(() {});
+                child: GestureDetector(
+                  onTap: (){
+                    AppNavigation.to(context, SearchPage(
+                      productsViewModel: widget.productViewModel,
+                    ));
                   },
-                  decoration: InputDecoration(
-                    hintText: AppLocalization.of(context)!.getTranslatedValues("searchfordresses"),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 14,
-                    ),
-                    border: _inputBorder,
-                    enabledBorder: _inputBorder,
-                    focusedBorder: _inputBorder,
-                    filled: true,
-                    fillColor: const Color(0xFFFFF6F8),
-                    suffixIcon:
-                        const Icon(Icons.search, color: Color(0xFF8C8C8C)),
-                    hintStyle: GoogleFonts.inter(
-                      fontSize: 16,
-                      color: const Color(0xFF8C8C8C),
+                  child: TextFormField(
+                    focusNode: _searchFocusNode,
+                    controller: _searchController,
+                    onChanged: (_) {
+                    },
+                    decoration: InputDecoration(
+                      hintText: AppLocalization.of(context)!.getTranslatedValues("searchfordresses"),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
+                      border: _inputBorder,
+                      enabled: false,
+                      enabledBorder: _inputBorder,
+                      focusedBorder: _inputBorder,
+                      filled: true,
+                      fillColor: const Color(0xFFFFF6F8),
+                      suffixIcon:
+                          const Icon(Icons.search, color: Color(0xFF8C8C8C)),
+                      hintStyle: GoogleFonts.inter(
+                        fontSize: 16,
+                        color: const Color(0xFF8C8C8C),
+                      ),
                     ),
                   ),
                 ),
@@ -213,51 +178,6 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
                 ),
               ),
             ),
-            // SliverPadding(
-            //   padding: const EdgeInsets.only(
-            //     left: 16,
-            //     right: 16,
-            //     bottom: 8,
-            //   ),
-            //   sliver: SliverToBoxAdapter(
-            //     child: Wrap(
-            //       runSpacing: 8,
-            //       spacing: 8,
-            //       alignment: WrapAlignment.start,
-            //       children: _searchedItem.map((e) {
-            //         return Container(
-            //           decoration: BoxDecoration(
-            //             color: const Color(0xFFFFFBF9),
-            //             borderRadius: BorderRadius.circular(32),
-            //             boxShadow: [
-            //               BoxShadow(
-            //                 offset: Offset.zero,
-            //                 blurRadius: 2,
-            //                 spreadRadius: 0,
-            //                 color: Colors.black.withOpacity(0.075),
-            //               ),
-            //             ],
-            //           ),
-            //           padding: const EdgeInsets.symmetric(
-            //             vertical: 8,
-            //             horizontal: 6,
-            //           ),
-            //           child: Row(mainAxisSize: MainAxisSize.min, children: [
-            //             Image.asset(e.icon, width: 38, height: 20),
-            //             const SizedBox(width: 4),
-            //             Text(
-            //               e.title,
-            //               style: GoogleFonts.roboto(
-            //                 fontSize: 12,
-            //                 color: AppColors.blackColor,
-            //               ),
-            //             ),
-            //           ]),
-            //         );
-            //       }).toList(),
-            //     ),
-            //   ),
-            // ),
             ChangeNotifierProvider.value(
               value: widget.productViewModel,
               child: Consumer<ProductsViewModel>(
@@ -275,6 +195,7 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
                         delegate: SliverChildBuilderDelegate(
                           (_, i) {
                             List<ProductsData> products = value.productsList.data!.data!.data!;
+                            debugPrint(products[i].likes.toString());
                             if(checkIfLikeExists(
                               list: products[i].likes,
                               email: "umair@gmail.com")){
@@ -284,7 +205,19 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
                               }
                             return GestureDetector(
                               onTap: () {
-                                AppNavigation.to(context, DressDetailPage(dress: AppUrl.webUrl + products[i].url!));
+                                AppNavigation.to(context, DressDetailPage(
+                                  productViewModel: widget.productViewModel,
+                                  isFavourite: favList.contains(i) ? true : false,
+                                  dress: AppUrl.webUrl + products[i].url!,
+                                  source: products[i].source!,
+                                  imageId: products[i].uid.toString(),
+                                  likes: products[i].likes ??[],
+                                  url: AppUrl.webUrl + products[i].url!,
+                                 ),
+                                ).then((value) {
+                                  favList.clear();
+                                  widget.productViewModel.fetchPhotosList();
+                                });
                               },
                               child: GridTile(
                                 footer: GridTileBar(
@@ -300,10 +233,14 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
                                     onTap: () {
                                       if(favList.contains(i)){
                                         favList.remove(i);
-                                        widget.productViewModel.unLikeImageById();
+                                        widget.productViewModel.unLikeImageById(
+                                          id: products[i].uid!.toString()
+                                        );
                                       }else {
                                         favList.add(i);
-                                        widget.productViewModel.likeImageById();
+                                        widget.productViewModel.likeImageById(
+                                          id: products[i].uid!.toString()
+                                        );
                                       }
                                       setState(() {});
                                     },

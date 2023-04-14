@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:outfit/app_localization.dart';
 
 class FavPageTitleWidget extends StatelessWidget {
+  final String title;
   final VoidCallback onCrossback;
-  const FavPageTitleWidget({Key? key, required this.onCrossback}) : super(key: key);
+  const FavPageTitleWidget({Key? key, required this.onCrossback, required this.title}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +23,7 @@ class FavPageTitleWidget extends StatelessWidget {
           ),
         ),
         Center(
-          child: Text(AppLocalization.of(context)!.getTranslatedValues("myfavourites")!,
+          child: Text(title,
             style: GoogleFonts.montserrat(
               fontWeight: FontWeight.w600,
               fontSize: 24,

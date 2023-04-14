@@ -15,5 +15,7 @@ class AppUrl {
   static var listofTypes = "$baseUrl/types";
   static var findByPairs = "$baseUrl/photos/find-by-pairs";
   static var favouritesFolders = "$baseUrl/folders";
-
+  static var addImageToFolder = "$baseUrl/folders/images";
+  static var wardrobeList = "$baseUrl/wardrobes";
+  static var wardrobeListPhotos = "$baseUrl/wardrobes/";
 }

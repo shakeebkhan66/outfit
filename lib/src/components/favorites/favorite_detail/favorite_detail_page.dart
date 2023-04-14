@@ -10,14 +10,16 @@ import 'package:outfit/src/components/home/dress_detail/dress_detail_page.dart';
 import 'package:outfit/src/data/model/products_model.dart';
 import 'package:outfit/src/data/response/api_response.dart';
 import 'package:outfit/src/data/view_model/favourites_view_model.dart';
+import 'package:outfit/src/data/view_model/photos_view_model.dart';
 import 'package:outfit/src/utils/app_urls.dart';
-import 'package:outfit/src/widgets/get_likes_count.dart';
 import 'package:outfit/src/widgets/shimmer_loader.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 class FavoriteDetailPage extends StatefulWidget {
-  const FavoriteDetailPage({Key? key}) : super(key: key);
+  final String page;
+  final String folderName;
+  const FavoriteDetailPage({Key? key, required this.folderName, this.page = "folder"}) : super(key: key);
 
   @override
   State<FavoriteDetailPage> createState() => _FavoriteDetailPageState();
@@ -27,7 +29,12 @@ class _FavoriteDetailPageState extends State<FavoriteDetailPage> {
   final FavFoldersViewModel _favFoldersViewModel = FavFoldersViewModel();
   @override
   void initState() {
-    _favFoldersViewModel.favFolderImagesList();
+    if(widget.page == "wardrobe"){
+      TODO://[Pass Id]// pass id here
+      _favFoldersViewModel.dressMeImagesList();
+    }else {
+      _favFoldersViewModel.favFolderImagesList();
+    }
     super.initState();
   }
   @override
@@ -39,6 +46,7 @@ class _FavoriteDetailPageState extends State<FavoriteDetailPage> {
         child: Column(
           children: [
             FavPageTitleWidget(
+              title: widget.folderName,
               onCrossback: (){
                 Navigator.of(context).pop();
                 Navigator.of(context).pop();
@@ -76,6 +84,7 @@ class _FavoriteDetailPageState extends State<FavoriteDetailPage> {
                         case Status.completed:
                         return FavImagesGridView(
                           productListData: value.favFoldersImages.data!.data!.data!,
+                          favFoldersViewModel: _favFoldersViewModel,
                         );
                         case Status.error:
                         return const Text("");
@@ -93,13 +102,21 @@ class _FavoriteDetailPageState extends State<FavoriteDetailPage> {
 }
 
 
-class FavImagesGridView extends StatelessWidget {
+class FavImagesGridView extends StatefulWidget {
   final List<ProductsData>? productListData;
+  final FavFoldersViewModel favFoldersViewModel;
   const FavImagesGridView({
     super.key,
     required this.productListData,
+    required this.favFoldersViewModel,
   });
 
+  @override
+  State<FavImagesGridView> createState() => _FavImagesGridViewState();
+}
+
+class _FavImagesGridViewState extends State<FavImagesGridView> {
+  ProductsViewModel productsViewModel = ProductsViewModel();
   @override
   Widget build(BuildContext context) {
     Future<void> _share(String file) async {
@@ -112,10 +129,21 @@ class FavImagesGridView extends StatelessWidget {
           crossAxisSpacing: 15,
           mainAxisSpacing: 16,
         ),
-      children: List.generate(productListData!.length, (index) {
+      children: List.generate(widget.productListData!.length, (index) {
         return GestureDetector(
           onTap: (){
-            AppNavigation.to(context, DressDetailPage(dress: AppUrl.webUrl + productListData![index].url!));
+            AppNavigation.to(context, DressDetailPage(
+              productViewModel: productsViewModel,
+              isFavourite: widget.favFoldersViewModel.favouriteList.contains(index) ? true : false,
+              dress: AppUrl.webUrl + widget.productListData![index].url!,
+              source: widget.productListData![index].source!,
+              imageId: widget.productListData![index].uid.toString(),
+              likes: widget.productListData![index].likes,
+              url: AppUrl.webUrl + widget.productListData![index].url!,
+            ),
+           ).then((value) {
+            widget.favFoldersViewModel.favFolderImagesList();
+           });
           },
           child: GridTile(
             footer: GridTileBar(
@@ -123,22 +151,39 @@ class FavImagesGridView extends StatelessWidget {
                 onTap: () => _share(""),
                 child: const Icon(
                   Icons.share,
+                  color: AppColors.blackColor,
                 ),
               ),
-              title: productListData![index].likes != null ?
-               CustomText(list: productListData![index].likes) :
-               Container(),
-              trailing: checkIfLikeExists(
-                list: productListData![index].likes,
-                email: "nabilmahrous61@gmail.com"
-               ) ?
-               const Icon(Icons.favorite,color: Colors.red):
-               const Icon(Icons.favorite_border),
+              title: const Text(""),
+              trailing: GestureDetector(
+                onTap: (){
+                  print(widget.favFoldersViewModel.favouriteList);
+                  if(widget.favFoldersViewModel.favouriteList.contains(index)){
+                    widget.favFoldersViewModel.removeFromFavourite(index);
+                    productsViewModel.unLikeImageById(
+                      id: widget.productListData![index].uid!.toString()
+                    );
+                  }else {
+                    widget.favFoldersViewModel.addFromFavourite(index);
+                    productsViewModel.likeImageById(
+                      id: widget.productListData![index].uid!.toString()
+                    );
+                  }
+                  setState(() {});
+                },
+                child: Icon(widget.favFoldersViewModel.favouriteList.contains(index)
+                      ? Icons.favorite
+                      : Icons.favorite_border,
+                  color: widget.favFoldersViewModel.favouriteList.contains(index)
+                      ? const Color(0xFFFF2C2C)
+                      : AppColors.blackColor,
+                ),
+              ),
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(5.0),
               child: Image.network(
-                AppUrl.webUrl + productListData![index].url!,
+                AppUrl.webUrl + widget.productListData![index].url!,
                 fit: BoxFit.fill,
               ),
             ),
@@ -149,9 +194,14 @@ class FavImagesGridView extends StatelessWidget {
   }
 }
 
-class EmptyFavImagesFolder extends StatelessWidget {
+class EmptyFavImagesFolder extends StatefulWidget {
   const EmptyFavImagesFolder({super.key});
 
+  @override
+  State<EmptyFavImagesFolder> createState() => _EmptyFavImagesFolderState();
+}
+
+class _EmptyFavImagesFolderState extends State<EmptyFavImagesFolder> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(

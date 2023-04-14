@@ -112,7 +112,7 @@ class ProductsViewModel with ChangeNotifier {
 
     setLoading(true);
 
-    _myRepo.likePhoto(email: "umair@gmail.com", id: "43377").then((value){
+    _myRepo.likePhoto(email: "umair@gmail.com", id: id).then((value){
       setLoading(false);
     }).onError((error, stackTrace){
       setLoading(false);
@@ -123,7 +123,7 @@ class ProductsViewModel with ChangeNotifier {
 
     setLoading(true);
 
-    _myRepo.unLikePhoto(email: "umair@gmail.com", id: "43377").then((value){
+    _myRepo.unLikePhoto(email: "umair@gmail.com", id: id).then((value){
       setLoading(false);
     }).onError((error, stackTrace){
       setLoading(false);

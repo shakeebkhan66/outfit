@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:outfit/app_localization.dart';
 import 'package:outfit/src/base/theme.dart';
 
 class ContainerTitleWidget extends StatelessWidget {
@@ -12,7 +13,7 @@ class ContainerTitleWidget extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 28),
         child: RichText(
           text: TextSpan(
-            text: 'Show us ',
+            text: AppLocalization.of(context)!.getTranslatedValues("showus"),
             style: GoogleFonts.montserrat(
               fontWeight: FontWeight.w600,
               fontSize: 20,
@@ -20,7 +21,7 @@ class ContainerTitleWidget extends StatelessWidget {
             ),
             children: [
               TextSpan(
-                text: 'your Clothes',
+                text: AppLocalization.of(context)!.getTranslatedValues("yourclothes"),
                 style: GoogleFonts.montserrat(
                   fontWeight: FontWeight.w600,
                   fontSize: 20,
@@ -33,8 +34,7 @@ class ContainerTitleWidget extends StatelessWidget {
       ),
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 28),
-        child: Text(
-          'Click on tab to add color and no. of item',
+        child: Text(AppLocalization.of(context)!.getTranslatedValues("clickontabtoadd")!,
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w500,
             fontSize: 12,

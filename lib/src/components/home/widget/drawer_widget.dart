@@ -15,12 +15,14 @@ class DrawerWidget extends StatefulWidget {
     required this.season,
     required this.callback,
     required this.productsViewModel,
+    required this.updateList,
   }) : super(key: key);
 
   final Styles style;
   final Hijab hijab;
   final Seasons season;
   final void Function(Styles, Hijab, Seasons) callback;
+  final void Function(String?) updateList;
   final ProductsViewModel productsViewModel;
 
   @override
@@ -128,6 +130,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                       widget.productsViewModel.setFilterValues(styleValue, hijabValue, seasonValue);
                       widget.productsViewModel.setCurrentPage(Pages.filter);
                       widget.productsViewModel.filterPhotoPhotosList();
+                      widget.updateList.call("d");
                       AppNavigation.pop(context);
                     },
                     child: Text(AppLocalization.of(context)!.getTranslatedValues("apply")!,

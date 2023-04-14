@@ -98,5 +98,23 @@ class NetworkApiService extends BaseApiServices {
     }
     return responseJson;
   }
+  
+  @override
+  Future getDeleteApiResponse(String url) async{
+    print(url);
+    print(apiKey);
+    dynamic responseJson;
+    try {
+      Response response = await dio.delete(
+        url,
+      ).timeout(const Duration(seconds: 10));
+      responseJson = returnResponse(response);
+    }on SocketException {
+      throw FetchDataException('No Internet Connection');
+    }on DioError catch (ex){
+      throw Exception(ex.response!.data!['message']);
+    }
+    return responseJson;
+  }
 
 }

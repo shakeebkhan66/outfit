@@ -45,3 +45,15 @@ class Photo with _$Photo {
 
 	factory Photo.fromJson(Map<String, dynamic> json) => _$PhotoFromJson(json);
 }
+
+@freezed
+class UpdateFolderData with _$UpdateFolderData {
+	const factory UpdateFolderData({
+String? user,
+String? list_name,
+String? description,
+String? type,
+	}) = _UpdateFolderData;
+
+	factory UpdateFolderData.fromJson(Map<String, dynamic> json) => _$UpdateFolderDataFromJson(json);
+}

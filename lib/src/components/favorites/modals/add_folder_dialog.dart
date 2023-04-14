@@ -73,7 +73,7 @@ class _AddFolderDialogState extends State<AddFolderDialog> with FormStateMixin {
                   focusedBorder: _border,
                 ),
               ),
-              const SizedBox(height: 56),
+              const SizedBox(height: 26),
               Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                 Expanded(
                   child: ElevatedButton(

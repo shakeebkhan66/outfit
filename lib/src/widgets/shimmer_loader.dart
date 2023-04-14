@@ -141,3 +141,76 @@ class _FavFolderShimmerLoaderState extends State<FavFolderShimmerLoader> {
     );
   }
 }
+
+class WardrobeColorShimmerLoader extends StatefulWidget {
+
+  const WardrobeColorShimmerLoader({Key? key}) : super(key: key);
+
+  @override
+  State<WardrobeColorShimmerLoader> createState() => _WardrobeColorShimmerLoaderState();
+}
+
+class _WardrobeColorShimmerLoaderState extends State<WardrobeColorShimmerLoader> {
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(
+        left: 35,
+        right: 34,
+        top: 70,
+        bottom: 30,
+      ),
+      child: Column(
+        children: List.generate(8, (index) {
+          return Container(
+            margin: const EdgeInsets.symmetric(vertical: 8.0),
+            width: double.infinity,
+            height: 70.0,
+            child: ShimmerLoader(
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10.0),
+                color: Colors.grey[300],
+              ),
+            ),
+           ),
+          );
+        }),
+      ),
+    );
+  }
+}
+
+class FolderShimmerLoader extends StatefulWidget {
+
+  const FolderShimmerLoader({Key? key}) : super(key: key);
+
+  @override
+  State<FolderShimmerLoader> createState() => _FolderShimmerLoaderState();
+}
+
+class _FolderShimmerLoaderState extends State<FolderShimmerLoader> {
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(12.0),
+      child: Column(
+        children: List.generate(4, (index) {
+          return Container(
+            margin: const EdgeInsets.symmetric(vertical: 8.0),
+            width: double.infinity,
+            height: 35.0,
+            child: ShimmerLoader(
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(2.0),
+                color: Colors.grey[300],
+              ),
+            ),
+           ),
+          );
+        }),
+      ),
+    );
+  }
+}

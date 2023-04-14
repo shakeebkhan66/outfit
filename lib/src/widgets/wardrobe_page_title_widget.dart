@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:outfit/app_localization.dart';
 
 class WardrobePageTitleWidget extends StatelessWidget {
   const WardrobePageTitleWidget({Key? key}) : super(key: key);
@@ -28,11 +29,10 @@ class WardrobePageTitleWidget extends StatelessWidget {
           ],
         ),
       ),
-      subtitle: Text(
-        'Let us Help You Dress like a Fashionista',
+      subtitle: Text(AppLocalization.of(context)!.getTranslatedValues("letushelpyoudress")!,
         style: GoogleFonts.montserrat(
           fontWeight: FontWeight.w500,
-          fontSize: 12,
+          fontSize: 11,
           color: Colors.white,
         ),
       ),

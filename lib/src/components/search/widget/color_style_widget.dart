@@ -141,7 +141,7 @@ class _ColorStyleWidgetState extends State<ColorStyleWidget> {
                                                 Expanded(
                                                   flex: 2,
                                                   child:
-                                                  _getGradientContainer(
+                                                  getGradientContainer(
                                                       _selectedGradientColors[i]!
                                                           .values.first,
                                                       false),
@@ -224,8 +224,8 @@ class _ColorStyleWidgetState extends State<ColorStyleWidget> {
                                           colors.name!
                                         ),
                                         colors.pattern!!="" ?
-                                        _getImageContainer(colors.pattern!):
-                                        _getGradientContainer(
+                                        getImageContainer(colors.pattern!):
+                                        getGradientContainer(
                                           [
                                             hexToColor(colors.hex!),
                                             hexToColor(colors.hex!).withOpacity(0.1),
@@ -364,17 +364,27 @@ class _ColorStyleWidgetState extends State<ColorStyleWidget> {
     );
   }
 
-  Widget _getGradientContainer(List<dynamic> colors, [bool hasPadding = true]) {
+  
+}
+Widget getGradientContainer(
+    List<dynamic> colors,
+    [
+      bool hasPadding = true, 
+      double width = double.infinity, 
+      bool isCircle=false
+    ]
+    ) {
     List<Color> listColor = colors.whereType<Color>().toList();
     return Container(
-      width: double.infinity,
-      height: 13,
-      margin: hasPadding
+      width: width,
+      height: isCircle ? 13 : 13,
+      margin: isCircle ? const EdgeInsets.only(right: 5.0, bottom: 7.0) : hasPadding
           ? const EdgeInsets.symmetric(horizontal: 34, vertical: 8)
           : const EdgeInsets.symmetric(vertical: 8),
       decoration: colors.length < 2 ? null : 
       BoxDecoration(
-        borderRadius: BorderRadius.circular(3),
+        borderRadius: isCircle ? null : BorderRadius.circular(3),
+        shape: isCircle ? BoxShape.circle : BoxShape.rectangle,
         gradient: LinearGradient(colors: listColor),
       ),
       child: colors.length < 2 ? Image.network("https://stylorita.com/admin/${colors.first}",
@@ -382,16 +392,28 @@ class _ColorStyleWidgetState extends State<ColorStyleWidget> {
       ) : Container(),
     );
   }
-  Widget _getImageContainer(String pattern,[bool hasPadding = true]) {
+  Widget getImageContainer(
+    String pattern,
+    [
+      bool hasPadding = true, 
+      double width = double.infinity, 
+      bool isCircle=false
+    ]
+    ) {
     return Container(
-      width: double.infinity,
-      height: 13,
-      margin: hasPadding
+      width: width,
+      height: isCircle ? 13 : 13,
+      decoration: BoxDecoration(
+        shape: isCircle ? BoxShape.circle : BoxShape.rectangle,
+      ),
+      margin: isCircle ? const EdgeInsets.only(right: 5.0 , bottom: 7.0) : hasPadding
           ? const EdgeInsets.symmetric(horizontal: 34, vertical: 8)
           : const EdgeInsets.symmetric(vertical: 8),
-      child: Image.network("https://stylorita.com/admin/$pattern",
-        fit: BoxFit.cover,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(isCircle ? 12.5 : 0.0),
+        child: Image.network("https://stylorita.com/admin/$pattern",
+          fit: BoxFit.cover,
+        ),
       ),
     );
   }
-}

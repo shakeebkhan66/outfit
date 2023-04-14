@@ -7,6 +7,7 @@ import 'package:outfit/src/base/theme.dart';
 import 'package:outfit/src/components/favorites/favorite_detail/favorite_detail_page.dart';
 import 'package:outfit/src/components/favorites/modals/add_folder_dialog.dart';
 import 'package:outfit/src/components/favorites/widget/fav_page_title_widget.dart';
+import 'package:outfit/src/data/model/favourites_folder.dart';
 import 'package:outfit/src/data/response/api_response.dart';
 import 'package:outfit/src/data/view_model/favourites_view_model.dart';
 import 'package:outfit/src/utils/app_urls.dart';
@@ -53,6 +54,7 @@ class _FavoritesFolderPageState extends State<FavoritesFolderPage> {
         padding: EdgeInsets.only(top: padding.top, bottom: padding.bottom),
         child: Column(children: [
           FavPageTitleWidget(
+            title: AppLocalization.of(context)!.getTranslatedValues("myfavourites")!,
             onCrossback: (){
               Navigator.of(context).pop();
             },
@@ -75,7 +77,7 @@ class _FavoritesFolderPageState extends State<FavoritesFolderPage> {
                           case Status.loading:
                           return const FavFolderShimmerLoader();
                           case Status.error:
-                          return const Text("data");
+                          return const Text("error");
                           case Status.completed:
                           return Expanded(
                             child: GridView.builder(
@@ -159,7 +161,9 @@ class _FavoritesFolderPageState extends State<FavoritesFolderPage> {
                                   onTap: () {
                                     AppNavigation.to(
                                       context,
-                                      const FavoriteDetailPage(),
+                                      FavoriteDetailPage(
+                                        folderName: fav.list_name!,
+                                      ),
                                     );
                                   },
                                   child: Container(
@@ -173,13 +177,14 @@ class _FavoritesFolderPageState extends State<FavoritesFolderPage> {
                                         Column(
                                           mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
-                                            if(fav.first_image == null)
+                                            if(fav.first_image == null || fav.first_image!.photo==null)
                                             Image.asset(AppAssets.imagePlaceholder, width: 35, height: 30)
                                             else
                                             ClipRRect(
                                               borderRadius: BorderRadius.circular(5.0),
                                               child: Image.network( AppUrl.webUrl + fav.first_image!.photo!.url!,
                                                 width: 50.0,
+                                                height: 60.0,
                                                 fit: BoxFit.fitWidth,
                                               ),
                                             ),
@@ -230,10 +235,19 @@ class _FavoritesFolderPageState extends State<FavoritesFolderPage> {
                                                 if (_ == 0) {
                                                   await AddFolderDialog(
                                                     callback: (_) {
+                                                        _favFoldersViewModel.updateFolderName(
+                                                          fav.id.toString(), UpdateFolderData(
+                                                            user: "2906",
+                                                            description: "des",
+                                                            type: "outfit",
+                                                            list_name: _,
+                                                          ),
+                                                        );
                                                       setState(() {});
                                                     },
                                                   ).show(context);
                                                 } else {
+                                                  _favFoldersViewModel.deleteFolder(fav.id.toString());
                                                   setState(() {});
                                                 }
                                               },
