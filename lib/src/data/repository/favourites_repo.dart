@@ -1,6 +1,10 @@
 
+
+
+
 import 'package:outfit/src/data/model/favourites_folder.dart';
 import 'package:outfit/src/data/model/products_model.dart';
+import 'package:outfit/src/data/model/products_model.dart' as productModel;
 import 'package:outfit/src/data/network/base_api_service.dart';
 import 'package:outfit/src/data/network/network_api_service.dart';
 import 'package:outfit/src/utils/app_urls.dart';
@@ -9,12 +13,27 @@ class FavFolderRepository {
 
   final BaseApiServices _apiServices = NetworkApiService() ;
 
-  Future<FavouritesFolder> fetchAllFavFolders(String userId)async{
+  Future<FavouritesFolder> fetchAllFavFolders({required String userId})async{
 
     try{
 
       dynamic response = await _apiServices.getGetApiResponse("${AppUrl.favouritesFolders}/$userId");
       return response = FavouritesFolder.fromJson(response);
+
+    }catch(e){
+      rethrow ;
+    }
+  }
+
+  Future<dynamic> addFavFolders(dynamic data)async{
+
+    try{
+
+      dynamic response = await _apiServices.getPostApiResponse(
+        AppUrl.favouritesFolders,
+        data,
+      );
+      return response;
 
     }catch(e){
       rethrow ;
@@ -47,11 +66,14 @@ class FavFolderRepository {
     }
   }
 
-  Future<ProductsModel> fetchAllFavImages(String userId)async{
+  Future<ProductsModel> fetchAllFavImages({required String folderId, required int page})async{
 
     try{
 
-      dynamic response = await _apiServices.getGetApiResponse("${AppUrl.favouritesFolders}/$userId/images");
+      dynamic response = await _apiServices.getGetApiResponse("${AppUrl.favouritesFolders}/$folderId/images?page=$page");
+      if(response['message'] == "Resource not found!"){
+        return response = const ProductsModel(message: "",data: productModel.Data());
+      }
       return response = ProductsModel.fromJson(response);
 
     }catch(e){
@@ -59,11 +81,11 @@ class FavFolderRepository {
     }
   }
 
-  Future<ProductsModel> wardrobeImages(String userId)async{
+  Future<ProductsModel> wardrobeImages({required String userId, required int page})async{
 
     try{
 
-      dynamic response = await _apiServices.getGetApiResponse("${AppUrl.wardrobeListPhotos}/$userId/photos");
+      dynamic response = await _apiServices.getGetApiResponse("${AppUrl.wardrobeListPhotos}$userId/photos?page=$page");
       return response = ProductsModel.fromJson(response);
 
     }catch(e){
@@ -71,7 +93,7 @@ class FavFolderRepository {
     }
   }
 
-  Future<dynamic> AddFolderImages(String userId, dynamic data)async{
+  Future<dynamic> AddFolderImages({dynamic data})async{
 
     try{
 

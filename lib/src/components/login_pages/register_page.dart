@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:outfit/app_localization.dart';
 import 'package:outfit/src/base/assets.dart';
@@ -6,6 +8,7 @@ import 'package:outfit/src/base/theme.dart';
 import 'package:outfit/src/components/login_pages/login_page.dart';
 import 'package:outfit/src/data/model/user_model.dart';
 import 'package:outfit/src/data/view_model/auth_view_model.dart';
+import 'package:outfit/src/utils/form_validator.dart';
 import 'package:outfit/src/widgets/app_button_widget.dart';
 import 'package:outfit/src/widgets/custom_loader.dart';
 import 'package:provider/provider.dart';
@@ -21,7 +24,7 @@ class RegisterPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authViewModel = Provider.of<AuthViewModel>(context);
-
+    final formKey = GlobalKey<FormState>();
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -36,120 +39,133 @@ class RegisterPage extends StatelessWidget {
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(12.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(height: 20.0),
-              CustomTextField(
-                prefixIcon: Icons.person,
-                controller: _firstNameController,
-                hintText: 'firstname',
-              ),
-              const SizedBox(height: 20.0),
-              CustomTextField(
-                prefixIcon: Icons.person,
-                controller: _lastNameController,
-                hintText: 'lastname',
-              ),
-              const SizedBox(height: 20.0),
-              CustomTextField(
-                prefixIcon: Icons.email,
-                controller: _emailController,
-                hintText: 'email',
-                keyboardType: TextInputType.emailAddress,
-              ),
-              const SizedBox(height: 20.0),
-              CustomTextField(
-                prefixIcon: Icons.lock,
-                controller: _passwordController,
-                hintText: 'password',
-                obscureText: true,
-                keyboardType: TextInputType.visiblePassword,
-              ),
-              const SizedBox(height: 40.0),
-              authViewModel.signUpLoading ? 
-              const CustomLoader() : 
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 28.0),
-                child: AppButtonWidget(
-                  onTap: () {
-                    authViewModel.signUpApi(UserModel(
-                      first_name: _firstNameController.text,
-                      last_name: _lastNameController.text,
-                      email: _emailController.text,
-                      type: 'user',
-                      password: _passwordController.text,
-                    ).toJson(), context);
-                  },
-                  title: 'register',
-                  buttonRadius: 15,
+          child: Form(
+            key: formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(height: 20.0),
+                CustomTextField(
+                  prefixIcon: Icons.person,
+                  controller: _firstNameController,
+                  hintText: 'firstname',
+                  validator: FormValidator.nameValidator,
                 ),
-              ),
-              const SizedBox(height: 20.0),
-              Row(
-                children: [
-                  const Expanded(
-                    child: Divider(
-                      color: Colors.grey,
-                      thickness: 1.0,
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 30.0),
-                    child: Text(AppLocalization.of(context)!
-                        .getTranslatedValues('or')!,
-                      style: const TextStyle(
-                        color: Colors.grey,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  const Expanded(
-                    child: Divider(
-                      color: Colors.grey,
-                      thickness: 1.0,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 15.0),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SocialAuthButton(
-                    image: AppAssets.google, 
-                    onPressed: (){},
-                  ),
-                  SocialAuthButton(
-                    image: AppAssets.facebook, 
-                    onPressed: (){},
-                  ),
-                  SocialAuthButton(
-                    image: AppAssets.apple, 
-                    onPressed: (){},
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20.0),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(AppLocalization.of(context)!
-                        .getTranslatedValues('alreadyhaveaccount')!),
-                  TextButton(
-                    onPressed: () {
-                      AppNavigation.to(context, LoginPage());
+                const SizedBox(height: 20.0),
+                CustomTextField(
+                  prefixIcon: Icons.person,
+                  controller: _lastNameController,
+                  hintText: 'lastname',
+                  validator: FormValidator.lastnameValidator,
+                ),
+                const SizedBox(height: 20.0),
+                CustomTextField(
+                  prefixIcon: Icons.email,
+                  controller: _emailController,
+                  validator: FormValidator.emailValidator,
+                  hintText: 'email',
+                  keyboardType: TextInputType.emailAddress,
+                ),
+                const SizedBox(height: 20.0),
+                CustomTextField(
+                  prefixIcon: Icons.lock,
+                  controller: _passwordController,
+                  validator: FormValidator.passwordValidator,
+                  hintText: 'password',
+                  obscureText: true,
+                  keyboardType: TextInputType.visiblePassword,
+                ),
+                const SizedBox(height: 40.0),
+                authViewModel.signUpLoading ? 
+                const CustomLoader() : 
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 28.0),
+                  child: AppButtonWidget(
+                    onTap: () {
+                      if(formKey.currentState!.validate()){
+                        authViewModel.signUpApi(UserModel(
+                          first_name: _firstNameController.text,
+                          last_name: _lastNameController.text,
+                          email: _emailController.text,
+                          type: 'user',
+                          authProvider: AuthProvider.email,
+                          password: _passwordController.text,
+                        ), context);
+                      }
                     },
-                    child: Text(AppLocalization.of(context)!
-                        .getTranslatedValues('login')!,
-                      style: const TextStyle(
-                        color: AppColors.primaryColor,
+                    title: 'register',
+                    buttonRadius: 15,
+                  ),
+                ),
+                const SizedBox(height: 20.0),
+                Row(
+                  children: [
+                    const Expanded(
+                      child: Divider(
+                        color: Colors.grey,
+                        thickness: 1.0,
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                      child: Text(AppLocalization.of(context)!
+                          .getTranslatedValues('or')!,
+                        style: const TextStyle(
+                          color: Colors.grey,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    const Expanded(
+                      child: Divider(
+                        color: Colors.grey,
+                        thickness: 1.0,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 15.0),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SocialAuthButton(
+                      image: AppAssets.google, 
+                      onPressed: (){},
+                    ),
+                    SocialAuthButton(
+                      image: AppAssets.facebook, 
+                      onPressed: (){},
+                    ),
+                    if(Platform.isAndroid)
+                    Container()
+                    else
+                    SocialAuthButton(
+                      image: AppAssets.apple, 
+                      onPressed: (){},
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20.0),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(AppLocalization.of(context)!
+                          .getTranslatedValues('alreadyhaveaccount')!),
+                    TextButton(
+                      onPressed: () {
+                        AppNavigation.to(context, LoginPage());
+                      },
+                      child: Text(AppLocalization.of(context)!
+                          .getTranslatedValues('login')!,
+                        style: const TextStyle(
+                          color: AppColors.primaryColor,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -163,6 +179,7 @@ class CustomTextField extends StatefulWidget {
   final TextInputType keyboardType;
   final bool obscureText;
   final IconData prefixIcon;
+  final String? Function(String? value)? validator;
 
   const CustomTextField({
     Key? key,
@@ -171,6 +188,7 @@ class CustomTextField extends StatefulWidget {
     this.keyboardType = TextInputType.emailAddress,
     this.obscureText = false,
     required this.prefixIcon,
+    this.validator,
   }) : super(key: key);
 
   @override
@@ -188,7 +206,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
   }
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    return TextFormField(
+      validator: widget.validator,
       controller: widget.controller,
       decoration: InputDecoration(
         hintText: AppLocalization.of(context)!.getTranslatedValues(widget.hintText)!,

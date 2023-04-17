@@ -5,11 +5,13 @@ import 'package:outfit/src/base/assets.dart';
 import 'package:outfit/src/base/nav.dart';
 import 'package:outfit/src/base/theme.dart';
 import 'package:outfit/src/components/auth/social_auth_page.dart';
+import 'package:outfit/src/components/home/home_page.dart';
+import 'package:outfit/src/data/repository/auth_local_data_repo.dart';
 import 'package:outfit/src/providers/language_provider.dart';
 import 'package:outfit/src/utils/const.dart';
 import 'package:outfit/src/widgets/app_button_widget.dart';
 import 'package:provider/provider.dart';
-
+import 'package:dart_ipify/dart_ipify.dart';
 class LanguageSelectionPage extends StatefulWidget {
   const LanguageSelectionPage({Key? key}) : super(key: key);
 
@@ -19,7 +21,16 @@ class LanguageSelectionPage extends StatefulWidget {
 
 class _LanguageSelectionPageState extends State<LanguageSelectionPage> {
   var _selectedLanguage = 'en_us';
-
+  @override
+  void initState() {
+    saveIpAddress();
+    super.initState();
+  }
+  saveIpAddress() async {
+    final ipv4 = await Ipify.ipv4();
+    print(ipv4);
+    AuthLocalDataSource.setIp(ipv4);
+  }
   @override
   Widget build(BuildContext context) {
     final padding = MediaQuery.of(context).padding;
@@ -118,7 +129,7 @@ class _LanguageSelectionPageState extends State<LanguageSelectionPage> {
               padding: const EdgeInsets.symmetric(horizontal: 28.0),
               child: AppButtonWidget(
                 onTap: () {
-                  AppNavigation.to(context, const SocialAuthPage());
+                  AppNavigation.navigateRemoveUntil(context, const HomePage());
                 },
                 title: 'continue',
                 buttonRadius: 15,

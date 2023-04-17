@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">stylorita app</string>
+    <string name="facebook_app_id">904677217464327</string>
+    <string name="fb_login_protocol_scheme">fb904677217464327</string>
+    <string name="facebook_client_token">f1f82ec97dedf84d6aefca49e216ed6b</string>
+</resources>

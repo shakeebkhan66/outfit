@@ -2,31 +2,39 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:outfit/app_localization.dart';
 import 'package:outfit/src/base/assets.dart';
+import 'package:outfit/src/base/nav.dart';
 import 'package:outfit/src/base/theme.dart';
+import 'package:outfit/src/components/auth/social_auth_page.dart';
+import 'package:outfit/src/data/repository/auth_local_data_repo.dart';
 import 'package:outfit/src/data/response/api_response.dart';
 import 'package:outfit/src/data/view_model/favourites_view_model.dart';
 import 'package:outfit/src/data/view_model/photos_view_model.dart';
 import 'package:outfit/src/widgets/custom_loader.dart';
-import 'package:outfit/src/widgets/get_likes_count.dart';
 import 'package:outfit/src/widgets/shimmer_loader.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DressDetailPage extends StatefulWidget {
-  final ProductsViewModel productViewModel;
+  final ProductsViewModel? productViewModel;
+  final FavFoldersViewModel? favFoldersViewModel;
   final String imageId;
-  final List<dynamic> likes;
   final String source;
   final String url;
   final bool isFavourite;
+  final int index;
+  final String page;
   const DressDetailPage({
     Key? key, 
-    required this.productViewModel,
+    this.productViewModel,
+    this.favFoldersViewModel,
     required this.dress,
-    required this.likes,
     required this.source,
     required this.imageId,
     required this.url,
     required this.isFavourite,
+    required this.index,
+    required this.page,
   }) : super(key: key);
 
   final String dress;
@@ -36,18 +44,29 @@ class DressDetailPage extends StatefulWidget {
 }
 
 class _DressDetailPageState extends State<DressDetailPage> {
+
+  final String email = AuthLocalDataSource.getEmail();
+  final String ip = AuthLocalDataSource.getIp();
   bool isFav = false;
-  int count = 0;
 
   @override
   void initState() {
     setState(() {
       print(widget.isFavourite);
       isFav = widget.isFavourite;
-      count = likesCount(widget.likes);
     });
     super.initState();
   }
+  Future<void> _share(String file) async {
+      await Share.share(file);
+  }
+  void openInstagramProfile(String url) async {
+  if (await canLaunchUrl(Uri.parse(url))) {
+    await launchUrl(Uri.parse(url));
+  } else {
+    throw 'Could not launch $url';
+  }
+}
   @override
   Widget build(BuildContext context) {
     final padding = MediaQuery.of(context).padding;
@@ -82,14 +101,26 @@ class _DressDetailPageState extends State<DressDetailPage> {
                       onTap: (){
                         if(isFav){
                           isFav = false;
-                            count = count - 1;
-                            widget.productViewModel.unLikeImageById(
+                            if(widget.page == "outfit"){
+                              widget.productViewModel!.decrementFromFavourite(widget.index);
+                            } else {
+                              widget.favFoldersViewModel!.decrementFromFavourite(widget.index);
+                            }
+                            widget.productViewModel!.unLikeImageById(
+                              email: email,
+                              ip: ip,
                               id: widget.imageId,
                             );
                           }else {
                             isFav = true;
-                            count = count + 1;
-                            widget.productViewModel.likeImageById(
+                            if(widget.page == "outfit") {
+                             widget.productViewModel!.incrementFromFavourite(widget.index);
+                            } else {
+                              widget.favFoldersViewModel!.incrementFromFavourite(widget.index);
+                            }
+                            widget.productViewModel!.likeImageById(
+                              email: email,
+                              ip: ip,
                               id: widget.imageId,
                             );
                           }
@@ -104,44 +135,61 @@ class _DressDetailPageState extends State<DressDetailPage> {
                         ),
                     ),
                     const SizedBox(width: 10),
-                    Text(count.toString()),
+                    if(widget.page == "outfit")
+                    Text(widget.productViewModel!.likesList[widget.index].toString())
+                    else
+                    Text(widget.favFoldersViewModel!.likesList[widget.index].toString()),
                     const Spacer(),
-                    const Icon(
-                      Icons.share,
-                      color: AppColors.blackColor,
+                    IconButton(
+                      onPressed: (){
+                        _share(widget.url);
+                      },
+                      icon: const Icon(
+                        Icons.share,
+                        color: AppColors.blackColor,
+                      ),
                     ),
                     const SizedBox(width: 19.5),
                     IconButton(
                       icon: const Icon(Icons.bookmark_border, size: 26),
                       onPressed: (){
-                        showModalBottomSheet(
-                          isScrollControlled: true,
-                          context: context,
-                          builder: (BuildContext context) {
-                            return CustomBottomSheet(imageId: widget.imageId);
-                          },
-                        );
+                        if(email == "") {
+                          AppNavigation.to(context, const SocialAuthPage());
+                        }else {
+                          showModalBottomSheet(
+                            isScrollControlled: true,
+                            context: context,
+                            builder: (BuildContext context) {
+                              return CustomBottomSheet(imageId: widget.imageId);
+                            },
+                          );
+                        }
                       },
                     ),
                   ]),
                 ),
-                Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF1F1F1),
-                    borderRadius: BorderRadius.circular(100),
-                  ),
-                  padding: const EdgeInsets.fromLTRB(42.5, 15.67, 44.17, 15.67),
-                  child: Row(mainAxisSize: MainAxisSize.min, children: [
-                    Text(AppLocalization.of(context)!.getTranslatedValues("source")!,
-                      style: GoogleFonts.roboto(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w500,
-                        color: const Color(0xFF8C8C8C),
-                      ),
+                InkWell(
+                  onTap: () {
+                    openInstagramProfile(widget.source);
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF1F1F1),
+                      borderRadius: BorderRadius.circular(100),
                     ),
-                    const SizedBox(width: 9.67),
-                    Image.asset(AppAssets.instagram, height: 16.67, width: 16.67),
-                  ]),
+                    padding: const EdgeInsets.fromLTRB(42.5, 15.67, 44.17, 15.67),
+                    child: Row(mainAxisSize: MainAxisSize.min, children: [
+                      Text(AppLocalization.of(context)!.getTranslatedValues("source")!,
+                        style: GoogleFonts.roboto(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w500,
+                          color: const Color(0xFF8C8C8C),
+                        ),
+                      ),
+                      const SizedBox(width: 9.67),
+                      Image.asset(AppAssets.instagram, height: 16.67, width: 16.67),
+                    ]),
+                  ),
                 ),
               ]),
             ),
@@ -163,10 +211,13 @@ class CustomBottomSheet extends StatefulWidget {
 
 class _CustomBottomSheetState extends State<CustomBottomSheet> {
   final FavFoldersViewModel favFoldersViewModel = FavFoldersViewModel();
+  final String userId = AuthLocalDataSource.getUserid();
 
   @override
   void initState() {
-    favFoldersViewModel.favFoldersList();
+    favFoldersViewModel.favFoldersList(
+      userId: userId,
+    );
     super.initState();
   }
   @override
@@ -200,7 +251,7 @@ class _CustomBottomSheetState extends State<CustomBottomSheet> {
                   builder: (context, value, child) {
                     switch (value.favFolders.status!) {
                       case Status.completed:
-                        return Stack(
+                        return value.favFolders.data!.data!.isEmpty ? const Text("No folders added"): Stack(
                           alignment: Alignment.center,
                           children: [
                             Column(
@@ -209,11 +260,14 @@ class _CustomBottomSheetState extends State<CustomBottomSheet> {
                                 children: [
                                   ListTile(
                                     onTap: (){
-                                      favFoldersViewModel.addImageToFolderApi({
-                                        "user": "2794263897328614",
+                                      favFoldersViewModel.addImageToFolderApi(
+                                        data: {
+                                        "user": userId,
                                         "list": folders.id,
                                         "img": widget.imageId,
-                                      }, folders.list_name!, context);
+                                      },
+                                      folderName: folders.list_name!,
+                                      context: context);
                                     },
                                     dense: true,
                                     title: Text(folders.list_name!),

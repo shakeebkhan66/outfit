@@ -36,12 +36,14 @@ class WardrobeViewModel with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> fetchWardrobeList() async {
+  Future<void> fetchWardrobeList({required String userid}) async {
 
     setColorsList(ApiResponse.loading());
 
     _myRepo.fetchAllColors().then((colors){
-    _myRepo.fetchAllWardrobeList("2794263897328614").then((wardrobelist){
+    _myRepo.fetchAllWardrobeList(
+      userId: userid,
+    ).then((wardrobelist){
       setColorsList(
         ApiResponse.completed(
           WardrobeModels(colorsModel: colors,wardrobeListModel: wardrobelist)

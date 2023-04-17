@@ -4,11 +4,13 @@ import 'package:outfit/app_localization.dart';
 import 'package:outfit/src/base/assets.dart';
 import 'package:outfit/src/base/nav.dart';
 import 'package:outfit/src/base/theme.dart';
+import 'package:outfit/src/components/auth/social_auth_page.dart';
 import 'package:outfit/src/components/home/views/outfit_ideas_view.dart';
 import 'package:outfit/src/components/home/views/wardrobe_view.dart';
-import 'package:outfit/src/components/save_wardrobe/save_wardrobe_page.dart';
 import 'package:outfit/src/components/search/search_page.dart';
+import 'package:outfit/src/data/repository/auth_local_data_repo.dart';
 import 'package:outfit/src/data/view_model/photos_view_model.dart';
+import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -18,62 +20,26 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final String email = AuthLocalDataSource.getEmail();
   final ProductsViewModel _productsViewModel = ProductsViewModel();
-  var _pageIndex = 0;
-  late List<Map<String, Widget>> _pages;
-  void _selectPage(int index) {
-    _pageIndex = index;
-    if (_pageIndex == 0) {
-      _pages = [
-        {'page': OutfitIdeasView(
-          productViewModel: _productsViewModel,
-        )},
-        {
-          'page': WardrobeView(
-            onSaveTap: () {
-              _pages = [
-                {'page': OutfitIdeasView(
-                  productViewModel: _productsViewModel,
-                )},
-                {'page': const SaveWardrobePage()},
-              ];
-              setState(() {});
-            },
-          ),
-        },
-      ];
-    }
-    setState(() {});
-  }
+  late final List<Widget> _pages = [
+    OutfitIdeasView(
+      productViewModel: _productsViewModel,
+    ),
+    const WardrobeView(),
+  ];
 
   @override
   void initState() {
-    _pages = [
-      {'page': OutfitIdeasView(
-        productViewModel: _productsViewModel,
-      )},
-      {
-        'page': WardrobeView(
-          onSaveTap: () {
-            _pages = [
-              {'page': OutfitIdeasView(
-                productViewModel: _productsViewModel,
-              )},
-              {'page': const SaveWardrobePage()},
-            ];
-            setState(() {});
-          },
-        ),
-      },
-    ];
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    final page = Provider.of<ProductsViewModel>(context);
     final keyboardIsOpened = MediaQuery.of(context).viewInsets.bottom != 0.0;
     Widget? floatingActionButton;
-    if (!(keyboardIsOpened || _pageIndex != 0)) {
+    if (!(keyboardIsOpened || _productsViewModel.getIndex != 0)) {
       floatingActionButton = Transform.scale(
         scale: 1.2,
         child: FloatingActionButton(
@@ -102,7 +68,7 @@ class _HomePageState extends State<HomePage> {
       extendBody: true,
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
-      body: _pages[_pageIndex]['page'],
+      body: _pages[page.getIndex],
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: floatingActionButton,
       bottomNavigationBar: BottomAppBar(
@@ -121,14 +87,14 @@ class _HomePageState extends State<HomePage> {
                 padding: const EdgeInsets.only(right: 20.0),
                 child: InkWell(
                   onTap: () {
-                    _selectPage(0);
+                    page.setSetIndex(0);
                   },
                   child: Column(mainAxisSize: MainAxisSize.min, children: [
                     Image.asset(
                       AppAssets.outfitIdeas,
                       width: 24,
                       height: 26,
-                      color: _pageIndex == 0
+                      color: page.getIndex == 0
                           ? AppColors.primaryColor
                           : AppColors.blackColor,
                     ),
@@ -137,7 +103,7 @@ class _HomePageState extends State<HomePage> {
                         .getTranslatedValues('outfitideas')!,
                       style: GoogleFonts.roboto(
                         fontSize: 10,
-                        color: _pageIndex == 0
+                        color: page.getIndex == 0
                             ? AppColors.primaryColor
                             : AppColors.blackColor,
                       ),
@@ -149,14 +115,18 @@ class _HomePageState extends State<HomePage> {
                 padding: const EdgeInsets.only(left: 20),
                 child: InkWell(
                   onTap: () {
-                    _selectPage(1);
+                    if(email == "") {
+                      AppNavigation.to(context, const SocialAuthPage());
+                    }else {
+                     page.setSetIndex(1);
+                    }
                   },
                   child: Column(mainAxisSize: MainAxisSize.min, children: [
                     Image.asset(
                       AppAssets.wardrobe,
                       width: 16.33,
                       height: 23.56,
-                      color: _pageIndex == 1
+                      color: page.getIndex == 1
                           ? AppColors.primaryColor
                           : AppColors.blackColor,
                     ),
@@ -165,7 +135,7 @@ class _HomePageState extends State<HomePage> {
                         .getTranslatedValues('mywardrobe')!,
                       style: GoogleFonts.roboto(
                         fontSize: 10,
-                        color: _pageIndex == 1
+                        color: page.getIndex == 1
                             ? AppColors.primaryColor
                             : AppColors.blackColor,
                       ),

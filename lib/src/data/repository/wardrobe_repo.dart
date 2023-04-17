@@ -20,7 +20,7 @@ class WardrobeRepository {
     }
   }
 
-  Future<WardrobeListModel> fetchAllWardrobeList(String userId) async {
+  Future<WardrobeListModel> fetchAllWardrobeList({required String userId}) async {
     try{
 
       dynamic response = await _apiServices.getGetApiResponse("${AppUrl.wardrobeList}/$userId");

@@ -1,5 +1,7 @@
 
 
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:outfit/src/data/model/favourites_folder.dart';
@@ -32,11 +34,32 @@ class FavFoldersViewModel with ChangeNotifier {
     favFoldersImages = response ;
     notifyListeners();
   }
-  Future<void> favFoldersList() async {
+
+  int page = 1;
+  int totalPages = 0;
+
+  int get getPage => page;
+  int get getTotalPages => totalPages;
+  setTotalPages(int settotalPages){
+    totalPages = settotalPages;
+    notifyListeners();
+  }
+  setNextPage(){
+    page++;
+    notifyListeners();
+  }
+  setPreviousPage(){
+    if(getPage != 1){
+      page--;
+      notifyListeners();
+    }
+  }
+
+  Future<void> favFoldersList({required String userId}) async {
 
     setFavFoldersList(ApiResponse.loading());
 
-    _myRepo.fetchAllFavFolders("2906").then((value){
+    _myRepo.fetchAllFavFolders(userId: userId).then((value){
       setFavFoldersList(ApiResponse.completed(value));
     }).onError((error, stackTrace){
 
@@ -45,70 +68,89 @@ class FavFoldersViewModel with ChangeNotifier {
     });
   }
 
-  Future<void> updateFolderName(String folderId, UpdateFolderData data) async {
+  Future<void> addFolder({required String userId, UpdateFolderData? data}) async {
 
     setFavFoldersList(ApiResponse.loading());
-    await _myRepo.updateFavFolders(folderId, data.toJson());
-    _myRepo.fetchAllFavFolders("2906").then((value){
+    await _myRepo.addFavFolders(data!.toJson());
+    _myRepo.fetchAllFavFolders(userId: userId).then((value){
       setFavFoldersList(ApiResponse.completed(value));
     }).onError((error, stackTrace){
-
+      print(stackTrace);
       setFavFoldersList(ApiResponse.error(error.toString()));
 
     });
   }
 
-  Future<void> deleteFolder(String folderId) async {
+  Future<void> updateFolderName({required String folderId,required String userId, UpdateFolderData? data}) async {
+
+    setFavFoldersList(ApiResponse.loading());
+    await _myRepo.updateFavFolders(folderId, data!.toJson());
+    _myRepo.fetchAllFavFolders(userId: userId).then((value){
+      setFavFoldersList(ApiResponse.completed(value));
+    }).onError((error, stackTrace){
+      print(stackTrace);
+      setFavFoldersList(ApiResponse.error(error.toString()));
+
+    });
+  }
+
+
+  Future<void> deleteFolder({required String folderId, required String userId}) async {
 
     setFavFoldersList(ApiResponse.loading());
     await _myRepo.deleteFavFolders(folderId);
-    _myRepo.fetchAllFavFolders("2906").then((value){
+    _myRepo.fetchAllFavFolders(userId: userId).then((value){
       setFavFoldersList(ApiResponse.completed(value));
     }).onError((error, stackTrace){
+      print(stackTrace);
       setFavFoldersList(ApiResponse.error(error.toString()));
     });
   }
 
-  Future<void> favFolderImagesList() async {
-
+  Future<void> favFolderImagesList({required String folderId, required String email, required String ip}) async {
     setFavImagesList(ApiResponse.loading());
 
-    _myRepo.fetchAllFavImages("854").then((value){
-      setFavouriteList(value.data!.data!);
+    _myRepo.fetchAllFavImages(folderId: folderId, page: getPage).then((value){
+      setTotalPages(value.data!.last_page!);
+      setFavouriteList(value.data!.data!,email: email,ip: ip);
       setFavImagesList(ApiResponse.completed(value));
     }).onError((error, stackTrace){
+      print(stackTrace);
 
       setFavImagesList(ApiResponse.error(error.toString()));
 
     });
   }
 
-  Future<void> dressMeImagesList() async {
+  Future<void> dressMeImagesList({required String userId,required String email, required String ip}) async {
 
     setFavImagesList(ApiResponse.loading());
 
-    _myRepo.wardrobeImages("854").then((value){
-      setFavouriteList(value.data!.data!);
+    _myRepo.wardrobeImages(userId: userId,page: getPage).then((value){
+      print("this is last page${value.data!.last_page!}");
+      setTotalPages(value.data!.last_page!);
+      setFavouriteList(value.data!.data??[],email: email,ip: ip);
       setFavImagesList(ApiResponse.completed(value));
     }).onError((error, stackTrace){
-
+      print(error);
+      print(stackTrace);
       setFavImagesList(ApiResponse.error(error.toString()));
 
     });
   }
 
-  Future<bool> addImageToFolderApi(dynamic data ,String folderName, BuildContext context) async {
+  Future<bool> addImageToFolderApi({dynamic data, String? folderName, BuildContext? context}) async {
     setLoading(true);
-    _myRepo.AddFolderImages("2794263897328614",data).then((value){
+    _myRepo.AddFolderImages(data: data).then((value){
       setLoading(false);
-      AppUtils.flushBarSucessMessage('Added to $folderName', context);
+      AppUtils.flushBarSucessMessage('Added to $folderName', context!);
       if(kDebugMode){
         print(value.toString());
       }
       return true;
     }).onError((error, stackTrace){
       setLoading(false);
-      AppUtils.flushBarErrorMessage(error.toString(), context);
+      AppUtils.flushBarErrorMessage(error.toString(), context!);
       if(kDebugMode){
         print(error.toString());
       }
@@ -121,16 +163,37 @@ class FavFoldersViewModel with ChangeNotifier {
 
   List<int> get getFavouriteList => favouriteList;
 
-  setFavouriteList(List<ProductsData>? productListData){
+  List<int> likesList = [];
+
+  List<int> get getlikesList => likesList;
+
+  setFavouriteList(List<ProductsData>? productListData,{required String ip, required String email}){
     favouriteList.clear();
+    likesList.clear();
     for (int i = 0; i < productListData!.length; i++) {
-      if(checkIfLikeExists(
-        list: productListData[i].likes,
-        email: "umair@gmail.com")){
-          if(!favouriteList.contains(i)){
-            favouriteList.add(i);
+      if(productListData[i].likes!=null){
+        if(productListData[i].likes is String){
+          if(checkIfLikeExists(
+          list: productListData[i].likes.toString(),
+          email: email==""? ip: email)){
+            if(!favouriteList.contains(i)){
+              favouriteList.add(i);
+            }
           }
+          likesList.add(likesCount(jsonDecode(productListData[i].likes)));
+        }else{
+          if(checkIfLikeExists(
+          list: productListData[i].likes.toString(),
+          email: email==""? ip: email)){
+            if(!favouriteList.contains(i)){
+              favouriteList.add(i);
+            }
+          }
+          likesList.add(likesCount(productListData[i].likes));
         }
+      }else{
+        likesList.add(0);
+      }
     }
     notifyListeners();
   }
@@ -142,6 +205,16 @@ class FavFoldersViewModel with ChangeNotifier {
 
   removeFromFavourite(int value) {
     favouriteList.remove(value);
+    notifyListeners();
+  }
+
+  incrementFromFavourite(int index) {
+    likesList[index]++;
+    notifyListeners();
+  }
+
+  decrementFromFavourite(int index) {
+    likesList[index]--;
     notifyListeners();
   }
 }

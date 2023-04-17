@@ -17,6 +17,7 @@ class NetworkApiService extends BaseApiServices {
   );
   @override
   Future getGetApiResponse(String url,{Map<String, dynamic>? queryParameters}) async {
+    print(url);
     print(queryParameters);
     dynamic responseJson ;
     try {

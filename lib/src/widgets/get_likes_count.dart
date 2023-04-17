@@ -36,24 +36,34 @@ class CheckLikeExists extends StatelessWidget {
   }
 }
 
-int likesCount(List<dynamic> count){
-  List<Likes> likes = count.map((item) {
-      if (item is Map<String, dynamic>) {
-        return Likes.fromJson(item);
-      } else {
-        return const Likes(email: '', ip: '');
-      }
-    }).toList();
+int likesCount(dynamic count){
+  if(count is List<dynamic>){
+    List<Likes> likes = count.map((item) {
+        if (item is Map<String, dynamic>) {
+          return Likes.fromJson(item);
+        } else {
+          return const Likes(email: '', ip: '');
+        }
+      }).toList();
+      return likes.length;
+  } else {
+    List<dynamic> list = count.values.toList();
+    List<Likes> likes = list.map((item) {
+        if (item is Map<String, dynamic>) {
+          return Likes.fromJson(item);
+        } else {
+          return const Likes(email: '', ip: '');
+        }
+      }).toList();
     return likes.length;
+  }
 }
 
-bool checkIfLikeExists({List<dynamic>? list,String? email, String? ip}){
-  if(list == null || list == []){
+bool checkIfLikeExists({String? list,String? email}){
+  if(list == null){
     return false;
   }else {
-      if(ip!=null && list.toString().contains(ip)){
-        return true;
-      }else if(email!=null && list.toString().contains(email)){
+      if(email!=null && email != "" && list.toString().contains(email)){
         return true;
       }else{
         return false;

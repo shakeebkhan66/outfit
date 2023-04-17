@@ -24,4 +24,13 @@ class FilterPairProvider extends ChangeNotifier {
     searchpattern.add(null);
     notifyListeners();
   }
+  clearaddNullAtEnd(){
+    searchColor.clear();
+    searchType.clear();
+    searchpattern.clear();
+    searchColor.add(null);
+    searchType.add(null);
+    searchpattern.add(null);
+    notifyListeners();
+  }
 }

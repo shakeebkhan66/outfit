@@ -20,6 +20,18 @@ class AuthRepository  {
     }
   }
 
+  Future<dynamic> socialLogin(dynamic data )async{
+
+    try{
+
+      dynamic response = await _apiServices.getPostApiResponse(AppUrl.socialLoginEndPint, data);
+      return response;
+
+    }catch(e){
+      rethrow ;
+    }
+  }
+
   Future<dynamic> signUpApi(dynamic data )async{
 
     try{

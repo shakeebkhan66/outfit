@@ -8,6 +8,7 @@ import 'package:outfit/src/components/favorites/favorite_detail/favorite_detail_
 import 'package:outfit/src/components/favorites/modals/add_folder_dialog.dart';
 import 'package:outfit/src/components/favorites/widget/fav_page_title_widget.dart';
 import 'package:outfit/src/data/model/favourites_folder.dart';
+import 'package:outfit/src/data/repository/auth_local_data_repo.dart';
 import 'package:outfit/src/data/response/api_response.dart';
 import 'package:outfit/src/data/view_model/favourites_view_model.dart';
 import 'package:outfit/src/utils/app_urls.dart';
@@ -23,9 +24,12 @@ class FavoritesFolderPage extends StatefulWidget {
 
 class _FavoritesFolderPageState extends State<FavoritesFolderPage> {
   final FavFoldersViewModel _favFoldersViewModel = FavFoldersViewModel();
+  final String userId = AuthLocalDataSource.getUserid();
   @override
   void initState() {
-    _favFoldersViewModel.favFoldersList();
+    _favFoldersViewModel.favFoldersList(
+      userId: userId,
+    );
     super.initState();
   }
   List<BoxShadow> get _shadow => [
@@ -124,6 +128,15 @@ class _FavoritesFolderPageState extends State<FavoritesFolderPage> {
                                               onPressed: () async {
                                                 await AddFolderDialog(
                                                   callback: (_) {
+                                                    _favFoldersViewModel.addFolder(
+                                                      userId: userId,
+                                                      data: UpdateFolderData(
+                                                        user: userId,
+                                                        list_name: _,
+                                                        description: "app",
+                                                        type: "outfit",
+                                                      )
+                                                    );
                                                     setState(() {});
                                                   },
                                                 ).show(context);
@@ -163,6 +176,7 @@ class _FavoritesFolderPageState extends State<FavoritesFolderPage> {
                                       context,
                                       FavoriteDetailPage(
                                         folderName: fav.list_name!,
+                                        folderId: fav.id.toString(),
                                       ),
                                     );
                                   },
@@ -236,8 +250,10 @@ class _FavoritesFolderPageState extends State<FavoritesFolderPage> {
                                                   await AddFolderDialog(
                                                     callback: (_) {
                                                         _favFoldersViewModel.updateFolderName(
-                                                          fav.id.toString(), UpdateFolderData(
-                                                            user: "2906",
+                                                          userId: userId,
+                                                          folderId: fav.id.toString(),
+                                                          data: UpdateFolderData(
+                                                            user: userId,
                                                             description: "des",
                                                             type: "outfit",
                                                             list_name: _,
@@ -247,7 +263,9 @@ class _FavoritesFolderPageState extends State<FavoritesFolderPage> {
                                                     },
                                                   ).show(context);
                                                 } else {
-                                                  _favFoldersViewModel.deleteFolder(fav.id.toString());
+                                                  _favFoldersViewModel.deleteFolder(
+                                                    userId: userId,
+                                                    folderId: fav.id.toString());
                                                   setState(() {});
                                                 }
                                               },

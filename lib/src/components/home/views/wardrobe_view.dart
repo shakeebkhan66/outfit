@@ -2,8 +2,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:outfit/app_localization.dart';
+import 'package:outfit/src/base/nav.dart';
 import 'package:outfit/src/base/theme.dart';
+import 'package:outfit/src/components/favorites/favorite_detail/favorite_detail_page.dart';
 import 'package:outfit/src/components/search/widget/color_style_widget.dart';
+import 'package:outfit/src/data/repository/auth_local_data_repo.dart';
 import 'package:outfit/src/data/response/api_response.dart';
 import 'package:outfit/src/data/view_model/wardrobe_view_model.dart';
 import 'package:outfit/src/providers/language_provider.dart';
@@ -16,20 +20,20 @@ import 'package:outfit/src/widgets/wardrobe_page_title_widget.dart';
 import 'package:provider/provider.dart';
 
 class WardrobeView extends StatefulWidget {
-  const WardrobeView({Key? key, required this.onSaveTap}) : super(key: key);
-
-  final VoidCallback onSaveTap;
-
+  const WardrobeView({Key? key}) : super(key: key);
   @override
   State<WardrobeView> createState() => _WardrobeViewState();
 }
 
 class _WardrobeViewState extends State<WardrobeView> {
   final WardrobeViewModel wardrobeViewModel = WardrobeViewModel();
+  final String userId = AuthLocalDataSource.getUserid();
   @override
   void initState() {
     super.initState();
-    wardrobeViewModel.fetchWardrobeList();
+    wardrobeViewModel.fetchWardrobeList(
+      userid: userId,
+    );
   }
 
   ListTileControlAffinity get _controlAffinity =>
@@ -44,15 +48,11 @@ class _WardrobeViewState extends State<WardrobeView> {
   Widget build(BuildContext context) {
     final currentLanguage = Provider.of<LanguageProvider>(context).getAppLanguage;
     final padding = MediaQuery.of(context).padding;
-    return Scaffold(
-      extendBody: true,
-      backgroundColor: Colors.white,
-      body: Container(
+    return Container(
         color: AppColors.primaryColor,
         padding: const EdgeInsets.only(top: 30),
         margin: EdgeInsets.only(
           top: padding.top,
-          bottom: padding.bottom,
         ),
         child: Column(children: [
           const WardrobePageTitleWidget(),
@@ -74,7 +74,13 @@ class _WardrobeViewState extends State<WardrobeView> {
                     ),
                   );
                   case Status.error:
-                  return const Text("error");
+                  return Container(
+                    width: double.infinity,
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+                      ),
+                    child: const Text("error"));
                   case Status.completed:
                   return Expanded(
                     child: Container(
@@ -255,13 +261,13 @@ class _WardrobeViewState extends State<WardrobeView> {
                                               onTap: () {
                                                 if(wardrobeViewModel.getwardrobeIds[item.id]!.isNotEmpty){
                                                   wardrobeViewModel.updateWardrobeApi({
-                                                    "user_id": "2794263897328614",
+                                                    "user_id": userId,
                                                     "type": item.id,
                                                     "colors": wardrobeViewModel.getSelectedColors[item.id]!,
                                                   },wardrobeViewModel.getwardrobeIds[item.id]!, context);
                                                 }else {
                                                   wardrobeViewModel.addWardrobeApi({
-                                                    "user_id": "2794263897328614",
+                                                    "user_id": userId,
                                                     "type": item.id,
                                                     "colors": wardrobeViewModel.getSelectedColors[item.id]!,
                                                   }, context);
@@ -281,11 +287,19 @@ class _WardrobeViewState extends State<WardrobeView> {
                               )
                             ],
                             Padding(
-                              padding: const EdgeInsets.all(28.0),
+                              padding: EdgeInsets.only(left: 28.0,right: 28.0,top: 28.0, bottom: padding.bottom + 40.0),
                               child: AppButtonWidget(
-                                onTap: (){}, title: "continue",
+                                onTap: (){
+                                  AppNavigation.to(
+                                  context,
+                                  FavoriteDetailPage(
+                                    page: "wardrobe",
+                                    folderName: AppLocalization.of(context)!.getTranslatedValues("mywardrobe")!,
+                                  ),
+                                  );
+                                }, title: "continue",
                               ),
-                            ),
+                            )
                           ],
                         ),
                       ),
@@ -296,7 +310,6 @@ class _WardrobeViewState extends State<WardrobeView> {
             ),
           ),
         ]),
-      ),
     );
   }
 

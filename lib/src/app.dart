@@ -1,9 +1,11 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:outfit/app_localization.dart';
-import 'package:outfit/src/components/home/home_page.dart';
+import 'package:outfit/src/components/auth/social_auth_page.dart';
 import 'package:outfit/src/data/view_model/auth_view_model.dart';
+import 'package:outfit/src/data/view_model/photos_view_model.dart';
 import 'package:outfit/src/data/view_model/wardrobe_view_model.dart';
 import 'package:outfit/src/providers/filter_pair_provider.dart';
 import 'package:outfit/src/providers/language_provider.dart';
@@ -19,8 +21,10 @@ class MyApp extends StatelessWidget {
 
   static Future<void> initializeAndRun() async {
     WidgetsFlutterBinding.ensureInitialized();
+    await Firebase.initializeApp();
     await Hive.initFlutter();
     await Hive.openBox(settingsBox);
+    await Hive.openBox(authBox); 
     runApp(
       MultiProvider(
         providers: [
@@ -28,6 +32,7 @@ class MyApp extends StatelessWidget {
           ChangeNotifierProvider(create: (_)=> AuthViewModel()),
           ChangeNotifierProvider(create: (_)=> FilterPairProvider()),
           ChangeNotifierProvider(create: (_)=> WardrobeViewModel()),
+          ChangeNotifierProvider(create: (_)=> ProductsViewModel()),
         ],
         child: const MyApp(),
       ),
@@ -59,7 +64,7 @@ class MyApp extends StatelessWidget {
       supportedLocales: supporatedLocales.map((languageCode) {
         return AppUtils.getLocaleFromLanguageCode(languageCode);
       }).toList(),
-      home: const HomePage(),
+      home: const SocialAuthPage(),
     );
   }
 }

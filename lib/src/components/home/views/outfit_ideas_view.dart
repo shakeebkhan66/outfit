@@ -4,18 +4,19 @@ import 'package:outfit/app_localization.dart';
 import 'package:outfit/src/base/assets.dart';
 import 'package:outfit/src/base/nav.dart';
 import 'package:outfit/src/base/theme.dart';
+import 'package:outfit/src/components/auth/social_auth_page.dart';
 import 'package:outfit/src/components/favorites/favorites_folders_page.dart';
 import 'package:outfit/src/components/home/dress_detail/dress_detail_page.dart';
 import 'package:outfit/src/components/home/widget/drawer_widget.dart';
 import 'package:outfit/src/components/search/search_page.dart';
 import 'package:outfit/src/data/model/pair_search_model.dart';
 import 'package:outfit/src/data/model/products_model.dart';
+import 'package:outfit/src/data/repository/auth_local_data_repo.dart';
 import 'package:outfit/src/data/response/api_response.dart';
 import 'package:outfit/src/data/view_model/photos_view_model.dart';
 import 'package:outfit/src/providers/filter_pair_provider.dart';
 import 'package:outfit/src/utils/app_urls.dart';
 import 'package:outfit/src/widgets/app_button_widget.dart';
-import 'package:outfit/src/widgets/get_likes_count.dart';
 import 'package:outfit/src/widgets/shimmer_loader.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -30,9 +31,14 @@ class OutfitIdeasView extends StatefulWidget {
 
 class _OutfitIdeasViewState extends State<OutfitIdeasView> {
   final _scrollController = ScrollController();
+  final String email = AuthLocalDataSource.getEmail();
+  final String ip = AuthLocalDataSource.getIp();
   @override
   void initState() {
-    widget.productViewModel.fetchPhotosList();
+    widget.productViewModel.fetchPhotosList(
+      email: email,
+      ip: ip,
+    );
     super.initState();
   }
   final _searchFocusNode = FocusNode();
@@ -40,7 +46,6 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
   var season = Seasons.allSeasons;
   var hijab = Hijab.all;
   var style = Styles.allStyle;
-  List<int> favList = [];
 
   OutlineInputBorder get _inputBorder => OutlineInputBorder(
         borderRadius: BorderRadius.circular(100),
@@ -50,6 +55,7 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
+    final String email = AuthLocalDataSource.getEmail();
     final filterPairProvider = Provider.of<FilterPairProvider>(context);
     return Scaffold(
       key: scaffoldKey,
@@ -59,7 +65,6 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
         style: style,
         season: season,
         updateList: (d){
-          favList.clear();
         },
         callback: (newStyle, newHijab, newSeason) {
           hijab = newHijab;
@@ -73,7 +78,11 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
         elevation: 0,
         leading: GestureDetector(
           onTap: () {
-            AppNavigation.to(context, const FavoritesFolderPage());
+            if(email == ""){
+              AppNavigation.to(context, const SocialAuthPage());
+            }else {
+              AppNavigation.to(context, const FavoritesFolderPage());
+            }
           },
           child: const Icon(
             Icons.bookmark_border,
@@ -195,28 +204,47 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
                         delegate: SliverChildBuilderDelegate(
                           (_, i) {
                             List<ProductsData> products = value.productsList.data!.data!.data!;
-                            debugPrint(products[i].likes.toString());
-                            if(checkIfLikeExists(
-                              list: products[i].likes,
-                              email: "umair@gmail.com")){
-                               if(!favList.contains(i)){
-                                favList.add(i);
-                               }
-                              }
                             return GestureDetector(
                               onTap: () {
                                 AppNavigation.to(context, DressDetailPage(
                                   productViewModel: widget.productViewModel,
-                                  isFavourite: favList.contains(i) ? true : false,
+                                  isFavourite: widget.productViewModel.getFavouriteList.contains(i) ? true : false,
                                   dress: AppUrl.webUrl + products[i].url!,
                                   source: products[i].source!,
                                   imageId: products[i].uid.toString(),
-                                  likes: products[i].likes ??[],
+                                  index: i,
                                   url: AppUrl.webUrl + products[i].url!,
+                                  page: "outfit",
                                  ),
                                 ).then((value) {
-                                  favList.clear();
-                                  widget.productViewModel.fetchPhotosList();
+                                  // favList.clear();
+                                if(widget.productViewModel.getPageName == "search"){
+                                  widget.productViewModel.fetchFilterPairList(
+                                    email: email,
+                                    ip: ip,
+                                    FilterPairModel(
+                                      pairs: [
+                                        for (var i = 0; i < filterPairProvider.getSearchColor.length; i++)
+                                        Pairs(
+                                          type: filterPairProvider.getSearchType[i],
+                                          color: filterPairProvider.getSearchColor[i],
+                                        ),
+                                      ],
+                                      ptn: filterPairProvider.getSearchPattern[0],
+                                    ),
+                                  );
+                                } else if(widget.productViewModel.getPageName == "filter"){
+                                  widget.productViewModel.filterPhotoPhotosList(
+                                    email: email,
+                                    ip: ip,
+                                  );
+                                }
+                                else{
+                                  widget.productViewModel.fetchPhotosList(
+                                    email: email,
+                                    ip: ip,
+                                  );
+                                }
                                 });
                               },
                               child: GridTile(
@@ -231,23 +259,28 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
                                   title: const Text(""),
                                   trailing: GestureDetector(
                                     onTap: () {
-                                      if(favList.contains(i)){
-                                        favList.remove(i);
+                                      if(widget.productViewModel.favouriteList.contains(i)){
+                                        widget.productViewModel.removeFromFavourite(i);
+                                        widget.productViewModel.decrementFromFavourite(i);
                                         widget.productViewModel.unLikeImageById(
+                                          email: email,
+                                          ip: ip,
                                           id: products[i].uid!.toString()
                                         );
                                       }else {
-                                        favList.add(i);
+                                        widget.productViewModel.addFromFavourite(i);
+                                        widget.productViewModel.incrementFromFavourite(i);
                                         widget.productViewModel.likeImageById(
+                                          email: email,
+                                          ip: ip,
                                           id: products[i].uid!.toString()
                                         );
                                       }
-                                      setState(() {});
                                     },
-                                    child: Icon(favList.contains(i)
+                                    child: Icon(widget.productViewModel.favouriteList.contains(i)
                                           ? Icons.favorite
                                           : Icons.favorite_border,
-                                      color: favList.contains(i)
+                                      color: widget.productViewModel.favouriteList.contains(i)
                                           ? const Color(0xFFFF2C2C)
                                           : AppColors.blackColor,
                                     ),
@@ -292,7 +325,10 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
                       child: value.productsList.status == Status.error ? 
                       AppButtonWidget(
                         onTap: (){
-                          widget.productViewModel.fetchPhotosList();
+                          widget.productViewModel.fetchPhotosList(
+                            email: email,
+                            ip: ip,
+                          );
                         },
                         title: "refresh",
                       ): 
@@ -304,21 +340,32 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
                           Expanded(
                             child: AppButtonWidget(
                               onTap: (){
-                                favList.clear();
+                                // favList.clear();
                                 _scrollController.animateTo(
                                   0,
                                   duration: const Duration(milliseconds: 500),
                                   curve: Curves.easeInOut,
                                 );
                                 if(widget.productViewModel.getCurrentPage == Pages.products){
+                                  widget.productViewModel.setPage("outfit");
                                   widget.productViewModel.setPreviousPage();
-                                  widget.productViewModel.fetchPhotosList();
+                                  widget.productViewModel.fetchPhotosList(
+                                    email: email,
+                                    ip: ip,
+                                  );
                                 }else if(widget.productViewModel.getCurrentPage == Pages.filter){
+                                  widget.productViewModel.setPage("filter");
                                   widget.productViewModel.setPreviousPage();
-                                  widget.productViewModel.filterPhotoPhotosList();
+                                  widget.productViewModel.filterPhotoPhotosList(
+                                    email: email,
+                                    ip: ip,
+                                  );
                                 }else if(widget.productViewModel.getCurrentPage == Pages.search){
+                                  widget.productViewModel.setPage("search");
                                   widget.productViewModel.setPreviousPage();
                                   widget.productViewModel.fetchFilterPairList(
+                                    email: email,
+                                    ip: ip,
                                     FilterPairModel(
                                       pairs: [
                                         for (var i = 0; i < filterPairProvider.getSearchColor.length; i++)
@@ -345,21 +392,32 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
                           Expanded(
                             child: AppButtonWidget(
                               onTap: (){
-                                favList.clear();
+                                // favList.clear();
                                 _scrollController.animateTo(
                                   0,
                                   duration: const Duration(milliseconds: 500),
                                   curve: Curves.easeInOut,
                                 );
                                 if(widget.productViewModel.getCurrentPage == Pages.products){
+                                  widget.productViewModel.setPage("outfit");
                                   widget.productViewModel.setNextPage();
-                                  widget.productViewModel.fetchPhotosList();
+                                  widget.productViewModel.fetchPhotosList(
+                                    email: email,
+                                    ip: ip,
+                                  );
                                 }else if(widget.productViewModel.getCurrentPage == Pages.filter){
+                                  widget.productViewModel.setPage("filter");
                                   widget.productViewModel.setNextPage();
-                                  widget.productViewModel.filterPhotoPhotosList();
+                                  widget.productViewModel.filterPhotoPhotosList(
+                                    email: email,
+                                    ip: ip,
+                                  );
                                 }else if(widget.productViewModel.getCurrentPage == Pages.search){
+                                  widget.productViewModel.setPage("search");
                                   widget.productViewModel.setNextPage();
                                   widget.productViewModel.fetchFilterPairList(
+                                    email: email,
+                                    ip: ip,
                                     FilterPairModel(
                                       pairs: [
                                         for (var i = 0; i < filterPairProvider.getSearchColor.length; i++)

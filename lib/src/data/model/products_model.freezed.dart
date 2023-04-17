@@ -617,7 +617,7 @@ mixin _$ProductsData {
   DateTime? get time => throw _privateConstructorUsedError;
   dynamic get likes => throw _privateConstructorUsedError;
   dynamic get comments => throw _privateConstructorUsedError;
-  String? get favourit => throw _privateConstructorUsedError;
+  dynamic get favourit => throw _privateConstructorUsedError;
   int? get approved => throw _privateConstructorUsedError;
   String? get source => throw _privateConstructorUsedError;
   int? get ptn => throw _privateConstructorUsedError;
@@ -625,7 +625,6 @@ mixin _$ProductsData {
   int? get ptn3 => throw _privateConstructorUsedError;
   int? get ptn4 => throw _privateConstructorUsedError;
   int? get above_95 => throw _privateConstructorUsedError;
-  String? get season => throw _privateConstructorUsedError;
   int? get moved => throw _privateConstructorUsedError;
   String? get jacket => throw _privateConstructorUsedError;
   String? get approved_by => throw _privateConstructorUsedError;
@@ -661,7 +660,7 @@ abstract class $ProductsDataCopyWith<$Res> {
       DateTime? time,
       dynamic likes,
       dynamic comments,
-      String? favourit,
+      dynamic favourit,
       int? approved,
       String? source,
       int? ptn,
@@ -669,7 +668,6 @@ abstract class $ProductsDataCopyWith<$Res> {
       int? ptn3,
       int? ptn4,
       int? above_95,
-      String? season,
       int? moved,
       String? jacket,
       String? approved_by,
@@ -714,7 +712,6 @@ class _$ProductsDataCopyWithImpl<$Res, $Val extends ProductsData>
     Object? ptn3 = freezed,
     Object? ptn4 = freezed,
     Object? above_95 = freezed,
-    Object? season = freezed,
     Object? moved = freezed,
     Object? jacket = freezed,
     Object? approved_by = freezed,
@@ -792,7 +789,7 @@ class _$ProductsDataCopyWithImpl<$Res, $Val extends ProductsData>
       favourit: freezed == favourit
           ? _value.favourit
           : favourit // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as dynamic,
       approved: freezed == approved
           ? _value.approved
           : approved // ignore: cast_nullable_to_non_nullable
@@ -821,10 +818,6 @@ class _$ProductsDataCopyWithImpl<$Res, $Val extends ProductsData>
           ? _value.above_95
           : above_95 // ignore: cast_nullable_to_non_nullable
               as int?,
-      season: freezed == season
-          ? _value.season
-          : season // ignore: cast_nullable_to_non_nullable
-              as String?,
       moved: freezed == moved
           ? _value.moved
           : moved // ignore: cast_nullable_to_non_nullable
@@ -871,7 +864,7 @@ abstract class _$$_ProductsDataCopyWith<$Res>
       DateTime? time,
       dynamic likes,
       dynamic comments,
-      String? favourit,
+      dynamic favourit,
       int? approved,
       String? source,
       int? ptn,
@@ -879,7 +872,6 @@ abstract class _$$_ProductsDataCopyWith<$Res>
       int? ptn3,
       int? ptn4,
       int? above_95,
-      String? season,
       int? moved,
       String? jacket,
       String? approved_by,
@@ -922,7 +914,6 @@ class __$$_ProductsDataCopyWithImpl<$Res>
     Object? ptn3 = freezed,
     Object? ptn4 = freezed,
     Object? above_95 = freezed,
-    Object? season = freezed,
     Object? moved = freezed,
     Object? jacket = freezed,
     Object? approved_by = freezed,
@@ -1000,7 +991,7 @@ class __$$_ProductsDataCopyWithImpl<$Res>
       favourit: freezed == favourit
           ? _value.favourit
           : favourit // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as dynamic,
       approved: freezed == approved
           ? _value.approved
           : approved // ignore: cast_nullable_to_non_nullable
@@ -1029,10 +1020,6 @@ class __$$_ProductsDataCopyWithImpl<$Res>
           ? _value.above_95
           : above_95 // ignore: cast_nullable_to_non_nullable
               as int?,
-      season: freezed == season
-          ? _value.season
-          : season // ignore: cast_nullable_to_non_nullable
-              as String?,
       moved: freezed == moved
           ? _value.moved
           : moved // ignore: cast_nullable_to_non_nullable
@@ -1082,7 +1069,6 @@ class _$_ProductsData implements _ProductsData {
       this.ptn3,
       this.ptn4,
       this.above_95,
-      this.season,
       this.moved,
       this.jacket,
       this.approved_by,
@@ -1126,7 +1112,7 @@ class _$_ProductsData implements _ProductsData {
   @override
   final dynamic comments;
   @override
-  final String? favourit;
+  final dynamic favourit;
   @override
   final int? approved;
   @override
@@ -1142,8 +1128,6 @@ class _$_ProductsData implements _ProductsData {
   @override
   final int? above_95;
   @override
-  final String? season;
-  @override
   final int? moved;
   @override
   final String? jacket;
@@ -1154,7 +1138,7 @@ class _$_ProductsData implements _ProductsData {
 
   @override
   String toString() {
-    return 'ProductsData(uid: $uid, url: $url, name: $name, email: $email, type: $type, color: $color, type2: $type2, color2: $color2, type3: $type3, color3: $color3, type4: $type4, color4: $color4, hijab: $hijab, description: $description, time: $time, likes: $likes, comments: $comments, favourit: $favourit, approved: $approved, source: $source, ptn: $ptn, ptn2: $ptn2, ptn3: $ptn3, ptn4: $ptn4, above_95: $above_95, season: $season, moved: $moved, jacket: $jacket, approved_by: $approved_by, created_at: $created_at)';
+    return 'ProductsData(uid: $uid, url: $url, name: $name, email: $email, type: $type, color: $color, type2: $type2, color2: $color2, type3: $type3, color3: $color3, type4: $type4, color4: $color4, hijab: $hijab, description: $description, time: $time, likes: $likes, comments: $comments, favourit: $favourit, approved: $approved, source: $source, ptn: $ptn, ptn2: $ptn2, ptn3: $ptn3, ptn4: $ptn4, above_95: $above_95, moved: $moved, jacket: $jacket, approved_by: $approved_by, created_at: $created_at)';
   }
 
   @override
@@ -1180,8 +1164,7 @@ class _$_ProductsData implements _ProductsData {
             (identical(other.time, time) || other.time == time) &&
             const DeepCollectionEquality().equals(other.likes, likes) &&
             const DeepCollectionEquality().equals(other.comments, comments) &&
-            (identical(other.favourit, favourit) ||
-                other.favourit == favourit) &&
+            const DeepCollectionEquality().equals(other.favourit, favourit) &&
             (identical(other.approved, approved) ||
                 other.approved == approved) &&
             (identical(other.source, source) || other.source == source) &&
@@ -1191,7 +1174,6 @@ class _$_ProductsData implements _ProductsData {
             (identical(other.ptn4, ptn4) || other.ptn4 == ptn4) &&
             (identical(other.above_95, above_95) ||
                 other.above_95 == above_95) &&
-            (identical(other.season, season) || other.season == season) &&
             (identical(other.moved, moved) || other.moved == moved) &&
             (identical(other.jacket, jacket) || other.jacket == jacket) &&
             (identical(other.approved_by, approved_by) ||
@@ -1221,7 +1203,7 @@ class _$_ProductsData implements _ProductsData {
         time,
         const DeepCollectionEquality().hash(likes),
         const DeepCollectionEquality().hash(comments),
-        favourit,
+        const DeepCollectionEquality().hash(favourit),
         approved,
         source,
         ptn,
@@ -1229,7 +1211,6 @@ class _$_ProductsData implements _ProductsData {
         ptn3,
         ptn4,
         above_95,
-        season,
         moved,
         jacket,
         approved_by,
@@ -1269,7 +1250,7 @@ abstract class _ProductsData implements ProductsData {
       final DateTime? time,
       final dynamic likes,
       final dynamic comments,
-      final String? favourit,
+      final dynamic favourit,
       final int? approved,
       final String? source,
       final int? ptn,
@@ -1277,7 +1258,6 @@ abstract class _ProductsData implements ProductsData {
       final int? ptn3,
       final int? ptn4,
       final int? above_95,
-      final String? season,
       final int? moved,
       final String? jacket,
       final String? approved_by,
@@ -1321,7 +1301,7 @@ abstract class _ProductsData implements ProductsData {
   @override
   dynamic get comments;
   @override
-  String? get favourit;
+  dynamic get favourit;
   @override
   int? get approved;
   @override
@@ -1336,8 +1316,6 @@ abstract class _ProductsData implements ProductsData {
   int? get ptn4;
   @override
   int? get above_95;
-  @override
-  String? get season;
   @override
   int? get moved;
   @override

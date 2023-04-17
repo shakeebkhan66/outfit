@@ -1,11 +1,15 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:outfit/app_localization.dart';
 import 'package:outfit/src/base/assets.dart';
 import 'package:outfit/src/base/nav.dart';
 import 'package:outfit/src/base/theme.dart';
-import 'package:outfit/src/components/home/home_page.dart';
 import 'package:outfit/src/components/login_pages/login_page.dart';
+import 'package:outfit/src/data/model/user_model.dart';
+import 'package:outfit/src/data/view_model/auth_view_model.dart';
+import 'package:provider/provider.dart';
 
 class SocialAuthPage extends StatefulWidget {
   const SocialAuthPage({Key? key}) : super(key: key);
@@ -17,6 +21,7 @@ class SocialAuthPage extends StatefulWidget {
 class _SocialAuthPageState extends State<SocialAuthPage> {
   @override
   Widget build(BuildContext context) {
+    final authViewModel = Provider.of<AuthViewModel>(context);
     final padding = MediaQuery.of(context).padding;
     return Scaffold(
       body: Container(
@@ -50,10 +55,9 @@ class _SocialAuthPageState extends State<SocialAuthPage> {
               ),
               _AuthButtonWidget(
                 onTap: () {
-                  AppNavigation.navigateRemoveUntil(
-                    context,
-                    const HomePage(),
-                  );
+                  authViewModel.socialLoginApi(const UserModel(
+                    authProvider: AuthProvider.gmail,
+                  ), context);
                 },
                 title: 'Google',
                 icon: Image.asset(
@@ -67,10 +71,9 @@ class _SocialAuthPageState extends State<SocialAuthPage> {
                 padding: const EdgeInsets.symmetric(vertical: 20),
                 child: _AuthButtonWidget(
                   onTap: () {
-                    AppNavigation.navigateRemoveUntil(
-                      context,
-                      const HomePage(),
-                    );
+                    authViewModel.socialLoginApi(const UserModel(
+                    authProvider: AuthProvider.fb,
+                  ), context);
                   },
                   title: 'Facebook',
                   icon: Image.asset(
@@ -81,19 +84,25 @@ class _SocialAuthPageState extends State<SocialAuthPage> {
                   gap: 11,
                 ),
               ),
-              _AuthButtonWidget(
+              if(Platform.isAndroid)
+              Container()
+              else
+              ...[_AuthButtonWidget(
                 onTap: () {
-                  AppNavigation.navigateRemoveUntil(context, const HomePage());
-                },
-                title: 'Apple',
-                icon: Image.asset(
-                  AppAssets.apple,
-                  width: 21,
-                  height: 21,
+                  authViewModel.socialLoginApi(const UserModel(
+                      authProvider: AuthProvider.apple,
+                    ), context);   
+                  },
+                  title: 'Apple',
+                  icon: Image.asset(
+                    AppAssets.apple,
+                    width: 21,
+                    height: 21,
+                  ),
+                  gap: 18.14,
                 ),
-                gap: 18.14,
-              ),
-              const SizedBox(height: 20),
+                const SizedBox(height: 20),
+              ],
               _AuthButtonWidget(
                 onTap: () {
                   AppNavigation.to(context, LoginPage());

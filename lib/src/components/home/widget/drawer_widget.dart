@@ -4,6 +4,7 @@ import 'package:outfit/app_localization.dart';
 import 'package:outfit/src/base/nav.dart';
 import 'package:outfit/src/base/theme.dart';
 import 'package:outfit/src/components/home/views/outfit_ideas_view.dart';
+import 'package:outfit/src/data/repository/auth_local_data_repo.dart';
 import 'package:outfit/src/data/view_model/photos_view_model.dart';
 import 'package:outfit/src/widgets/radio_button_widget.dart';
 
@@ -31,6 +32,8 @@ class DrawerWidget extends StatefulWidget {
 
 class _DrawerWidgetState extends State<DrawerWidget> {
   final ProductsViewModel _productsViewModel = ProductsViewModel();
+  final String email = AuthLocalDataSource.getEmail();
+  final String ip = AuthLocalDataSource.getIp();
   late Styles _style;
   late Hijab _hijab;
   late Seasons _season;
@@ -129,8 +132,12 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                       dynamic seasonValue = getValueFromSeason(_season);
                       widget.productsViewModel.setFilterValues(styleValue, hijabValue, seasonValue);
                       widget.productsViewModel.setCurrentPage(Pages.filter);
-                      widget.productsViewModel.filterPhotoPhotosList();
+                      widget.productsViewModel.filterPhotoPhotosList(
+                        ip: ip,
+                        email: email,
+                      );
                       widget.updateList.call("d");
+                      widget.productsViewModel.setPage("filter");
                       AppNavigation.pop(context);
                     },
                     child: Text(AppLocalization.of(context)!.getTranslatedValues("apply")!,

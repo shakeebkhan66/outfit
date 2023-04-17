@@ -36,12 +36,16 @@ class ProductsRepository {
     }
   }
 
-  Future<dynamic> likePhoto({String? email, String? id})async{
+  Future<dynamic> likePhoto({required String email,required String ip, String? id})async{
+    Map<String,String> data1 = {
+      "ip": ip,
+    };
+    Map<String,String> data2 = {
+      "email": email,
+    };
     try{
       dynamic response = await _apiServices.getPutApiResponse("${AppUrl.allphotosApi}/$id/like",
-        data: {
-          "email": email,
-        }
+        data: email == "" ? data1 : data2,
       );
       return response;
     }catch(e){
@@ -49,12 +53,16 @@ class ProductsRepository {
     }
   }
   
-  Future<dynamic> unLikePhoto({String? email, String? id})async{
+  Future<dynamic> unLikePhoto({required String email,required String ip, String? id})async{
+    Map<String,String> data1 = {
+      "ip": ip,
+    };
+    Map<String,String> data2 = {
+      "email": email,
+    };
     try{
       dynamic response = await _apiServices.getPutApiResponse("${AppUrl.allphotosApi}/$id/unlike",
-        data: {
-          "email": email,
-        }
+        data: email == "" ? data1 : data2,
       );
       return response;
     }catch(e){

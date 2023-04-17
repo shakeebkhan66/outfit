@@ -4,9 +4,11 @@ import 'package:outfit/app_localization.dart';
 import 'package:outfit/src/base/nav.dart';
 import 'package:outfit/src/components/search/widget/color_style_widget.dart';
 import 'package:outfit/src/data/model/pair_search_model.dart';
+import 'package:outfit/src/data/repository/auth_local_data_repo.dart';
 import 'package:outfit/src/data/view_model/colors_view_model.dart';
 import 'package:outfit/src/data/view_model/photos_view_model.dart';
 import 'package:outfit/src/providers/filter_pair_provider.dart';
+import 'package:outfit/src/utils/app_utils.dart';
 import 'package:outfit/src/widgets/app_button_widget.dart';
 import 'package:provider/provider.dart';
 
@@ -20,8 +22,11 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   ColorsAndStylesViewModel colorsViewModel = ColorsAndStylesViewModel();
+  final String email = AuthLocalDataSource.getEmail();
+  final String ip = AuthLocalDataSource.getIp();
   @override
   Widget build(BuildContext context) {
+    final page = Provider.of<ProductsViewModel>(context);
     final filterPairProvider = Provider.of<FilterPairProvider>(context);
     final padding = MediaQuery.of(context).padding;
     return Scaffold(
@@ -88,9 +93,21 @@ class _SearchPageState extends State<SearchPage> {
         padding: const EdgeInsets.only(left: 28, right: 28, bottom: 32),
         child: AppButtonWidget(
           onTap: () {
+            print("this");
+            print(filterPairProvider.getSearchType);
+            print(filterPairProvider.getSearchColor.runtimeType);
+            widget.productsViewModel.setPage("search");
+            if(filterPairProvider.getSearchColor[0]==null){
+              return AppUtils.flushBarErrorMessage("Please select color", context);
+            }else if(filterPairProvider.getSearchType[0] == null){
+              return AppUtils.flushBarErrorMessage("Please select type", context);
+            }
+            page.setSetIndex(0);
             AppNavigation.pop(context);
             widget.productsViewModel.setCurrentPage(Pages.search);
               widget.productsViewModel.fetchFilterPairList(
+                email: email,
+                ip: ip,
                 FilterPairModel(
                   pairs: [
                     for (var i = 0; i < filterPairProvider.getSearchColor.length; i++)
@@ -101,7 +118,9 @@ class _SearchPageState extends State<SearchPage> {
                   ],
                   ptn: filterPairProvider.getSearchPattern[0],
                 ),
-              );
+              ).then((value) {
+                // filterPairProvider.clearaddNullAtEnd();    
+              });
           },
           title: 'search',
         ),

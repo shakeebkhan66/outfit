@@ -7,6 +7,7 @@ class AppUrl {
   static var webUrl = "https://www.stylorita.com/";
 
   static var loginEndPint =  '$baseUrl/login' ;
+  static var socialLoginEndPint =  '$baseUrl/social-login' ;
 
   static var registerApiEndPoint =  '$baseUrl/register' ;
   static var allphotosApi =  '$baseUrl/photos' ;

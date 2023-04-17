@@ -14,3 +14,10 @@ Color hexToColor(String hexColor) {
   }
   return Color(int.parse(hexColor, radix: 16));
 }
+
+const String authBox = "auth";
+
+const String idkey = "userid";
+const String nameKey = "name";
+const String emailKey = "email";
+const String ipKey = "ip";

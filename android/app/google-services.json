@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "122025805891",
+    "project_id": "stylorita-new-app",
+    "storage_bucket": "stylorita-new-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:122025805891:android:55efca42b8bda74555ecf6",
+        "android_client_info": {
+          "package_name": "com.stylorita.outfit"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "122025805891-7mn5ogipg0friuirq9avmcha57sifur9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.stylorita.outfit",
+            "certificate_hash": "9d9088707f2418abe529f8f20ae8d80a9d803232"
+          }
+        },
+        {
+          "client_id": "122025805891-se44cfpjbvbkq5f9oc7iau1q4c1c6u3g.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDqvHTsyx1ExVfx98cNRYHLqYSHgRsJPcw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "122025805891-se44cfpjbvbkq5f9oc7iau1q4c1c6u3g.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
