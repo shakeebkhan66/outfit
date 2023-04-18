@@ -4,7 +4,6 @@ import 'package:outfit/app_localization.dart';
 import 'package:outfit/src/base/assets.dart';
 import 'package:outfit/src/base/nav.dart';
 import 'package:outfit/src/base/theme.dart';
-import 'package:outfit/src/components/auth/social_auth_page.dart';
 import 'package:outfit/src/components/home/home_page.dart';
 import 'package:outfit/src/data/repository/auth_local_data_repo.dart';
 import 'package:outfit/src/providers/language_provider.dart';

@@ -16,7 +16,8 @@ import 'package:outfit/src/data/response/api_response.dart';
 import 'package:outfit/src/data/view_model/photos_view_model.dart';
 import 'package:outfit/src/providers/filter_pair_provider.dart';
 import 'package:outfit/src/utils/app_urls.dart';
-import 'package:outfit/src/widgets/app_button_widget.dart';
+import 'package:outfit/src/widgets/custom_webview_drawer.dart';
+import 'package:outfit/src/widgets/pagination.dart';
 import 'package:outfit/src/widgets/shimmer_loader.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -73,6 +74,7 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
         },
         productsViewModel: widget.productViewModel,
       ),
+      drawer: const WebDrawer(),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -92,7 +94,7 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
         ),
         actions: [
           IconButton(
-            onPressed: () => scaffoldKey.currentState!.openEndDrawer(),
+            onPressed: () => scaffoldKey.currentState!.openDrawer(),
             icon: const Icon(
               Icons.menu,
               color: AppColors.blackColor,
@@ -160,6 +162,9 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
                         color: AppColors.blackColor,
                       ),
                     ),
+                    if(widget.productViewModel.getPageName == "search")
+                    Container()
+                    else
                     GestureDetector(
                       onTap: () => scaffoldKey.currentState!.openEndDrawer(),
                       child: Container(
@@ -213,7 +218,7 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
                                   source: products[i].source!,
                                   imageId: products[i].uid.toString(),
                                   index: i,
-                                  url: AppUrl.webUrl + products[i].url!,
+                                  id: products[i].uid!,
                                   page: "outfit",
                                  ),
                                 ).then((value) {
@@ -250,7 +255,7 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
                               child: GridTile(
                                 footer: GridTileBar(
                                   leading: GestureDetector(
-                                    onTap: () => _share(AppUrl.webUrl + products[i].url!),
+                                    onTap: () => _share(products[i].uid!),
                                     child: const Icon(
                                       Icons.share,
                                       color: AppColors.blackColor,
@@ -310,147 +315,194 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
                 },
               ),
             ),
-            ChangeNotifierProvider.value(
-              value: widget.productViewModel,
-              child: Consumer<ProductsViewModel>(
-                builder: (context, value, child) {
-                  return SliverPadding(
-                    padding: const EdgeInsets.only(
-                      left: 16,
-                      right: 16,
-                      bottom: 108,
-                      top: 8,
-                    ),
-                    sliver: SliverToBoxAdapter(
-                      child: value.productsList.status == Status.error ? 
-                      AppButtonWidget(
-                        onTap: (){
-                          widget.productViewModel.fetchPhotosList(
-                            email: email,
-                            ip: ip,
-                          );
-                        },
-                        title: "refresh",
-                      ): 
-                      Row(
-                        children: [
-                          if(value.page == 1)
-                          Container()
-                          else
-                          Expanded(
-                            child: AppButtonWidget(
-                              onTap: (){
-                                // favList.clear();
-                                _scrollController.animateTo(
-                                  0,
-                                  duration: const Duration(milliseconds: 500),
-                                  curve: Curves.easeInOut,
-                                );
-                                if(widget.productViewModel.getCurrentPage == Pages.products){
-                                  widget.productViewModel.setPage("outfit");
-                                  widget.productViewModel.setPreviousPage();
-                                  widget.productViewModel.fetchPhotosList(
-                                    email: email,
-                                    ip: ip,
-                                  );
-                                }else if(widget.productViewModel.getCurrentPage == Pages.filter){
-                                  widget.productViewModel.setPage("filter");
-                                  widget.productViewModel.setPreviousPage();
-                                  widget.productViewModel.filterPhotoPhotosList(
-                                    email: email,
-                                    ip: ip,
-                                  );
-                                }else if(widget.productViewModel.getCurrentPage == Pages.search){
-                                  widget.productViewModel.setPage("search");
-                                  widget.productViewModel.setPreviousPage();
-                                  widget.productViewModel.fetchFilterPairList(
-                                    email: email,
-                                    ip: ip,
-                                    FilterPairModel(
-                                      pairs: [
-                                        for (var i = 0; i < filterPairProvider.getSearchColor.length; i++)
-                                        Pairs(
-                                          type: filterPairProvider.getSearchType[i],
-                                          color: filterPairProvider.getSearchColor[i],
-                                        ),
-                                      ],
-                                      ptn: filterPairProvider.getSearchPattern[0],
-                                    ),
-                                  );
-                                }
-                              }, 
-                              title: "previouspage",
-                              buttonRadius: 5.0,
-                              titleSize: 16.0,
-                              buttonSize: const Size.fromHeight(20.0),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.only(
+                  left: 12.0,
+                  right: 12.0,
+                  bottom: 108,
+                ),
+                child: Pagination(
+                  numOfPages: widget.productViewModel.getTotalPages, 
+                  selectedPage: widget.productViewModel.getPage, 
+                  pagesVisible: 14, 
+                  onPageChanged: (index){
+                    print(index);
+                    widget.productViewModel.setNoPage(index);
+                    _scrollController.animateTo(
+                      0,
+                      duration: const Duration(milliseconds: 500),
+                      curve: Curves.easeInOut,
+                    );
+                    if(widget.productViewModel.getCurrentPage == Pages.products){
+                      widget.productViewModel.setPage("outfit");
+                      widget.productViewModel.fetchPhotosList(
+                        email: email,
+                        ip: ip,
+                      );
+                    }else if(widget.productViewModel.getCurrentPage == Pages.filter){
+                      widget.productViewModel.setPage("filter");
+                      widget.productViewModel.filterPhotoPhotosList(
+                        email: email,
+                        ip: ip,
+                      );
+                    }else if(widget.productViewModel.getCurrentPage == Pages.search){
+                      widget.productViewModel.setPage("search");
+                      widget.productViewModel.fetchFilterPairList(
+                        email: email,
+                        ip: ip,
+                        FilterPairModel(
+                          pairs: [
+                            for (var i = 0; i < filterPairProvider.getSearchColor.length; i++)
+                            Pairs(
+                              type: filterPairProvider.getSearchType[i],
+                              color: filterPairProvider.getSearchColor[i],
                             ),
-                          ),
-                          if(widget.productViewModel.getPage == widget.productViewModel.getTotalPages)
-                          Container()
-                          else
-                          ...[SizedBox(width: widget.productViewModel.getPage == 1 ? 0.0 : 10.0,),
-                          Expanded(
-                            child: AppButtonWidget(
-                              onTap: (){
-                                // favList.clear();
-                                _scrollController.animateTo(
-                                  0,
-                                  duration: const Duration(milliseconds: 500),
-                                  curve: Curves.easeInOut,
-                                );
-                                if(widget.productViewModel.getCurrentPage == Pages.products){
-                                  widget.productViewModel.setPage("outfit");
-                                  widget.productViewModel.setNextPage();
-                                  widget.productViewModel.fetchPhotosList(
-                                    email: email,
-                                    ip: ip,
-                                  );
-                                }else if(widget.productViewModel.getCurrentPage == Pages.filter){
-                                  widget.productViewModel.setPage("filter");
-                                  widget.productViewModel.setNextPage();
-                                  widget.productViewModel.filterPhotoPhotosList(
-                                    email: email,
-                                    ip: ip,
-                                  );
-                                }else if(widget.productViewModel.getCurrentPage == Pages.search){
-                                  widget.productViewModel.setPage("search");
-                                  widget.productViewModel.setNextPage();
-                                  widget.productViewModel.fetchFilterPairList(
-                                    email: email,
-                                    ip: ip,
-                                    FilterPairModel(
-                                      pairs: [
-                                        for (var i = 0; i < filterPairProvider.getSearchColor.length; i++)
-                                        Pairs(
-                                          type: filterPairProvider.getSearchType[i],
-                                          color: filterPairProvider.getSearchColor[i],
-                                        ),
-                                      ],
-                                      ptn: filterPairProvider.getSearchPattern[0],
-                                    ),
-                                  );
-                                }
-                              }, 
-                              title: "nextpage",
-                              titleSize: 18.0,
-                              buttonRadius: 5.0,
-                              buttonSize: const Size.fromHeight(20.0),
-                            ),
-                          ),]
-                        ],
-                      ),
-                    ),
-                  );
-                },
+                          ],
+                          ptn: filterPairProvider.getSearchPattern[0],
+                        ),
+                      );
+                    }
+                    setState(() {});
+                  },
+                ),
               ),
             ),
+            // ChangeNotifierProvider.value(
+            //   value: widget.productViewModel,
+            //   child: Consumer<ProductsViewModel>(
+            //     builder: (context, value, child) {
+            //       return SliverPadding(
+            //         padding: const EdgeInsets.only(
+            //           left: 16,
+            //           right: 16,
+            //           bottom: 108,
+            //           top: 8,
+            //         ),
+            //         sliver: SliverToBoxAdapter(
+            //           child: value.productsList.status == Status.error ? 
+            //           AppButtonWidget(
+            //             onTap: (){
+            //               widget.productViewModel.fetchPhotosList(
+            //                 email: email,
+            //                 ip: ip,
+            //               );
+            //             },
+            //             title: "refresh",
+            //           ): 
+            //           Row(
+            //             children: [
+            //               if(value.page == 1)
+            //               Container()
+            //               else
+            //               Expanded(
+            //                 child: AppButtonWidget(
+            //                   onTap: (){
+            //                     // favList.clear();
+            //                     _scrollController.animateTo(
+            //                       0,
+            //                       duration: const Duration(milliseconds: 500),
+            //                       curve: Curves.easeInOut,
+            //                     );
+            //                     if(widget.productViewModel.getCurrentPage == Pages.products){
+            //                       widget.productViewModel.setPage("outfit");
+            //                       widget.productViewModel.fetchPhotosList(
+            //                         email: email,
+            //                         ip: ip,
+            //                       );
+            //                     }else if(widget.productViewModel.getCurrentPage == Pages.filter){
+            //                       widget.productViewModel.setPage("filter");
+            //                       widget.productViewModel.filterPhotoPhotosList(
+            //                         email: email,
+            //                         ip: ip,
+            //                       );
+            //                     }else if(widget.productViewModel.getCurrentPage == Pages.search){
+            //                       widget.productViewModel.setPage("search");
+            //                       widget.productViewModel.fetchFilterPairList(
+            //                         email: email,
+            //                         ip: ip,
+            //                         FilterPairModel(
+            //                           pairs: [
+            //                             for (var i = 0; i < filterPairProvider.getSearchColor.length; i++)
+            //                             Pairs(
+            //                               type: filterPairProvider.getSearchType[i],
+            //                               color: filterPairProvider.getSearchColor[i],
+            //                             ),
+            //                           ],
+            //                           ptn: filterPairProvider.getSearchPattern[0],
+            //                         ),
+            //                       );
+            //                     }
+            //                   }, 
+            //                   title: "previouspage",
+            //                   buttonRadius: 5.0,
+            //                   titleSize: 16.0,
+            //                   buttonSize: const Size.fromHeight(20.0),
+            //                 ),
+            //               ),
+            //               if(widget.productViewModel.getPage == widget.productViewModel.getTotalPages)
+            //               Container()
+            //               else
+            //               ...[SizedBox(width: widget.productViewModel.getPage == 1 ? 0.0 : 10.0,),
+            //               Expanded(
+            //                 child: AppButtonWidget(
+            //                   onTap: (){
+            //                     // favList.clear();
+            //                     _scrollController.animateTo(
+            //                       0,
+            //                       duration: const Duration(milliseconds: 500),
+            //                       curve: Curves.easeInOut,
+            //                     );
+            //                     if(widget.productViewModel.getCurrentPage == Pages.products){
+            //                       widget.productViewModel.setPage("outfit");
+            //                       widget.productViewModel.fetchPhotosList(
+            //                         email: email,
+            //                         ip: ip,
+            //                       );
+            //                     }else if(widget.productViewModel.getCurrentPage == Pages.filter){
+            //                       widget.productViewModel.setPage("filter");
+            //                       widget.productViewModel.filterPhotoPhotosList(
+            //                         email: email,
+            //                         ip: ip,
+            //                       );
+            //                     }else if(widget.productViewModel.getCurrentPage == Pages.search){
+            //                       widget.productViewModel.setPage("search");
+            //                       widget.productViewModel.fetchFilterPairList(
+            //                         email: email,
+            //                         ip: ip,
+            //                         FilterPairModel(
+            //                           pairs: [
+            //                             for (var i = 0; i < filterPairProvider.getSearchColor.length; i++)
+            //                             Pairs(
+            //                               type: filterPairProvider.getSearchType[i],
+            //                               color: filterPairProvider.getSearchColor[i],
+            //                             ),
+            //                           ],
+            //                           ptn: filterPairProvider.getSearchPattern[0],
+            //                         ),
+            //                       );
+            //                     }
+            //                   }, 
+            //                   title: "nextpage",
+            //                   titleSize: 18.0,
+            //                   buttonRadius: 5.0,
+            //                   buttonSize: const Size.fromHeight(20.0),
+            //                 ),
+            //               ),]
+            //             ],
+            //           ),
+            //         ),
+            //       );
+            //     },
+            //   ),
+            // ),
           ],
         ),
     );
   }
 
-  Future<void> _share(String file) async {
-    await Share.share('Check out this new and Nice Dress');
+  Future<void> _share(int id) async {
+    await Share.share("https://stylorita.com/post_preview_evening.php?id=$id");
   }
 }
 

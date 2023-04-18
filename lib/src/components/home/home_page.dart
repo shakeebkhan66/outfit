@@ -39,7 +39,7 @@ class _HomePageState extends State<HomePage> {
     final page = Provider.of<ProductsViewModel>(context);
     final keyboardIsOpened = MediaQuery.of(context).viewInsets.bottom != 0.0;
     Widget? floatingActionButton;
-    if (!(keyboardIsOpened || _productsViewModel.getIndex != 0)) {
+    if (!(keyboardIsOpened || page.getIndex != 0)) {
       floatingActionButton = Transform.scale(
         scale: 1.2,
         child: FloatingActionButton(

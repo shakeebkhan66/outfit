@@ -73,19 +73,14 @@ class ProductsViewModel with ChangeNotifier {
 
   int get getPage => page;
   int get getTotalPages => totalPages;
+  
   setTotalPages(int settotalPages){
     totalPages = settotalPages;
     notifyListeners();
   }
-  setNextPage(){
-    page++;
+  setNoPage(int setPage){
+    page = setPage;
     notifyListeners();
-  }
-  setPreviousPage(){
-    if(getPage != 1){
-      page--;
-      notifyListeners();
-    }
   }
 
   Future<void> fetchPhotosList({required String email,required String ip}) async {

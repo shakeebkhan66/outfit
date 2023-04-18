@@ -15,6 +15,7 @@ import 'package:outfit/src/data/view_model/favourites_view_model.dart';
 import 'package:outfit/src/data/view_model/photos_view_model.dart';
 import 'package:outfit/src/utils/app_urls.dart';
 import 'package:outfit/src/widgets/app_button_widget.dart';
+import 'package:outfit/src/widgets/pagination.dart';
 import 'package:outfit/src/widgets/shimmer_loader.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -116,115 +117,135 @@ class _FavoriteDetailPageState extends State<FavoriteDetailPage> {
                             productListData: value.favFoldersImages.data!.data!.data!,
                             favFoldersViewModel: _favFoldersViewModel,
                             ),
-                            ChangeNotifierProvider.value(
-                            value: _favFoldersViewModel,
-                            child: Consumer<ProductsViewModel>(
-                              builder: (context, value, child) {
-                                return SliverPadding(
-                                  padding: const EdgeInsets.only(
-                                    left: 8.0,
-                                    right: 8.0,
-                                    bottom: 108,
-                                    top: 8,
-                                  ),
-                                  sliver: SliverToBoxAdapter(
-                                    child: value.productsList.status == Status.error ? 
-                                        AppButtonWidget(
-                                          onTap: (){
-                                            if(widget.page == "wardrobe"){
-                                              _favFoldersViewModel.dressMeImagesList(
-                                                userId: userId,
-                                                email: email,
-                                                ip: ip,
-                                              );
-                                            }else {
-                                              _favFoldersViewModel.favFolderImagesList(
-                                                folderId: widget.folderId,
-                                                email: email,
-                                                ip: ip,
-                                              );
-                                            }
-                                          },
-                                          title: "refresh",
-                                        ): 
-                                        Row(
-                                          children: [
-                                            if(_favFoldersViewModel.getPage == 1)
-                                            Container()
-                                            else
-                                            Expanded(
-                                              child: AppButtonWidget(
-                                                onTap: (){
-                                                  // favList.clear();
-                                                  _scrollController.animateTo(
-                                                    0,
-                                                    duration: const Duration(milliseconds: 500),
-                                                    curve: Curves.easeInOut,
-                                                  );
-                                                  if(widget.page == "wardrobe"){
-                                                      _favFoldersViewModel.setPreviousPage();
-                                                      _favFoldersViewModel.dressMeImagesList(
-                                                      userId: userId,
-                                                      email: email,
-                                                      ip: ip,
-                                                    );
-                                                  } else {
-                                                    _favFoldersViewModel.setPreviousPage();
-                                                  _favFoldersViewModel.favFolderImagesList(
-                                                      folderId: widget.folderId,
-                                                      email: email,
-                                                      ip: ip,
-                                                    );
-                                                  }
-                                                }, 
-                                                title: "previouspage",
-                                                buttonRadius: 5.0,
-                                                titleSize: 16.0,
-                                                buttonSize: const Size.fromHeight(20.0),
-                                              ),
-                                            ),
-                                            if(_favFoldersViewModel.getPage == _favFoldersViewModel.getTotalPages)
-                                            Container()
-                                            else
-                                            ...[SizedBox(width: _favFoldersViewModel.getPage == 1 ? 0.0 : 10.0,),
-                                            Expanded(
-                                              child: AppButtonWidget(
-                                                onTap: (){
-                                                  // favList.clear();
-                                                  _scrollController.animateTo(
-                                                    0,
-                                                    duration: const Duration(milliseconds: 500),
-                                                    curve: Curves.easeInOut,
-                                                  );
-                                                  if(widget.page == "wardrobe"){
-                                                    _favFoldersViewModel.setNextPage();
-                                                      _favFoldersViewModel.dressMeImagesList(
-                                                      userId: userId,
-                                                      email: email,
-                                                      ip: ip,
-                                                    );
-                                                  }else {
-                                                    _favFoldersViewModel.setNextPage();
-                                                    _favFoldersViewModel.favFolderImagesList(
-                                                      folderId: widget.folderId,
-                                                      email: email,
-                                                      ip: ip,
-                                                    );
-                                                  }
-                                                }, 
-                                                title: "nextpage",
-                                                titleSize: 18.0,
-                                                buttonRadius: 5.0,
-                                                buttonSize: const Size.fromHeight(20.0),
-                                              ),
-                                            ),]
-                                          ],
-                                        ),
-                                  ),
-                                );
-                              },
+                            SliverToBoxAdapter(
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                bottom: 108,
+                              ),
+                              child: Pagination(
+                                numOfPages: _favFoldersViewModel.getTotalPages, 
+                                selectedPage: _favFoldersViewModel.getPage, 
+                                pagesVisible: 14, 
+                                onPageChanged: (index){
+                                  print(index);
+                                  _favFoldersViewModel.setNoPage(index);
+                                  _scrollController.animateTo(
+                                    0,
+                                    duration: const Duration(milliseconds: 500),
+                                    curve: Curves.easeInOut,
+                                  );
+                                  if(widget.page == "wardrobe"){
+                                      _favFoldersViewModel.dressMeImagesList(
+                                      userId: userId,
+                                      email: email,
+                                      ip: ip,
+                                    );
+                                  } else {
+                                  _favFoldersViewModel.favFolderImagesList(
+                                      folderId: widget.folderId,
+                                      email: email,
+                                      ip: ip,
+                                    );
+                                  }
+                                  setState(() {});
+                                },
+                              ),
                             ),
                           ),
+                          //   ChangeNotifierProvider.value(
+                          //   value: _favFoldersViewModel,
+                          //   child: Consumer<ProductsViewModel>(
+                          //     builder: (context, value, child) {
+                          //       return SliverPadding(
+                          //         padding: const EdgeInsets.only(
+                          //           left: 8.0,
+                          //           right: 8.0,
+                          //           bottom: 108,
+                          //           top: 8,
+                          //         ),
+                          //         sliver: SliverToBoxAdapter(
+                          //           child: value.productsList.status == Status.error ? 
+                          //               AppButtonWidget(
+                          //                 onTap: (){
+                          //                   if(widget.page == "wardrobe"){
+                          //                     _favFoldersViewModel.dressMeImagesList(
+                          //                       userId: userId,
+                          //                       email: email,
+                          //                       ip: ip,
+                          //                     );
+                          //                   }else {
+                          //                     _favFoldersViewModel.favFolderImagesList(
+                          //                       folderId: widget.folderId,
+                          //                       email: email,
+                          //                       ip: ip,
+                          //                     );
+                          //                   }
+                          //                 },
+                          //                 title: "refresh",
+                          //               ): 
+                          //               Row(
+                          //                 children: [
+                          //                   if(_favFoldersViewModel.getPage == 1)
+                          //                   Container()
+                          //                   else
+                          //                   Expanded(
+                          //                     child: AppButtonWidget(
+                          //                       onTap: (){
+                          //                         // favList.clear();
+                          //                         _scrollController.animateTo(
+                          //                           0,
+                          //                           duration: const Duration(milliseconds: 500),
+                          //                           curve: Curves.easeInOut,
+                          //                         );
+                          //                       }, 
+                          //                       title: "previouspage",
+                          //                       buttonRadius: 5.0,
+                          //                       titleSize: 16.0,
+                          //                       buttonSize: const Size.fromHeight(20.0),
+                          //                     ),
+                          //                   ),
+                          //                   if(_favFoldersViewModel.getPage == _favFoldersViewModel.getTotalPages)
+                          //                   Container()
+                          //                   else
+                          //                   ...[SizedBox(width: _favFoldersViewModel.getPage == 1 ? 0.0 : 10.0,),
+                          //                   Expanded(
+                          //                     child: AppButtonWidget(
+                          //                       onTap: (){
+                          //                         // favList.clear();
+                          //                         _scrollController.animateTo(
+                          //                           0,
+                          //                           duration: const Duration(milliseconds: 500),
+                          //                           curve: Curves.easeInOut,
+                          //                         );
+                          //                         if(widget.page == "wardrobe"){
+                          //                           _favFoldersViewModel.setNextPage();
+                          //                             _favFoldersViewModel.dressMeImagesList(
+                          //                             userId: userId,
+                          //                             email: email,
+                          //                             ip: ip,
+                          //                           );
+                          //                         }else {
+                          //                           _favFoldersViewModel.setNextPage();
+                          //                           _favFoldersViewModel.favFolderImagesList(
+                          //                             folderId: widget.folderId,
+                          //                             email: email,
+                          //                             ip: ip,
+                          //                           );
+                          //                         }
+                          //                       }, 
+                          //                       title: "nextpage",
+                          //                       titleSize: 18.0,
+                          //                       buttonRadius: 5.0,
+                          //                       buttonSize: const Size.fromHeight(20.0),
+                          //                     ),
+                          //                   ),]
+                          //                 ],
+                          //               ),
+                          //         ),
+                          //       );
+                          //     },
+                          //   ),
+                          // ),
                          ]);
                         case Status.error:
                         return Container(
@@ -303,9 +324,9 @@ class _FavImagesGridViewState extends State<FavImagesGridView> {
   ProductsViewModel productsViewModel = ProductsViewModel();
   @override
   Widget build(BuildContext context) {
-    Future<void> _share(String file) async {
-      await Share.share(file);
-    }
+    Future<void> _share(int id) async {
+    await Share.share("https://stylorita.com/post_preview_evening.php?id=$id");
+  }
     return SliverPadding(
       padding: const EdgeInsets.only(
         left: 8.0,
@@ -328,7 +349,7 @@ class _FavImagesGridViewState extends State<FavImagesGridView> {
                 source: widget.productListData![index].source!,
                 imageId: widget.productListData![index].uid.toString(),
                 index: index,
-                url: AppUrl.webUrl + widget.productListData![index].url!,
+                id: widget.productListData![index].uid!,
                 page: "favourites",
               ),
              ).then((value) {
@@ -351,7 +372,7 @@ class _FavImagesGridViewState extends State<FavImagesGridView> {
             child: GridTile(
               footer: GridTileBar(
                 leading: GestureDetector(
-                  onTap: () => _share(AppUrl.webUrl + widget.productListData![index].url!),
+                  onTap: () => _share(widget.productListData![index].uid!),
                   child: const Icon(
                     Icons.share,
                     color: AppColors.blackColor,

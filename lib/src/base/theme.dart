@@ -25,4 +25,5 @@ class AppShadow {
 class AppColors {
   static const primaryColor = Color(0xFFD281B5);
   static const blackColor = Color(0xFF282D53);
+  static const white = Color(0xFFFFFFFF);
 }

@@ -53,6 +53,7 @@ class _WardrobeViewState extends State<WardrobeView> {
         padding: const EdgeInsets.only(top: 30),
         margin: EdgeInsets.only(
           top: padding.top,
+          bottom: padding.bottom,
         ),
         child: Column(children: [
           const WardrobePageTitleWidget(),
@@ -82,6 +83,8 @@ class _WardrobeViewState extends State<WardrobeView> {
                       ),
                     child: const Text("error"));
                   case Status.completed:
+                  List<String> combinedList = wardrobeViewModel.getSelectedColors.values
+                  .fold<List<String>>([], (prevList, nextList) => prevList..addAll(nextList));
                   return Expanded(
                     child: Container(
                       decoration: const BoxDecoration(
@@ -286,8 +289,11 @@ class _WardrobeViewState extends State<WardrobeView> {
                                 ),
                               )
                             ],
+                            if(combinedList.isEmpty)
+                            Container()
+                            else
                             Padding(
-                              padding: EdgeInsets.only(left: 28.0,right: 28.0,top: 28.0, bottom: padding.bottom + 40.0),
+                              padding: const EdgeInsets.only(left: 28.0,right: 28.0,top: 28.0, bottom: 10.0),
                               child: AppButtonWidget(
                                 onTap: (){
                                   AppNavigation.to(

@@ -5,11 +5,14 @@ import 'package:outfit/src/base/assets.dart';
 import 'package:outfit/src/base/nav.dart';
 import 'package:outfit/src/base/theme.dart';
 import 'package:outfit/src/components/auth/social_auth_page.dart';
+import 'package:outfit/src/components/favorites/dialogs/add_folder_dialog.dart';
+import 'package:outfit/src/data/model/favourites_folder.dart';
 import 'package:outfit/src/data/repository/auth_local_data_repo.dart';
 import 'package:outfit/src/data/response/api_response.dart';
 import 'package:outfit/src/data/view_model/favourites_view_model.dart';
 import 'package:outfit/src/data/view_model/photos_view_model.dart';
 import 'package:outfit/src/widgets/custom_loader.dart';
+import 'package:outfit/src/widgets/share_bottom_sheet.dart';
 import 'package:outfit/src/widgets/shimmer_loader.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -20,7 +23,7 @@ class DressDetailPage extends StatefulWidget {
   final FavFoldersViewModel? favFoldersViewModel;
   final String imageId;
   final String source;
-  final String url;
+  final int id;
   final bool isFavourite;
   final int index;
   final String page;
@@ -31,7 +34,7 @@ class DressDetailPage extends StatefulWidget {
     required this.dress,
     required this.source,
     required this.imageId,
-    required this.url,
+    required this.id,
     required this.isFavourite,
     required this.index,
     required this.page,
@@ -49,23 +52,25 @@ class _DressDetailPageState extends State<DressDetailPage> {
   final String ip = AuthLocalDataSource.getIp();
   bool isFav = false;
 
+  bool isShow = false;
+
   @override
   void initState() {
     setState(() {
-      print(widget.isFavourite);
       isFav = widget.isFavourite;
     });
     super.initState();
   }
-  Future<void> _share(String file) async {
-      await Share.share(file);
+  Future<void> _share(int id) async {
+    await Share.share("https://stylorita.com/post_preview_evening.php?id=$id");
   }
   void openInstagramProfile(String url) async {
-  if (await canLaunchUrl(Uri.parse(url))) {
-    await launchUrl(Uri.parse(url));
+  if (await canLaunchUrl(Uri.parse(url.trim()))) {
+    await launchUrl(Uri.parse(url.trim()));
   } else {
     throw 'Could not launch $url';
   }
+  print(Uri.parse(url));
 }
   @override
   Widget build(BuildContext context) {
@@ -96,80 +101,85 @@ class _DressDetailPageState extends State<DressDetailPage> {
                 ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(34, 16, 31, 90),
-                  child: Row(children: [
-                    GestureDetector(
-                      onTap: (){
-                        if(isFav){
-                          isFav = false;
-                            if(widget.page == "outfit"){
-                              widget.productViewModel!.decrementFromFavourite(widget.index);
-                            } else {
-                              widget.favFoldersViewModel!.decrementFromFavourite(widget.index);
-                            }
-                            widget.productViewModel!.unLikeImageById(
-                              email: email,
-                              ip: ip,
-                              id: widget.imageId,
-                            );
-                          }else {
-                            isFav = true;
-                            if(widget.page == "outfit") {
-                             widget.productViewModel!.incrementFromFavourite(widget.index);
-                            } else {
-                              widget.favFoldersViewModel!.incrementFromFavourite(widget.index);
-                            }
-                            widget.productViewModel!.likeImageById(
-                              email: email,
-                              ip: ip,
-                              id: widget.imageId,
-                            );
-                          }
-                          setState(() {});
-                      },
-                      child: Icon(isFav
-                          ? Icons.favorite
-                          : Icons.favorite_border,
-                      color: (isFav
-                          ? const Color(0xFFFF2C2C)
-                          : AppColors.blackColor),
+                  child: Stack(
+                    children: [
+                      Row(children: [
+                        GestureDetector(
+                          onTap: (){
+                            if(isFav){
+                              isFav = false;
+                                if(widget.page == "outfit"){
+                                  widget.productViewModel!.decrementFromFavourite(widget.index);
+                                } else {
+                                  widget.favFoldersViewModel!.decrementFromFavourite(widget.index);
+                                }
+                                widget.productViewModel!.unLikeImageById(
+                                  email: email,
+                                  ip: ip,
+                                  id: widget.imageId,
+                                );
+                              }else {
+                                isFav = true;
+                                if(widget.page == "outfit") {
+                                 widget.productViewModel!.incrementFromFavourite(widget.index);
+                                } else {
+                                  widget.favFoldersViewModel!.incrementFromFavourite(widget.index);
+                                }
+                                widget.productViewModel!.likeImageById(
+                                  email: email,
+                                  ip: ip,
+                                  id: widget.imageId,
+                                );
+                              }
+                              setState(() {});
+                          },
+                          child: Icon(isFav
+                              ? Icons.favorite
+                              : Icons.favorite_border,
+                          color: (isFav
+                              ? const Color(0xFFFF2C2C)
+                              : AppColors.blackColor),
+                            ),
                         ),
-                    ),
-                    const SizedBox(width: 10),
-                    if(widget.page == "outfit")
-                    Text(widget.productViewModel!.likesList[widget.index].toString())
-                    else
-                    Text(widget.favFoldersViewModel!.likesList[widget.index].toString()),
-                    const Spacer(),
-                    IconButton(
-                      onPressed: (){
-                        _share(widget.url);
-                      },
-                      icon: const Icon(
-                        Icons.share,
-                        color: AppColors.blackColor,
-                      ),
-                    ),
-                    const SizedBox(width: 19.5),
-                    IconButton(
-                      icon: const Icon(Icons.bookmark_border, size: 26),
-                      onPressed: (){
-                        if(email == "") {
-                          AppNavigation.to(context, const SocialAuthPage());
-                        }else {
-                          showModalBottomSheet(
-                            isScrollControlled: true,
-                            context: context,
-                            builder: (BuildContext context) {
-                              return CustomBottomSheet(imageId: widget.imageId);
-                            },
-                          );
-                        }
-                      },
-                    ),
-                  ]),
+                        const SizedBox(width: 10),
+                        if(widget.page == "outfit")
+                        Text(widget.productViewModel!.likesList[widget.index].toString())
+                        else
+                        Text(widget.favFoldersViewModel!.likesList[widget.index].toString()),
+                        const Spacer(),
+                        IconButton(
+                          onPressed: (){
+                            showShareBottomSheet(context);
+                          },
+                          icon: const Icon(
+                            Icons.share,
+                            color: AppColors.blackColor,
+                          ),
+                        ),
+                        const SizedBox(width: 19.5),
+                        IconButton(
+                          icon: const Icon(Icons.bookmark_border, size: 26),
+                          onPressed: (){
+                            if(email == "") {
+                              AppNavigation.to(context, const SocialAuthPage());
+                            }else {
+                              showModalBottomSheet(
+                                isScrollControlled: true,
+                                context: context,
+                                builder: (BuildContext ctx) {
+                                  return CustomBottomSheet(imageId: widget.imageId,ctx: ctx,);
+                                },
+                              );
+                            }
+                          },
+                        ),
+                      ]),
+                    ],
+                  ),
                 ),
                 InkWell(
                   onTap: () {
+                    print(widget.source);
                     openInstagramProfile(widget.source);
                   },
                   child: Container(
@@ -202,8 +212,8 @@ class _DressDetailPageState extends State<DressDetailPage> {
 
 class CustomBottomSheet extends StatefulWidget {
   final String imageId;
-
-  const CustomBottomSheet({super.key, required this.imageId});
+  final BuildContext ctx;
+  const CustomBottomSheet({super.key, required this.imageId, required this.ctx});
 
   @override
   State<CustomBottomSheet> createState() => _CustomBottomSheetState();
@@ -251,32 +261,60 @@ class _CustomBottomSheetState extends State<CustomBottomSheet> {
                   builder: (context, value, child) {
                     switch (value.favFolders.status!) {
                       case Status.completed:
-                        return value.favFolders.data!.data!.isEmpty ? const Text("No folders added"): Stack(
+                        return Stack(
                           alignment: Alignment.center,
                           children: [
                             Column(
-                              children: value.favFolders.data!.data!.map((folders) => 
-                              Column(
-                                children: [
-                                  ListTile(
-                                    onTap: (){
-                                      favFoldersViewModel.addImageToFolderApi(
-                                        data: {
-                                        "user": userId,
-                                        "list": folders.id,
-                                        "img": widget.imageId,
+                              children: [
+                                ListTile(
+                                  dense: true,
+                                  onTap: () async {
+                                    await AddFolderDialog(
+                                      callback: (_) {
+                                        favFoldersViewModel.addFolder(
+                                          userId: userId,
+                                          data: UpdateFolderData(
+                                            user: userId,
+                                            list_name: _,
+                                            description: "app",
+                                            type: "outfit",
+                                          )
+                                        );
+                                        setState(() {});
                                       },
-                                      folderName: folders.list_name!,
-                                      context: context);
-                                    },
-                                    dense: true,
-                                    title: Text(folders.list_name!),
-                                  ),
-                                  const Divider(
-                                    height: 1.0,
-                                  ),
-                                ],
-                              )).toList(),
+                                    ).show(context);
+                                  },
+                                  title: const Text("Add folder"),
+                                ),
+                                Column(
+                                  children: value.favFolders.data!.data!.map((folders) => 
+                                  Column(
+                                    children: [
+                                      ListTile(
+                                        onTap: (){
+                                          favFoldersViewModel.addImageToFolderApi(
+                                            data: {
+                                            "user": userId,
+                                            "list": folders.id,
+                                            "img": widget.imageId,
+                                          },
+                                          folderName: folders.list_name!,
+                                          context: widget.ctx).then((value) {
+                                            Future.delayed(const Duration(seconds: 3)).then((value) {
+                                              Navigator.of(widget.ctx).pop();
+                                            });
+                                          });
+                                        },
+                                        dense: true,
+                                        title: Text(folders.list_name!),
+                                      ),
+                                      const Divider(
+                                        height: 1.0,
+                                      ),
+                                    ],
+                                  )).toList(),
+                                ),
+                              ],
                             ),
                             favFoldersViewModel.loading ?
                             const CustomLoader():

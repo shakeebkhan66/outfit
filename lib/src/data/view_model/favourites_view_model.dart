@@ -44,15 +44,9 @@ class FavFoldersViewModel with ChangeNotifier {
     totalPages = settotalPages;
     notifyListeners();
   }
-  setNextPage(){
-    page++;
+  setNoPage(int index){
+    page = index;
     notifyListeners();
-  }
-  setPreviousPage(){
-    if(getPage != 1){
-      page--;
-      notifyListeners();
-    }
   }
 
   Future<void> favFoldersList({required String userId}) async {
@@ -141,22 +135,20 @@ class FavFoldersViewModel with ChangeNotifier {
 
   Future<bool> addImageToFolderApi({dynamic data, String? folderName, BuildContext? context}) async {
     setLoading(true);
-    _myRepo.AddFolderImages(data: data).then((value){
+    await _myRepo.AddFolderImages(data: data).then((value){
       setLoading(false);
       AppUtils.flushBarSucessMessage('Added to $folderName', context!);
       if(kDebugMode){
         print(value.toString());
       }
-      return true;
     }).onError((error, stackTrace){
       setLoading(false);
       AppUtils.flushBarErrorMessage(error.toString(), context!);
       if(kDebugMode){
         print(error.toString());
       }
-      return false;
     });
-    return false;
+    return Future.value(true);
   }
 
   List<int> favouriteList = [];
