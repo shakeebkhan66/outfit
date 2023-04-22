@@ -33,12 +33,15 @@ class FavFoldersViewModel with ChangeNotifier {
     notifyListeners();
   }
   List<int> favImageFolderIds = [];
+  List<int> favImageIds = [];
 
   List<int> get getFavImageFolderIds=> favImageFolderIds;
+  List<int> get getFavImageIds=> favImageIds;
 
-  setfavImageFolderIds(int favFolderId){
+  setfavImageFolderIds(int favFolderId, int imgid){
     print(favFolderId);
     favImageFolderIds.add(favFolderId);
+    favImageIds.add(imgid);
     notifyListeners();
   }
   clearFavImageFolderIds(){
@@ -75,7 +78,24 @@ class FavFoldersViewModel with ChangeNotifier {
     page = index;
     notifyListeners();
   }
-
+  increaseTotalPages(){
+    if(getTotalPages > 14) {
+      int addedPage = getPage + 6;
+      if(addedPage < getTotalPages){
+        page = addedPage;
+      }
+    }
+    notifyListeners();
+  }
+  decreaseTotalPages(){
+    if(getTotalPages > 14) {
+      int addedPage = getPage - 6;
+      if(addedPage > 1){
+        page = addedPage;
+      }
+    }
+    notifyListeners();
+  }
   Future<void> favFoldersList({required String userId}) async {
 
     setFavFoldersList(ApiResponse.loading());
@@ -109,7 +129,7 @@ class FavFoldersViewModel with ChangeNotifier {
         for (var element in value.data!) {
           if(element.user == userId){
             if(!favImageFolderIds.contains(element.id)){
-              setfavImageFolderIds(element.list!);
+              setfavImageFolderIds(element.list!,element.img!);
             }
           }
         }

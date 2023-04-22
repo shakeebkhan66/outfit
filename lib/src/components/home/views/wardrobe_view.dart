@@ -27,13 +27,28 @@ class WardrobeView extends StatefulWidget {
 
 class _WardrobeViewState extends State<WardrobeView> {
   final WardrobeViewModel wardrobeViewModel = WardrobeViewModel();
+  final ScrollController _scrollController = ScrollController();
   final String userId = AuthLocalDataSource.getUserid();
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(_scrollListener);
     wardrobeViewModel.fetchWardrobeList(
       userid: userId,
     );
+  }
+    @override
+  void dispose() {
+    _scrollController.removeListener(_scrollListener);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollListener() {
+    if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
+      _scrollController.animateTo(_scrollController.position.maxScrollExtent - 1,
+          duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
+    }
   }
 
   ListTileControlAffinity get _controlAffinity =>
@@ -66,6 +81,7 @@ class _WardrobeViewState extends State<WardrobeView> {
                   case Status.loading:
                   return Expanded(
                     child: SingleChildScrollView(
+                      controller: _scrollController,
                       child: Container(
                         decoration: const BoxDecoration(
                           color: Colors.white,
@@ -265,6 +281,9 @@ class _WardrobeViewState extends State<WardrobeView> {
                                             ),
                                             child: AppButtonWidget(
                                               onTap: () {
+                                                  setState(() {
+                                                    item.isExpanded = !item.isExpanded;
+                                                  });
                                                 if(wardrobeViewModel.getwardrobeIds[item.id]!.isNotEmpty){
                                                   wardrobeViewModel.updateWardrobeApi({
                                                     "user_id": userId,

@@ -79,6 +79,23 @@ class ProductsViewModel with ChangeNotifier {
     print(settotalPages);
     totalPages = settotalPages;
     notifyListeners();
+  }
+  increaseTotalPages(){
+    if(getTotalPages > 14) {
+      int addedPage = getPage + 6;
+      if(addedPage < getTotalPages){
+        page = addedPage;
+      }
+    }
+    notifyListeners();
+  }
+  decreaseTotalPages(){
+    if(getTotalPages > 14) {
+      int addedPage = getPage - 6;
+      if(addedPage > 1){
+        page = addedPage;
+      }
+    }
     notifyListeners();
   }
   setNoPage(int setPage){

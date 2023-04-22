@@ -118,7 +118,7 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
           physics: const BouncingScrollPhysics(),
           slivers: [
             SliverPadding(
-              padding: const EdgeInsets.fromLTRB(16, 27.8, 16, 0),
+              padding: const EdgeInsets.fromLTRB(16, 27.8, 16, 10.0),
               sliver: SliverToBoxAdapter(
                 child: GestureDetector(
                   onTap: (){
@@ -154,84 +154,11 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
                 ),
               ),
             ),
-            if(colorsViewModelProvider.selectedGradientColors[0] == null)
-            const SliverToBoxAdapter()
-            else
-            SliverPadding(
-            padding: const EdgeInsets.only(
-              left: 16,
-              top: 10.0,
-              right: 16,
-            ),
-            sliver: SliverToBoxAdapter(
-              child: Wrap(
-                runSpacing: 8,
-                spacing: 8,
-                alignment: WrapAlignment.start,
-                children: colorsViewModelProvider.selectedGradientColors.asMap().map((index, stylecolor) => MapEntry(index, Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFFBF9),
-                      borderRadius: BorderRadius.circular(32),
-                      boxShadow: [
-                        BoxShadow(
-                          offset: Offset.zero,
-                          blurRadius: 2,
-                          spreadRadius: 0,
-                          color: Colors.black.withOpacity(0.075),
-                        ),
-                      ],
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 5,
-                      horizontal: 6,
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min, 
-                    children: [
-                      if(stylecolor!=null)
-                      Wrap(
-                        children: stylecolor.map((key, value) => MapEntry(key, 
-                        Wrap(
-                          children: [
-                             if(value.first is Color) 
-                              circleContainer(value)
-                              else
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(10.0),
-                                child: Image.network(
-                                "https://stylorita.com/admin/${value.first}",
-                                  width: 38.0,
-                                  height: 18.0,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                          ],
-                        ),
-                        )).values.toList(),
-                      ),
-                      // Image.asset(e.icon, width: 38, height: 20),
-                      const SizedBox(width: 4),
-                      if(colorsViewModelProvider.getSearchStyle[index]!= null)
-                      Text(
-                      currentLanguage.languageCode=="en"? 
-                        colorsViewModelProvider.getSearchStyle[index]!.en_name!:
-                        colorsViewModelProvider.getSearchStyle[index]!.name!,
-                        style: const TextStyle(
-                          fontSize: 12.0,
-                          color: AppColors.blackColor,
-                        ),
-                      ),
-                    ]),
-                  ))).values.toList(),
-              ),
-            ),
-          ),
             SliverPadding(
               padding: EdgeInsets.only(
                 left: 16,
                 right: 16,
                 top: colorsViewModelProvider.selectedGradientColors[0] == null ? 10.0 : 0.0,
-                bottom: 8,
               ),
               sliver: SliverToBoxAdapter(
                 child: Row(
@@ -306,6 +233,79 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
                 ),
               ),
             ),
+
+            if(colorsViewModelProvider.selectedGradientColors[0] == null)
+            const SliverToBoxAdapter()
+            else
+            SliverPadding(
+            padding: const EdgeInsets.only(
+              left: 16,
+              right: 16,
+              bottom: 8.0,
+            ),
+            sliver: SliverToBoxAdapter(
+              child: Wrap(
+                runSpacing: 8,
+                spacing: 8,
+                alignment: WrapAlignment.start,
+                children: colorsViewModelProvider.selectedGradientColors.asMap().map((index, stylecolor) => MapEntry(index, Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFFBF9),
+                      borderRadius: BorderRadius.circular(32),
+                      boxShadow: [
+                        BoxShadow(
+                          offset: Offset.zero,
+                          blurRadius: 2,
+                          spreadRadius: 0,
+                          color: Colors.black.withOpacity(0.075),
+                        ),
+                      ],
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 5,
+                      horizontal: 6,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min, 
+                    children: [
+                      if(stylecolor!=null)
+                      Wrap(
+                        children: stylecolor.map((key, value) => MapEntry(key, 
+                        Wrap(
+                          children: [
+                             if(value.first is Color) 
+                              circleContainer(value)
+                              else
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(10.0),
+                                child: Image.network(
+                                "https://stylorita.com/admin/${value.first}",
+                                  width: 38.0,
+                                  height: 18.0,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                          ],
+                        ),
+                        )).values.toList(),
+                      ),
+                      // Image.asset(e.icon, width: 38, height: 20),
+                      const SizedBox(width: 4),
+                      if(colorsViewModelProvider.getSearchStyle[index]!= null)
+                      Text(
+                      currentLanguage.languageCode=="en"? 
+                        colorsViewModelProvider.getSearchStyle[index]!.en_name!:
+                        colorsViewModelProvider.getSearchStyle[index]!.name!,
+                        style: const TextStyle(
+                          fontSize: 12.0,
+                          color: AppColors.blackColor,
+                        ),
+                      ),
+                    ]),
+                  ))).values.toList(),
+              ),
+            ),
+          ),
             ChangeNotifierProvider.value(
               value: widget.productViewModel,
               child: Consumer<ProductsViewModel>(
@@ -446,6 +446,8 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
                             bottom: 108,
                           ),
                           child: Pagination(
+                            onTapFWD:() => value.increaseTotalPages(),
+                            onTapBWD: () => value.decreaseTotalPages(),
                             numOfPages: value.getTotalPages, 
                             selectedPage: value.getPage, 
                             pagesVisible: 13, 

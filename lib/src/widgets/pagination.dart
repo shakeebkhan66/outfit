@@ -34,7 +34,11 @@ class Pagination extends StatefulWidget {
       this.nextIcon,
 
       /// Spacing between the individual page buttons
-      this.spacing});
+      this.spacing,
+      
+      required this.onTapFWD,
+      required this.onTapBWD,
+      });
 
   final int numOfPages;
   final int selectedPage;
@@ -43,6 +47,8 @@ class Pagination extends StatefulWidget {
   final Icon? previousIcon;
   final Icon? nextIcon;
   final double? spacing;
+  final VoidCallback? onTapFWD;
+  final VoidCallback? onTapBWD;
 
   @override
   State<Pagination> createState() => _PaginationState();
@@ -87,21 +93,23 @@ class _PaginationState extends State<Pagination> {
 
   @override
   Widget build(BuildContext context) {
+    int decPage = widget.selectedPage - 6;
+    int incPage = widget.selectedPage + 6;
     return Wrap(
       alignment:  WrapAlignment.spaceBetween,
       // mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         /// Previous button
         InkWell(
-          onTap: widget.selectedPage > 1
-            ? () => widget.onPageChanged(widget.selectedPage - 1)
+          onTap: decPage > 1
+            ? widget.onTapBWD
             : null,
           child: SizedBox(
             height: 40.0,
             width: 40.0,
             child: widget.previousIcon ?? Icon(Icons.arrow_back_ios,
               size: 15.0,
-              color: widget.selectedPage > 1 ? AppColors.primaryColor : Colors.grey, 
+              color: decPage > 1 ? AppColors.primaryColor : Colors.grey, 
             ),
           ),
         ),
@@ -181,15 +189,15 @@ class _PaginationState extends State<Pagination> {
             ),
           ),
         InkWell(
-          onTap: widget.selectedPage < widget.numOfPages
-              ? () => widget.onPageChanged(widget.selectedPage + 1)
+          onTap: incPage < widget.numOfPages
+              ? widget.onTapFWD
               : null,
           child: SizedBox(
             height: 40.0,
             width: 40.0,
             child: widget.nextIcon ?? Icon(Icons.arrow_forward_ios,
               size: 15.0,
-              color: widget.selectedPage < widget.numOfPages ? AppColors.primaryColor : Colors.grey,
+              color: incPage < widget.numOfPages ? AppColors.primaryColor : Colors.grey,
             ),
           ),
         ),

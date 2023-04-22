@@ -77,6 +77,7 @@ class _DressDetailPageState extends State<DressDetailPage> {
 }
   @override
   Widget build(BuildContext context) {
+    final favourites = Provider.of<FavFoldersViewModel>(context);
     final padding = MediaQuery.of(context).padding;
     return Scaffold(
       backgroundColor: Colors.white,
@@ -161,7 +162,10 @@ class _DressDetailPageState extends State<DressDetailPage> {
                         ),
                         const SizedBox(width: 19.5),
                         IconButton(
-                          icon: const Icon(Icons.bookmark_border, size: 26),
+                          icon: Icon(Icons.bookmark_border, 
+                          size: 26,
+                          color: favourites.favImageIds.contains(widget.id) ? AppColors.primaryColor : Colors.grey,
+                         ),
                           onPressed: (){
                             if(email == "") {
                               AppNavigation.to(context, const SocialAuthPage());
@@ -286,7 +290,7 @@ class _CustomBottomSheetState extends State<CustomBottomSheet> {
                                             folderName: folders.list_name!,
                                             context: widget.ctx);
                                           }else {
-                                            favourites.setfavImageFolderIds(folders.id!);
+                                            favourites.setfavImageFolderIds(folders.id!,int.parse(widget.imageId));
                                             favFoldersViewModel.addImageToFolderApi(
                                               data: {
                                               "user": userId,
@@ -307,6 +311,7 @@ class _CustomBottomSheetState extends State<CustomBottomSheet> {
                                     ],
                                   )).toList(),
                                 ),
+                                const Divider(color: AppColors.blackColor,height: 0.0,),
                                 ListTile(
                                   visualDensity: const VisualDensity(horizontal: -4.0,vertical: 0.0),
                                   dense: true,

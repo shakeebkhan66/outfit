@@ -128,6 +128,8 @@ class _FavoriteDetailPageState extends State<FavoriteDetailPage> {
                                 bottom: 108,
                               ),
                               child: Pagination(
+                                onTapBWD:()=> value.decreaseTotalPages(),
+                                onTapFWD:()=> value.increaseTotalPages(),
                                 numOfPages: _favFoldersViewModel.getTotalPages, 
                                 selectedPage: _favFoldersViewModel.getPage, 
                                 pagesVisible: 14, 
