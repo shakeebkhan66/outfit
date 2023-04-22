@@ -6,7 +6,8 @@ import 'package:reusables/mixins/form_state_mixin.dart';
 import 'package:reusables/reusables.dart';
 
 class AddFolderDialog extends StatefulWidget {
-  const AddFolderDialog({Key? key, required this.callback}) : super(key: key);
+  final String title;
+  const AddFolderDialog({Key? key, required this.callback, required this.title}) : super(key: key);
 
   final void Function(String) callback;
 
@@ -47,8 +48,7 @@ class _AddFolderDialogState extends State<AddFolderDialog> with FormStateMixin {
             mainAxisSize: MainAxisSize.min,
             children: [
               Center(
-                child: Text(
-                  'Create new folder',
+                child: Text(widget.title,
                   style: GoogleFonts.montserrat(
                     fontWeight: FontWeight.w600,
                     fontSize: 24,

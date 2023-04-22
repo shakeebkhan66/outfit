@@ -98,6 +98,7 @@ class _FavoritesFolderPageState extends State<FavoritesFolderPage> {
                                   return GestureDetector(
                                     onTap: () async {
                                       await AddFolderDialog(
+                                        title: "Create new folder",
                                         callback: (_) {
                                           setState(() {});
                                         },
@@ -127,6 +128,7 @@ class _FavoritesFolderPageState extends State<FavoritesFolderPage> {
                                               backgroundColor: AppColors.primaryColor,
                                               onPressed: () async {
                                                 await AddFolderDialog(
+                                                  title: "Create new folder",
                                                   callback: (_) {
                                                     _favFoldersViewModel.addFolder(
                                                       userId: userId,
@@ -248,6 +250,7 @@ class _FavoritesFolderPageState extends State<FavoritesFolderPage> {
                                               onSelected: (_) async {
                                                 if (_ == 0) {
                                                   await AddFolderDialog(
+                                                    title: "Edit folder name",
                                                     callback: (_) {
                                                         _favFoldersViewModel.updateFolderName(
                                                           userId: userId,

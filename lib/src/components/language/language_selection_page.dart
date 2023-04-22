@@ -128,6 +128,7 @@ class _LanguageSelectionPageState extends State<LanguageSelectionPage> {
               padding: const EdgeInsets.symmetric(horizontal: 28.0),
               child: AppButtonWidget(
                 onTap: () {
+                  AuthLocalDataSource.setLan(true);
                   AppNavigation.navigateRemoveUntil(context, const HomePage());
                 },
                 title: 'continue',

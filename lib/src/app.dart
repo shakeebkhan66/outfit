@@ -3,8 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:outfit/app_localization.dart';
-import 'package:outfit/src/components/auth/social_auth_page.dart';
+import 'package:outfit/src/components/home/home_page.dart';
+import 'package:outfit/src/components/language/language_selection_page.dart';
+import 'package:outfit/src/data/repository/auth_local_data_repo.dart';
 import 'package:outfit/src/data/view_model/auth_view_model.dart';
+import 'package:outfit/src/data/view_model/colors_view_model.dart';
+import 'package:outfit/src/data/view_model/favourites_view_model.dart';
 import 'package:outfit/src/data/view_model/photos_view_model.dart';
 import 'package:outfit/src/data/view_model/wardrobe_view_model.dart';
 import 'package:outfit/src/providers/filter_pair_provider.dart';
@@ -25,6 +29,7 @@ class MyApp extends StatelessWidget {
     await Hive.initFlutter();
     await Hive.openBox(settingsBox);
     await Hive.openBox(authBox); 
+    await Hive.openBox(langBox); 
     runApp(
       MultiProvider(
         providers: [
@@ -33,6 +38,8 @@ class MyApp extends StatelessWidget {
           ChangeNotifierProvider(create: (_)=> FilterPairProvider()),
           ChangeNotifierProvider(create: (_)=> WardrobeViewModel()),
           ChangeNotifierProvider(create: (_)=> ProductsViewModel()),
+          ChangeNotifierProvider(create: (_)=> ColorsAndStylesViewModel()),
+          ChangeNotifierProvider(create: (_)=> FavFoldersViewModel()),
         ],
         child: const MyApp(),
       ),
@@ -42,6 +49,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final currentLanguage = Provider.of<LanguageProvider>(context).getAppLanguage;
+    final String id = AuthLocalDataSource.getUserid();
+    final bool lang = AuthLocalDataSource.getLang();
+
     return MaterialApp(
       title: 'Outfit',
       theme: ThemeData(
@@ -64,7 +74,10 @@ class MyApp extends StatelessWidget {
       supportedLocales: supporatedLocales.map((languageCode) {
         return AppUtils.getLocaleFromLanguageCode(languageCode);
       }).toList(),
-      home: const SocialAuthPage(),
+      home: 
+      id == "" && lang == false ?  
+      const LanguageSelectionPage() : 
+      const HomePage(),
     );
   }
 }

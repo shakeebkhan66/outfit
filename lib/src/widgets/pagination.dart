@@ -88,7 +88,7 @@ class _PaginationState extends State<Pagination> {
   @override
   Widget build(BuildContext context) {
     return Wrap(
-      alignment: widget.numOfPages > 6 ? WrapAlignment.start : WrapAlignment.spaceBetween,
+      alignment:  WrapAlignment.spaceBetween,
       // mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         /// Previous button
@@ -105,7 +105,30 @@ class _PaginationState extends State<Pagination> {
             ),
           ),
         ),
-
+        if(widget.numOfPages > widget.pagesVisible && widget.selectedPage == widget.numOfPages)
+        InkWell(
+            onTap: () => widget.onPageChanged(1),
+            child: AnimatedContainer(
+              height: 40.0,
+              width: 40.0,
+              duration: const Duration(milliseconds: 200),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: widget.selectedPage == 1
+                    ? AppColors.primaryColor
+                    : Colors.transparent,
+              ),
+              child: Center(
+                child: Text("1",
+                  style: TextStyle(
+                    color: widget.selectedPage == 1
+                    ? AppColors.white
+                    : AppColors.primaryColor,
+                  ),
+                ),
+              ),
+            ),
+          ),
         /// loop through the pages and show the page buttons
         for (int i = _startPage; i <= _endPage; i++)
           InkWell(
@@ -125,6 +148,31 @@ class _PaginationState extends State<Pagination> {
                   '$i',
                   style: TextStyle(
                     color: i == widget.selectedPage
+                    ? AppColors.white
+                    : AppColors.primaryColor,
+                  ),
+                ),
+              ),
+            ),
+          ),
+
+        if(widget.numOfPages > widget.pagesVisible && widget.selectedPage != widget.numOfPages)
+        InkWell(
+            onTap: () => widget.onPageChanged(widget.numOfPages),
+            child: AnimatedContainer(
+              height: 40.0,
+              width: 40.0,
+              duration: const Duration(milliseconds: 200),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: widget.selectedPage == widget.numOfPages
+                    ? AppColors.primaryColor
+                    : Colors.transparent,
+              ),
+              child: Center(
+                child: Text(widget.numOfPages.toString(),
+                  style: TextStyle(
+                    color: widget.selectedPage == widget.numOfPages
                     ? AppColors.white
                     : AppColors.primaryColor,
                   ),

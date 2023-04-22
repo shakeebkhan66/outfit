@@ -37,6 +37,11 @@ class CheckLikeExists extends StatelessWidget {
 }
 
 int likesCount(dynamic count){
+  print(count);
+  print(count.runtimeType);
+  if(count is List<Map>){
+    return count.length;
+  }
   if(count is List<dynamic>){
     List<Likes> likes = count.map((item) {
         if (item is Map<String, dynamic>) {

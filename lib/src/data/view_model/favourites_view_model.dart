@@ -4,22 +4,49 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:outfit/src/data/model/fav_exists_model.dart';
 import 'package:outfit/src/data/model/favourites_folder.dart';
 import 'package:outfit/src/data/model/products_model.dart';
 import 'package:outfit/src/data/repository/favourites_repo.dart';
 import 'package:outfit/src/data/response/api_response.dart';
 import 'package:outfit/src/utils/app_utils.dart';
 import 'package:outfit/src/widgets/get_likes_count.dart';
+
+
 enum Pages {products,filter,search}
 class FavFoldersViewModel with ChangeNotifier {
 
   final _myRepo = FavFolderRepository();
-  
+  FavExistsModel favExistsModel = const FavExistsModel();
+
+  FavExistsModel get getFavExistsModel => favExistsModel;
+
+  setFavExists(FavExistsModel setFavExistsModel){
+    favExistsModel = setFavExistsModel;
+    notifyListeners();
+  }
   bool _loading = false;
   bool get loading => _loading;
 
   setLoading(bool value){
     _loading = value;
+    notifyListeners();
+  }
+  List<int> favImageFolderIds = [];
+
+  List<int> get getFavImageFolderIds=> favImageFolderIds;
+
+  setfavImageFolderIds(int favFolderId){
+    print(favFolderId);
+    favImageFolderIds.add(favFolderId);
+    notifyListeners();
+  }
+  clearFavImageFolderIds(){
+    favImageFolderIds.clear();
+    notifyListeners();
+  }
+  setRemovefavImageFolderIds(int favFolderId){
+    favImageFolderIds.remove(favFolderId);
     notifyListeners();
   }
 
@@ -75,6 +102,23 @@ class FavFoldersViewModel with ChangeNotifier {
     });
   }
 
+  Future<void> checkIfFav({required String photoId, required String userId}) async {
+    _myRepo.checkIfFavExists(photoId: photoId).then((value){
+      clearFavImageFolderIds();
+      if(value.data!.isNotEmpty || value.data!=null){
+        for (var element in value.data!) {
+          if(element.user == userId){
+            if(!favImageFolderIds.contains(element.id)){
+              setfavImageFolderIds(element.list!);
+            }
+          }
+        }
+      }
+    }).onError((error, stackTrace){
+      print(stackTrace);
+    });
+  }
+
   Future<void> updateFolderName({required String folderId,required String userId, UpdateFolderData? data}) async {
 
     setFavFoldersList(ApiResponse.loading());
@@ -121,10 +165,14 @@ class FavFoldersViewModel with ChangeNotifier {
     setFavImagesList(ApiResponse.loading());
 
     _myRepo.wardrobeImages(userId: userId,page: getPage).then((value){
-      print("this is last page${value.data!.last_page!}");
-      setTotalPages(value.data!.last_page!);
-      setFavouriteList(value.data!.data??[],email: email,ip: ip);
-      setFavImagesList(ApiResponse.completed(value));
+      print(value.data);
+      if(value.data!.data == null){
+        setFavImagesList(ApiResponse.completed(value));
+      }else{
+        setTotalPages(value.data!.last_page!);
+        setFavouriteList(value.data!.data??[],email: email,ip: ip);
+        setFavImagesList(ApiResponse.completed(value));
+      }
     }).onError((error, stackTrace){
       print(error);
       print(stackTrace);
@@ -138,6 +186,24 @@ class FavFoldersViewModel with ChangeNotifier {
     await _myRepo.AddFolderImages(data: data).then((value){
       setLoading(false);
       AppUtils.flushBarSucessMessage('Added to $folderName', context!);
+      if(kDebugMode){
+        print(value.toString());
+      }
+    }).onError((error, stackTrace){
+      setLoading(false);
+      AppUtils.flushBarErrorMessage(error.toString(), context!);
+      if(kDebugMode){
+        print(error.toString());
+      }
+    });
+    return Future.value(true);
+  }
+
+  Future<bool> deleteImageToFolderApi({required int id,required String folderName, BuildContext? context}) async {
+    setLoading(true);
+    await _myRepo.deleteFolderImages(id: id).then((value){
+      setLoading(false);
+      AppUtils.flushBarErrorMessage('Remove from $folderName', context!);
       if(kDebugMode){
         print(value.toString());
       }

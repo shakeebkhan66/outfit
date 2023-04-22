@@ -13,14 +13,16 @@ import 'package:outfit/src/data/model/pair_search_model.dart';
 import 'package:outfit/src/data/model/products_model.dart';
 import 'package:outfit/src/data/repository/auth_local_data_repo.dart';
 import 'package:outfit/src/data/response/api_response.dart';
+import 'package:outfit/src/data/view_model/colors_view_model.dart';
 import 'package:outfit/src/data/view_model/photos_view_model.dart';
 import 'package:outfit/src/providers/filter_pair_provider.dart';
+import 'package:outfit/src/providers/language_provider.dart';
 import 'package:outfit/src/utils/app_urls.dart';
+import 'package:outfit/src/utils/app_utils.dart';
 import 'package:outfit/src/widgets/custom_webview_drawer.dart';
 import 'package:outfit/src/widgets/pagination.dart';
 import 'package:outfit/src/widgets/shimmer_loader.dart';
 import 'package:provider/provider.dart';
-import 'package:share_plus/share_plus.dart';
 
 class OutfitIdeasView extends StatefulWidget {
   final ProductsViewModel productViewModel;
@@ -31,12 +33,15 @@ class OutfitIdeasView extends StatefulWidget {
 }
 
 class _OutfitIdeasViewState extends State<OutfitIdeasView> {
+  final colorandstyleViewModel = ColorsAndStylesViewModel();
   final _scrollController = ScrollController();
   final String email = AuthLocalDataSource.getEmail();
   final String ip = AuthLocalDataSource.getIp();
+  bool filterDrawer = true;
   @override
   void initState() {
     widget.productViewModel.fetchPhotosList(
+      context: context,
       email: email,
       ip: ip,
     );
@@ -57,24 +62,24 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
   @override
   Widget build(BuildContext context) {
     final String email = AuthLocalDataSource.getEmail();
+    final currentLanguage = Provider.of<LanguageProvider>(context).getAppLanguage;
     final filterPairProvider = Provider.of<FilterPairProvider>(context);
+    final productViewProvider = Provider.of<ProductsViewModel>(context);
+    final colorsViewModelProvider = Provider.of<ColorsAndStylesViewModel>(context);
     return Scaffold(
       key: scaffoldKey,
       backgroundColor: const Color(0xFFFFFFFF),
-      endDrawer: DrawerWidget(
+      endDrawer: filterDrawer ? DrawerWidget(
         hijab: hijab,
         style: style,
         season: season,
-        updateList: (d){
-        },
         callback: (newStyle, newHijab, newSeason) {
           hijab = newHijab;
           season = newSeason;
           style = newStyle;
         },
         productsViewModel: widget.productViewModel,
-      ),
-      drawer: const WebDrawer(),
+      ): const WebDrawer(),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -94,7 +99,12 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
         ),
         actions: [
           IconButton(
-            onPressed: () => scaffoldKey.currentState!.openDrawer(),
+            onPressed: () {
+              setState(() {
+                filterDrawer = false;
+              });
+              scaffoldKey.currentState!.openEndDrawer();
+            },
             icon: const Icon(
               Icons.menu,
               color: AppColors.blackColor,
@@ -144,11 +154,83 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
                 ),
               ),
             ),
+            if(colorsViewModelProvider.selectedGradientColors[0] == null)
+            const SliverToBoxAdapter()
+            else
             SliverPadding(
-              padding: const EdgeInsets.only(
+            padding: const EdgeInsets.only(
+              left: 16,
+              top: 10.0,
+              right: 16,
+            ),
+            sliver: SliverToBoxAdapter(
+              child: Wrap(
+                runSpacing: 8,
+                spacing: 8,
+                alignment: WrapAlignment.start,
+                children: colorsViewModelProvider.selectedGradientColors.asMap().map((index, stylecolor) => MapEntry(index, Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFFBF9),
+                      borderRadius: BorderRadius.circular(32),
+                      boxShadow: [
+                        BoxShadow(
+                          offset: Offset.zero,
+                          blurRadius: 2,
+                          spreadRadius: 0,
+                          color: Colors.black.withOpacity(0.075),
+                        ),
+                      ],
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 5,
+                      horizontal: 6,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min, 
+                    children: [
+                      if(stylecolor!=null)
+                      Wrap(
+                        children: stylecolor.map((key, value) => MapEntry(key, 
+                        Wrap(
+                          children: [
+                             if(value.first is Color) 
+                              circleContainer(value)
+                              else
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(10.0),
+                                child: Image.network(
+                                "https://stylorita.com/admin/${value.first}",
+                                  width: 38.0,
+                                  height: 18.0,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                          ],
+                        ),
+                        )).values.toList(),
+                      ),
+                      // Image.asset(e.icon, width: 38, height: 20),
+                      const SizedBox(width: 4),
+                      if(colorsViewModelProvider.getSearchStyle[index]!= null)
+                      Text(
+                      currentLanguage.languageCode=="en"? 
+                        colorsViewModelProvider.getSearchStyle[index]!.en_name!:
+                        colorsViewModelProvider.getSearchStyle[index]!.name!,
+                        style: const TextStyle(
+                          fontSize: 12.0,
+                          color: AppColors.blackColor,
+                        ),
+                      ),
+                    ]),
+                  ))).values.toList(),
+              ),
+            ),
+          ),
+            SliverPadding(
+              padding: EdgeInsets.only(
                 left: 16,
                 right: 16,
-                top: 16,
+                top: colorsViewModelProvider.selectedGradientColors[0] == null ? 10.0 : 0.0,
                 bottom: 8,
               ),
               sliver: SliverToBoxAdapter(
@@ -162,11 +244,43 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
                         color: AppColors.blackColor,
                       ),
                     ),
-                    if(widget.productViewModel.getPageName == "search")
-                    Container()
+                    if(productViewProvider.getPageName == "search")
+                    InkWell(
+                      onTap: () {
+                        colorsViewModelProvider.clearStyleAndColorSearch();
+                        widget.productViewModel.setCurrentPage(Pages.products);
+                        productViewProvider.setPage('outfit');
+                        widget.productViewModel.fetchPhotosList(email: email, ip: ip,context: context);
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFF6F8),
+                          borderRadius: BorderRadius.circular(32),
+                        ),
+                        padding: const EdgeInsets.all(10),
+                        child: Row(
+                          children: const [
+                            Icon(Icons.arrow_back_ios,
+                              size: 15.0,
+                           ),
+                           SizedBox(width: 4.0),
+                            Text("back",
+                              style: TextStyle(
+                                color: AppColors.blackColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
                     else
                     GestureDetector(
-                      onTap: () => scaffoldKey.currentState!.openEndDrawer(),
+                      onTap: () {
+                        setState(() {
+                          filterDrawer = true;
+                        });
+                        scaffoldKey.currentState!.openEndDrawer();
+                      },
                       child: Container(
                         decoration: BoxDecoration(
                           color: const Color(0xFFFFF6F8),
@@ -223,8 +337,9 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
                                  ),
                                 ).then((value) {
                                   // favList.clear();
-                                if(widget.productViewModel.getPageName == "search"){
+                                if(productViewProvider.getPageName == "search"){
                                   widget.productViewModel.fetchFilterPairList(
+                                    context: context,
                                     email: email,
                                     ip: ip,
                                     FilterPairModel(
@@ -238,14 +353,16 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
                                       ptn: filterPairProvider.getSearchPattern[0],
                                     ),
                                   );
-                                } else if(widget.productViewModel.getPageName == "filter"){
+                                } else if(productViewProvider.getPageName == "filter"){
                                   widget.productViewModel.filterPhotoPhotosList(
+                                    context: context,
                                     email: email,
                                     ip: ip,
                                   );
                                 }
                                 else{
                                   widget.productViewModel.fetchPhotosList(
+                                    context: context,
                                     email: email,
                                     ip: ip,
                                   );
@@ -255,7 +372,7 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
                               child: GridTile(
                                 footer: GridTileBar(
                                   leading: GestureDetector(
-                                    onTap: () => _share(products[i].uid!),
+                                    onTap: () => AppUtils.share(products[i].uid!),
                                     child: const Icon(
                                       Icons.share,
                                       color: AppColors.blackColor,
@@ -315,57 +432,73 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
                 },
               ),
             ),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.only(
-                  left: 12.0,
-                  right: 12.0,
-                  bottom: 108,
-                ),
-                child: Pagination(
-                  numOfPages: widget.productViewModel.getTotalPages, 
-                  selectedPage: widget.productViewModel.getPage, 
-                  pagesVisible: 14, 
-                  onPageChanged: (index){
-                    print(index);
-                    widget.productViewModel.setNoPage(index);
-                    _scrollController.animateTo(
-                      0,
-                      duration: const Duration(milliseconds: 500),
-                      curve: Curves.easeInOut,
-                    );
-                    if(widget.productViewModel.getCurrentPage == Pages.products){
-                      widget.productViewModel.setPage("outfit");
-                      widget.productViewModel.fetchPhotosList(
-                        email: email,
-                        ip: ip,
-                      );
-                    }else if(widget.productViewModel.getCurrentPage == Pages.filter){
-                      widget.productViewModel.setPage("filter");
-                      widget.productViewModel.filterPhotoPhotosList(
-                        email: email,
-                        ip: ip,
-                      );
-                    }else if(widget.productViewModel.getCurrentPage == Pages.search){
-                      widget.productViewModel.setPage("search");
-                      widget.productViewModel.fetchFilterPairList(
-                        email: email,
-                        ip: ip,
-                        FilterPairModel(
-                          pairs: [
-                            for (var i = 0; i < filterPairProvider.getSearchColor.length; i++)
-                            Pairs(
-                              type: filterPairProvider.getSearchType[i],
-                              color: filterPairProvider.getSearchColor[i],
-                            ),
-                          ],
-                          ptn: filterPairProvider.getSearchPattern[0],
+            ChangeNotifierProvider.value(
+              value: widget.productViewModel,
+              child: Consumer<ProductsViewModel>(
+                builder: (context, value, child) {
+                  switch (value.productsList.status!) {
+                    case Status.completed:
+                      return SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.only(
+                            left: 12.0,
+                            right: 12.0,
+                            bottom: 108,
+                          ),
+                          child: Pagination(
+                            numOfPages: value.getTotalPages, 
+                            selectedPage: value.getPage, 
+                            pagesVisible: 13, 
+                            onPageChanged: (index){
+                              value.setNoPage(index);
+                              _scrollController.animateTo(
+                                0,
+                                duration: const Duration(milliseconds: 500),
+                                curve: Curves.easeInOut,
+                              );
+                              if(value.getCurrentPage == Pages.products){
+                                productViewProvider.setPage("outfit");
+                                value.fetchPhotosList(
+                                  context: context,
+                                  email: email,
+                                  ip: ip,
+                                );
+                              }else if(value.getCurrentPage == Pages.filter){
+                                productViewProvider.setPage("filter");
+                                value.filterPhotoPhotosList(
+                                  context: context,
+                                  email: email,
+                                  ip: ip,
+                                );
+                              }else if(value.getCurrentPage == Pages.search){
+                                productViewProvider.setPage("search");
+                                value.fetchFilterPairList(
+                                  context: context,
+                                  email: email,
+                                  ip: ip,
+                                  FilterPairModel(
+                                    pairs: [
+                                      for (var i = 0; i < filterPairProvider.getSearchColor.length; i++)
+                                      Pairs(
+                                        type: filterPairProvider.getSearchType[i],
+                                        color: filterPairProvider.getSearchColor[i],
+                                      ),
+                                    ],
+                                    ptn: filterPairProvider.getSearchPattern[0],
+                                  ),
+                                );
+                              }
+                              setState(() {});
+                            },
+                          ),
                         ),
                       );
-                    }
-                    setState(() {});
-                  },
-                ),
+                    case Status.error:
+                    return SliverToBoxAdapter(child: Container());
+                    case Status.loading:
+                    return SliverToBoxAdapter(child: Container());
+                  }
+                },
               ),
             ),
             // ChangeNotifierProvider.value(
@@ -500,10 +633,6 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
         ),
     );
   }
-
-  Future<void> _share(int id) async {
-    await Share.share("https://stylorita.com/post_preview_evening.php?id=$id");
-  }
 }
 
 enum Styles {
@@ -536,6 +665,22 @@ enum Seasons {
 
   const Seasons(this.value);
 }
+
+Widget circleContainer(List<dynamic> colors) {
+    List<Color> listColor = colors.whereType<Color>().toList();
+    return Container(
+      width: 38.0,
+      height: 18.0,
+      decoration: colors.length < 2 ? null : 
+      BoxDecoration(
+        borderRadius: BorderRadius.circular(10.0),
+        gradient: LinearGradient(colors: listColor),
+      ),
+      child: colors.length < 2 ? Image.network("https://stylorita.com/admin/${colors.first}",
+        fit: BoxFit.cover,
+      ) : Container(),
+    );
+  }
 
 // class SearchModel {
 //   final String title;

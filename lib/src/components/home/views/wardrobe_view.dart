@@ -75,13 +75,16 @@ class _WardrobeViewState extends State<WardrobeView> {
                     ),
                   );
                   case Status.error:
-                  return Container(
-                    width: double.infinity,
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-                      ),
-                    child: const Text("error"));
+                  return Expanded(
+                    child: Container(
+                      alignment: Alignment.center,
+                      width: double.infinity,
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+                        ),
+                      child: Text(value.colorsList.message!)),
+                  );
                   case Status.completed:
                   List<String> combinedList = wardrobeViewModel.getSelectedColors.values
                   .fold<List<String>>([], (prevList, nextList) => prevList..addAll(nextList));

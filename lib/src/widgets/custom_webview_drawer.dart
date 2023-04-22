@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:outfit/src/base/nav.dart';
 import 'package:outfit/src/components/auth/social_auth_page.dart';
 import 'package:outfit/src/components/favorites/dialogs/change_language_dialog.dart';
+import 'package:outfit/src/components/home/home_page.dart';
+import 'package:outfit/src/data/repository/auth_local_data_repo.dart';
 import 'package:outfit/src/widgets/webview_loader.dart';
 
 class WebDrawer extends StatelessWidget {
@@ -9,6 +11,7 @@ class WebDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final String id = AuthLocalDataSource.getUserid();
     final padding = MediaQuery.of(context).padding;
     return Drawer(
       child: Padding(
@@ -52,10 +55,15 @@ class WebDrawer extends StatelessWidget {
                 ),
               ),
               ListTile(
-                onTap: (){
-                  AppNavigation.to(context, const SocialAuthPage());
+                onTap: () async {
+                  if(id == ""){
+                    AppNavigation.to(context, const SocialAuthPage());
+                  } else {
+                    await AuthLocalDataSource.clearData();
+                    AppNavigation.navigateRemoveUntil(context, const HomePage());
+                  } 
                 },
-                title: const Text("Logout"),
+                title: Text(id == "" ? "Login" : "Logout"),
                 dense: true,
                 subtitle: const Divider(
                   height: 1.0,

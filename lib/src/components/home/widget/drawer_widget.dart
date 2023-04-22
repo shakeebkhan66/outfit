@@ -5,8 +5,10 @@ import 'package:outfit/src/base/nav.dart';
 import 'package:outfit/src/base/theme.dart';
 import 'package:outfit/src/components/home/views/outfit_ideas_view.dart';
 import 'package:outfit/src/data/repository/auth_local_data_repo.dart';
+import 'package:outfit/src/data/view_model/colors_view_model.dart';
 import 'package:outfit/src/data/view_model/photos_view_model.dart';
 import 'package:outfit/src/widgets/radio_button_widget.dart';
+import 'package:provider/provider.dart';
 
 class DrawerWidget extends StatefulWidget {
   const DrawerWidget({
@@ -16,14 +18,12 @@ class DrawerWidget extends StatefulWidget {
     required this.season,
     required this.callback,
     required this.productsViewModel,
-    required this.updateList,
   }) : super(key: key);
 
   final Styles style;
   final Hijab hijab;
   final Seasons season;
   final void Function(Styles, Hijab, Seasons) callback;
-  final void Function(String?) updateList;
   final ProductsViewModel productsViewModel;
 
   @override
@@ -31,7 +31,6 @@ class DrawerWidget extends StatefulWidget {
 }
 
 class _DrawerWidgetState extends State<DrawerWidget> {
-  final ProductsViewModel _productsViewModel = ProductsViewModel();
   final String email = AuthLocalDataSource.getEmail();
   final String ip = AuthLocalDataSource.getIp();
   late Styles _style;
@@ -57,6 +56,8 @@ class _DrawerWidgetState extends State<DrawerWidget> {
 
   @override
   Widget build(BuildContext context) {
+  final productViewProvider = Provider.of<ProductsViewModel>(context);
+    final colorsViewModelProvider = Provider.of<ColorsAndStylesViewModel>(context);
     final padding = MediaQuery.of(context).padding;
     return Drawer(
       child: Padding(
@@ -132,12 +133,13 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                       dynamic seasonValue = getValueFromSeason(_season);
                       widget.productsViewModel.setFilterValues(styleValue, hijabValue, seasonValue);
                       widget.productsViewModel.setCurrentPage(Pages.filter);
+                      colorsViewModelProvider.clearStyleAndColorSearch();
                       widget.productsViewModel.filterPhotoPhotosList(
+                        context: context,
                         ip: ip,
                         email: email,
                       );
-                      widget.updateList.call("d");
-                      widget.productsViewModel.setPage("filter");
+                      productViewProvider.setPage("filter");
                       AppNavigation.pop(context);
                     },
                     child: Text(AppLocalization.of(context)!.getTranslatedValues("apply")!,

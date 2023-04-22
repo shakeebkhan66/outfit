@@ -2,6 +2,7 @@
 
 
 
+import 'package:outfit/src/data/model/fav_exists_model.dart';
 import 'package:outfit/src/data/model/favourites_folder.dart';
 import 'package:outfit/src/data/model/products_model.dart';
 import 'package:outfit/src/data/model/products_model.dart' as productModel;
@@ -66,6 +67,15 @@ class FavFolderRepository {
     }
   }
 
+  Future<FavExistsModel> checkIfFavExists({required String photoId})async{
+    try{
+      dynamic response = await _apiServices.getGetApiResponse("${AppUrl.favouritesFolders}/$photoId/exists");
+      return response = FavExistsModel.fromJson(response);
+    }catch(e){
+      rethrow ;
+    }
+  }
+
   Future<ProductsModel> fetchAllFavImages({required String folderId, required int page})async{
 
     try{
@@ -86,6 +96,9 @@ class FavFolderRepository {
     try{
 
       dynamic response = await _apiServices.getGetApiResponse("${AppUrl.wardrobeListPhotos}$userId/photos?page=$page");
+      if(response['message'] == "No photo found."){
+        return response = const ProductsModel(message: "",data: productModel.Data());
+      }
       return response = ProductsModel.fromJson(response);
 
     }catch(e){
@@ -98,6 +111,18 @@ class FavFolderRepository {
     try{
 
       dynamic response = await _apiServices.getPostApiResponse(AppUrl.addImageToFolder,data);
+      return response;
+
+    }catch(e){
+      rethrow ;
+    }
+  }
+
+  Future<dynamic> deleteFolderImages({required int id})async{
+
+    try{
+
+      dynamic response = await _apiServices.getDeleteApiResponse("${AppUrl.addImageToFolder}/$id");
       return response;
 
     }catch(e){

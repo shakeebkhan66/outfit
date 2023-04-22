@@ -14,11 +14,11 @@ import 'package:outfit/src/data/response/api_response.dart';
 import 'package:outfit/src/data/view_model/favourites_view_model.dart';
 import 'package:outfit/src/data/view_model/photos_view_model.dart';
 import 'package:outfit/src/utils/app_urls.dart';
+import 'package:outfit/src/utils/app_utils.dart';
 import 'package:outfit/src/widgets/app_button_widget.dart';
 import 'package:outfit/src/widgets/pagination.dart';
 import 'package:outfit/src/widgets/shimmer_loader.dart';
 import 'package:provider/provider.dart';
-import 'package:share_plus/share_plus.dart';
 
 class FavoriteDetailPage extends StatefulWidget {
   final String page;
@@ -104,9 +104,13 @@ class _FavoriteDetailPageState extends State<FavoriteDetailPage> {
                         );
                         case Status.completed:
                         return value.favFoldersImages.data!.data!.data == null ?
-                         const EmptyFavImagesFolder()
+                        EmptyFavImagesFolder(
+                          page: widget.page,
+                         )
                          : value.favFoldersImages.data!.data!.data!.isEmpty?
-                         const EmptyFavImagesFolder():
+                        EmptyFavImagesFolder(
+                          page: widget.page,
+                         ):
                          CustomScrollView(
                           controller: _scrollController,
                            slivers: [
@@ -117,6 +121,7 @@ class _FavoriteDetailPageState extends State<FavoriteDetailPage> {
                             productListData: value.favFoldersImages.data!.data!.data!,
                             favFoldersViewModel: _favFoldersViewModel,
                             ),
+                            if(_favFoldersViewModel.getTotalPages!=1)
                             SliverToBoxAdapter(
                             child: Padding(
                               padding: const EdgeInsets.only(
@@ -324,9 +329,6 @@ class _FavImagesGridViewState extends State<FavImagesGridView> {
   ProductsViewModel productsViewModel = ProductsViewModel();
   @override
   Widget build(BuildContext context) {
-    Future<void> _share(int id) async {
-    await Share.share("https://stylorita.com/post_preview_evening.php?id=$id");
-  }
     return SliverPadding(
       padding: const EdgeInsets.only(
         left: 8.0,
@@ -372,7 +374,7 @@ class _FavImagesGridViewState extends State<FavImagesGridView> {
             child: GridTile(
               footer: GridTileBar(
                 leading: GestureDetector(
-                  onTap: () => _share(widget.productListData![index].uid!),
+                  onTap: () => AppUtils.share(widget.productListData![index].uid!),
                   child: const Icon(
                     Icons.share,
                     color: AppColors.blackColor,
@@ -432,7 +434,8 @@ class _FavImagesGridViewState extends State<FavImagesGridView> {
 }
 
 class EmptyFavImagesFolder extends StatefulWidget {
-  const EmptyFavImagesFolder({super.key});
+  final String page;
+  const EmptyFavImagesFolder({super.key, required this.page});
 
   @override
   State<EmptyFavImagesFolder> createState() => _EmptyFavImagesFolderState();
@@ -469,7 +472,9 @@ class _EmptyFavImagesFolderState extends State<EmptyFavImagesFolder> {
                 width: 1.5,
               ),
             ),
-            child: Text(AppLocalization.of(context)!.getTranslatedValues("youdidntaddimage")!,
+            child: Text(AppLocalization.of(context)!.getTranslatedValues(
+              widget.page == "wardrobe" ? "youdidntaddcolor":
+              "youdidntaddimage")!,
               textAlign: TextAlign.center,
               style: GoogleFonts.montserrat(
                 fontWeight: FontWeight.w500,
@@ -478,6 +483,8 @@ class _EmptyFavImagesFolderState extends State<EmptyFavImagesFolder> {
             ),
           ),
         ),
+        widget.page == "wardrobe" ?
+        Container() :
         Image.asset(AppAssets.folderDetail)
       ]),
     );

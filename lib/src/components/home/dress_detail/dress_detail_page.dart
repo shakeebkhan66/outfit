@@ -11,11 +11,10 @@ import 'package:outfit/src/data/repository/auth_local_data_repo.dart';
 import 'package:outfit/src/data/response/api_response.dart';
 import 'package:outfit/src/data/view_model/favourites_view_model.dart';
 import 'package:outfit/src/data/view_model/photos_view_model.dart';
+import 'package:outfit/src/utils/app_utils.dart';
 import 'package:outfit/src/widgets/custom_loader.dart';
-import 'package:outfit/src/widgets/share_bottom_sheet.dart';
 import 'package:outfit/src/widgets/shimmer_loader.dart';
 import 'package:provider/provider.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class DressDetailPage extends StatefulWidget {
@@ -49,6 +48,7 @@ class DressDetailPage extends StatefulWidget {
 class _DressDetailPageState extends State<DressDetailPage> {
 
   final String email = AuthLocalDataSource.getEmail();
+  final String userid = AuthLocalDataSource.getUserid();
   final String ip = AuthLocalDataSource.getIp();
   bool isFav = false;
 
@@ -56,13 +56,16 @@ class _DressDetailPageState extends State<DressDetailPage> {
 
   @override
   void initState() {
+    if(email!=""){
+      Provider.of<FavFoldersViewModel>(context, listen: false).checkIfFav(
+        photoId: widget.id.toString(),
+        userId: userid,
+      );
+    }
     setState(() {
       isFav = widget.isFavourite;
     });
     super.initState();
-  }
-  Future<void> _share(int id) async {
-    await Share.share("https://stylorita.com/post_preview_evening.php?id=$id");
   }
   void openInstagramProfile(String url) async {
   if (await canLaunchUrl(Uri.parse(url.trim()))) {
@@ -149,7 +152,7 @@ class _DressDetailPageState extends State<DressDetailPage> {
                         const Spacer(),
                         IconButton(
                           onPressed: (){
-                            showShareBottomSheet(context);
+                            AppUtils.share(widget.id);
                           },
                           icon: const Icon(
                             Icons.share,
@@ -220,6 +223,7 @@ class CustomBottomSheet extends StatefulWidget {
 }
 
 class _CustomBottomSheetState extends State<CustomBottomSheet> {
+  List<int> folderIds = [];
   final FavFoldersViewModel favFoldersViewModel = FavFoldersViewModel();
   final String userId = AuthLocalDataSource.getUserid();
 
@@ -232,6 +236,7 @@ class _CustomBottomSheetState extends State<CustomBottomSheet> {
   }
   @override
   Widget build(BuildContext context) {
+    final favourites = Provider.of<FavFoldersViewModel>(context);
     return Stack(
       children: [
         Container(
@@ -242,7 +247,7 @@ class _CustomBottomSheetState extends State<CustomBottomSheet> {
               topRight: Radius.circular(12.0),
             ),
           ),
-          padding: const EdgeInsets.all(12.0),
+          padding: const EdgeInsets.only(top: 12.0, right: 12.0, left: 12.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
@@ -266,44 +271,32 @@ class _CustomBottomSheetState extends State<CustomBottomSheet> {
                           children: [
                             Column(
                               children: [
-                                ListTile(
-                                  dense: true,
-                                  onTap: () async {
-                                    await AddFolderDialog(
-                                      callback: (_) {
-                                        favFoldersViewModel.addFolder(
-                                          userId: userId,
-                                          data: UpdateFolderData(
-                                            user: userId,
-                                            list_name: _,
-                                            description: "app",
-                                            type: "outfit",
-                                          )
-                                        );
-                                        setState(() {});
-                                      },
-                                    ).show(context);
-                                  },
-                                  title: const Text("Add folder"),
-                                ),
                                 Column(
                                   children: value.favFolders.data!.data!.map((folders) => 
                                   Column(
                                     children: [
-                                      ListTile(
-                                        onTap: (){
-                                          favFoldersViewModel.addImageToFolderApi(
-                                            data: {
-                                            "user": userId,
-                                            "list": folders.id,
-                                            "img": widget.imageId,
-                                          },
-                                          folderName: folders.list_name!,
-                                          context: widget.ctx).then((value) {
-                                            Future.delayed(const Duration(seconds: 3)).then((value) {
-                                              Navigator.of(widget.ctx).pop();
-                                            });
-                                          });
+                                      CheckboxListTile(
+                                        value: favourites.getFavImageFolderIds.contains(folders.id),
+                                        activeColor: AppColors.primaryColor,
+                                        onChanged: (_){
+                                          if(favourites.getFavImageFolderIds.contains(folders.id)){
+                                            favourites.setRemovefavImageFolderIds(folders.id!);
+                                            favFoldersViewModel.deleteImageToFolderApi(
+                                              id: folders.id!,
+                                            folderName: folders.list_name!,
+                                            context: widget.ctx);
+                                          }else {
+                                            favourites.setfavImageFolderIds(folders.id!);
+                                            favFoldersViewModel.addImageToFolderApi(
+                                              data: {
+                                              "user": userId,
+                                              "list": folders.id,
+                                              "img": widget.imageId,
+                                            },
+                                            folderName: folders.list_name!,
+                                            context: widget.ctx);
+                                          }
+                                          setState(() {});
                                         },
                                         dense: true,
                                         title: Text(folders.list_name!),
@@ -313,6 +306,29 @@ class _CustomBottomSheetState extends State<CustomBottomSheet> {
                                       ),
                                     ],
                                   )).toList(),
+                                ),
+                                ListTile(
+                                  visualDensity: const VisualDensity(horizontal: -4.0,vertical: 0.0),
+                                  dense: true,
+                                  leading: const Icon(Icons.add),
+                                  onTap: () async {
+                                    await AddFolderDialog(
+                                      title: "Create new folder",
+                                      callback: (_) {
+                                        favFoldersViewModel.addFolder(
+                                          userId: userId,
+                                          data: UpdateFolderData(
+                                            user: userId,
+                                            list_name: _,
+                                            description: "app",
+                                            type: "evening",
+                                          )
+                                        );
+                                        setState(() {});
+                                      },
+                                    ).show(context);
+                                  },
+                                  title: const Text("Create folder"),
                                 ),
                               ],
                             ),

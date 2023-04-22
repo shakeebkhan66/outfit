@@ -22,6 +22,7 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   ColorsAndStylesViewModel colorsViewModel = ColorsAndStylesViewModel();
+  final productsViewModel = ProductsViewModel();
   final String email = AuthLocalDataSource.getEmail();
   final String ip = AuthLocalDataSource.getIp();
   @override
@@ -93,19 +94,19 @@ class _SearchPageState extends State<SearchPage> {
         padding: const EdgeInsets.only(left: 28, right: 28, bottom: 32),
         child: AppButtonWidget(
           onTap: () {
-            print("this");
-            print(filterPairProvider.getSearchType);
-            print(filterPairProvider.getSearchColor.runtimeType);
-            widget.productsViewModel.setPage("search");
-            if(filterPairProvider.getSearchColor[0]==null){
-              return AppUtils.flushBarErrorMessage("Please select color", context);
-            }else if(filterPairProvider.getSearchType[0] == null){
-              return AppUtils.flushBarErrorMessage("Please select type", context);
-            }
+            page.setPage("search");
+              for (var i = 0; i < filterPairProvider.getSearchColor.length; i++) {
+              if(filterPairProvider.getSearchColor[i]==null){
+                return AppUtils.flushBarErrorMessage("Please select color", context);
+              }else if(filterPairProvider.getSearchType[i] == null){
+                return AppUtils.flushBarErrorMessage("Please select type", context);
+              }
+             }
             page.setSetIndex(0);
             AppNavigation.pop(context);
             widget.productsViewModel.setCurrentPage(Pages.search);
               widget.productsViewModel.fetchFilterPairList(
+                context: context,
                 email: email,
                 ip: ip,
                 FilterPairModel(

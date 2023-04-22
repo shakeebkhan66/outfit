@@ -16,8 +16,10 @@ Color hexToColor(String hexColor) {
 }
 
 const String authBox = "auth";
+const String langBox = "langBox";
 
 const String idkey = "userid";
 const String nameKey = "name";
 const String emailKey = "email";
 const String ipKey = "ip";
+const String langKey = "lang";

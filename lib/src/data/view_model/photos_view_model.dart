@@ -1,5 +1,6 @@
 
 
+
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
@@ -75,7 +76,9 @@ class ProductsViewModel with ChangeNotifier {
   int get getTotalPages => totalPages;
   
   setTotalPages(int settotalPages){
+    print(settotalPages);
     totalPages = settotalPages;
+    notifyListeners();
     notifyListeners();
   }
   setNoPage(int setPage){
@@ -83,22 +86,19 @@ class ProductsViewModel with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> fetchPhotosList({required String email,required String ip}) async {
-    print(email);
-    print(ip);
+  Future<void> fetchPhotosList({required String email,required String ip,required context}) async {
     setPhotosList(ApiResponse.loading());
-
     _myRepo.fetchAllPhotos(getPage).then((value) async{
-      await setFavouriteList(value.data!.data!,email: email,ip: ip);
       setTotalPages(value.data!.last_page!);
+      setFavouriteList(value.data!.data!,email: email,ip: ip);
       setPhotosList(ApiResponse.completed(value));
     }).onError((error, stackTrace){
-
+      print(stackTrace);
       setPhotosList(ApiResponse.error(error.toString()));
 
     });
   }
-  Future<void> filterPhotoPhotosList({required String email, required String ip}) async {
+  Future<void> filterPhotoPhotosList({required String email, required String ip,required context}) async {
 
     setPhotosList(ApiResponse.loading());
 
@@ -113,7 +113,7 @@ class ProductsViewModel with ChangeNotifier {
     });
   }
 
-  Future<void> fetchFilterPairList(FilterPairModel pairModel,{required String email, required String ip}) async {
+  Future<void> fetchFilterPairList(FilterPairModel pairModel,{required String email, required String ip,required context}) async {
 
     setPhotosList(ApiResponse.loading());
 
@@ -171,7 +171,11 @@ class ProductsViewModel with ChangeNotifier {
               favouriteList.add(i);
             }
           }
-          likesList.add(likesCount(jsonDecode(productListData[i].likes)));
+          if(productListData[i].likes == ""){
+            likesList.add(0);
+          } else {
+            likesList.add(likesCount(jsonDecode(productListData[i].likes)));
+          }
         }else{
           if(checkIfLikeExists(
           list: productListData[i].likes.toString(),
@@ -180,7 +184,11 @@ class ProductsViewModel with ChangeNotifier {
               favouriteList.add(i);
             }
           }
+          if(productListData[i].likes == ""){
+            likesList.add(0);
+          } else {
           likesList.add(likesCount(productListData[i].likes));
+          }
         }
       }else{
         likesList.add(0);

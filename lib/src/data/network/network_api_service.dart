@@ -23,11 +23,12 @@ class NetworkApiService extends BaseApiServices {
     try {
       final response = await dio.get(url,
       queryParameters: queryParameters,
-      ).timeout(const Duration(seconds: 10));
+      ).timeout(const Duration(seconds: 15));
       responseJson = returnResponse(response);
     }on SocketException {
       throw FetchDataException('No Internet Connection');
     }on Exception catch(ex){
+      print(ex.toString());
       throw NetworkException.getDioException(ex).message;
     }
     return responseJson;
@@ -46,7 +47,7 @@ class NetworkApiService extends BaseApiServices {
         url,
         data: data,
         queryParameters: queryParameters,
-      ).timeout(const Duration(seconds: 10));
+      ).timeout(const Duration(seconds: 15));
       responseJson = returnResponse(response);
     }on SocketException {
       throw FetchDataException('No Internet Connection');
@@ -90,7 +91,7 @@ class NetworkApiService extends BaseApiServices {
       Response response = await dio.put(
         url,
         data: data,
-      ).timeout(const Duration(seconds: 10));
+      ).timeout(const Duration(seconds: 15));
       responseJson = returnResponse(response);
     }on SocketException {
       throw FetchDataException('No Internet Connection');
@@ -108,7 +109,7 @@ class NetworkApiService extends BaseApiServices {
     try {
       Response response = await dio.delete(
         url,
-      ).timeout(const Duration(seconds: 10));
+      ).timeout(const Duration(seconds: 15));
       responseJson = returnResponse(response);
     }on SocketException {
       throw FetchDataException('No Internet Connection');

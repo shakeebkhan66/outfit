@@ -50,27 +50,26 @@ class _ColorStyleWidgetState extends State<ColorStyleWidget> {
       borderRadius: BorderRadius.circular(12),
     );
   }
-  final _selectedGradientColors = <Map<String, List<dynamic>>?>[null];
 
-  final _isColorExpanded = [false];
-  final _isStyleExpanded = [false];
+  // final _isColorExpanded = [false];
+  // final  widget.colorsViewModel.isStyleExpanded = [false];
 
-  void _selectGradientColors(int i, String color, List<dynamic> colors) {
-    _selectedGradientColors[i] = {};
-    _selectedGradientColors[i]![color] = colors;
-    _isColorExpanded[i] = !_isColorExpanded[i];
-    setState(() {});
-  }
+  // void  widget.colorsViewModel.selectGradientColors(int i, String color, List<dynamic> colors) {
+  //    widget.colorsViewModel.selectGradientColors[i] = {};
+  //    widget.colorsViewModel.selectGradientColors[i]![color] = colors;
+  //   _isColorExpanded[i] = !_isColorExpanded[i];
+  //   setState(() {});
+  // }
 
-  final _searchStyle = <Data?>[null];
 
   @override
   Widget build(BuildContext context) {
+  final colorsViewModelProvider = Provider.of<ColorsAndStylesViewModel>(context);
     final currentLanguage = Provider.of<LanguageProvider>(context).getAppLanguage;
     final filterPairProvider = Provider.of<FilterPairProvider>(context);
     return Column(
       children: [
-        for (int i = 0; i < _isColorExpanded.length; i++)
+        for (int i = 0; i < colorsViewModelProvider.getIsColorExpanded.length; i++)
         Container(
           key: UniqueKey(),
           decoration: _boxDecoration,
@@ -79,7 +78,7 @@ class _ColorStyleWidgetState extends State<ColorStyleWidget> {
             right: 28,
             bottom: 18,
           ),
-          padding: _isColorExpanded.length <= 1
+          padding:  colorsViewModelProvider.getIsColorExpanded.length <= 1
               ? const EdgeInsets.all(4)
               : EdgeInsets.zero,
           child: Row(
@@ -100,7 +99,7 @@ class _ColorStyleWidgetState extends State<ColorStyleWidget> {
                             Expanded(
                               child: GestureDetector(
                                 onTap: () {
-                                  _isColorExpanded[i] = !_isColorExpanded[i];
+                                   colorsViewModelProvider.updateIsColorExpanded(i);
                                   setState(() {});
                                 },
                                 child: Container(
@@ -109,7 +108,7 @@ class _ColorStyleWidgetState extends State<ColorStyleWidget> {
                                     horizontal: 8,
                                     vertical: 14,
                                   ),
-                                  margin: !(_isColorExpanded.length <= 1)
+                                  margin: !( colorsViewModelProvider.getIsColorExpanded.length <= 1)
                                       ? const EdgeInsets.only(right: 9.28)
                                       : EdgeInsets.zero,
                                   child: Row(children: [
@@ -122,7 +121,7 @@ class _ColorStyleWidgetState extends State<ColorStyleWidget> {
                                         padding: const EdgeInsets.symmetric(
                                           horizontal: 10,
                                         ),
-                                        child: _selectedGradientColors[i] == null
+                                        child:  colorsViewModelProvider.getSelectedGradientColors[i] == null
                                             ? Text(AppLocalization.of(context)!.getTranslatedValues("choosenearestcolor")!,
                                                 style: GoogleFonts.montserrat(
                                                   fontWeight: FontWeight.w500,
@@ -131,7 +130,7 @@ class _ColorStyleWidgetState extends State<ColorStyleWidget> {
                                             : Row(children: [
                                                 Expanded(
                                                   child: Text(
-                                                    _selectedGradientColors[i]!.keys.first,
+                                                     colorsViewModelProvider.getSelectedGradientColors[i]!.keys.first,
                                                     maxLines: 1,
                                                     style: GoogleFonts.montserrat(
                                                       fontWeight: FontWeight.w500,
@@ -142,7 +141,7 @@ class _ColorStyleWidgetState extends State<ColorStyleWidget> {
                                                   flex: 2,
                                                   child:
                                                   getGradientContainer(
-                                                      _selectedGradientColors[i]!
+                                                       colorsViewModelProvider.getSelectedGradientColors[i]!
                                                           .values.first,
                                                       false),
                                                 ),
@@ -157,13 +156,14 @@ class _ColorStyleWidgetState extends State<ColorStyleWidget> {
                                 ),
                               ),
                             ),
-                            if (!(_isColorExpanded.length <= 1)) ...[
+                            if (!( colorsViewModelProvider.getIsColorExpanded.length <= 1)) ...[
                               GestureDetector(
                                 onTap: () {
-                                  _isColorExpanded.removeAt(i);
-                                  _isStyleExpanded.removeAt(i);
-                                  _selectedGradientColors.removeAt(i);
-                                  _searchStyle.removeAt(i);
+                                  //  colorsViewModelProvider.removeIsColorExpanded(i);
+                                   colorsViewModelProvider.removeIsColorExpanded(i);
+                                   colorsViewModelProvider.removeIsSelectedGradientColor(i);
+                                   colorsViewModelProvider.removeSearchStyle(i);
+                                   filterPairProvider.removeNullAtEnd(i);
                                   setState(() {});
                                 },
                                 child: Container(
@@ -184,7 +184,7 @@ class _ColorStyleWidgetState extends State<ColorStyleWidget> {
                             ],
                           ]),
                           Visibility(
-                            visible: _isColorExpanded[i],
+                            visible:  colorsViewModelProvider.getIsColorExpanded[i],
                             child: Container(
                               margin: const EdgeInsets.only(bottom: 15),
                               decoration: _menuDecoration,
@@ -197,7 +197,7 @@ class _ColorStyleWidgetState extends State<ColorStyleWidget> {
                                       filterPairProvider.setSearchColor(i,colors.cid!);
                                       filterPairProvider.setPattern(i,colors.patterned!);
                                       if(colors.pattern == ""){
-                                        _selectGradientColors(i, 
+                                         colorsViewModelProvider.selectGradientColors(i, 
                                           currentLanguage.languageCode=="en"? 
                                               colors.name_en!:
                                               colors.name!,
@@ -206,12 +206,12 @@ class _ColorStyleWidgetState extends State<ColorStyleWidget> {
                                             hexToColor(colors.hex!).withOpacity(0.1),
                                           ]);
                                       }else{
-                                        _selectGradientColors(i, 
+                                         colorsViewModelProvider.selectGradientColors(i, 
                                           currentLanguage.languageCode=="en"? 
                                               colors.name_en!:
                                               colors.name!,
                                           [
-                                            colors.pattern,
+                                            colors.pattern!,
                                           ]);
                                       }
                                         
@@ -242,7 +242,7 @@ class _ColorStyleWidgetState extends State<ColorStyleWidget> {
                             Expanded(
                               child: GestureDetector(
                                 onTap: () {
-                                  _isStyleExpanded[i] = !_isStyleExpanded[i];
+                                   colorsViewModelProvider.getIsStyleExpanded[i] = ! colorsViewModelProvider.getIsStyleExpanded[i];
                                   setState(() {});
                                 },
                                 child: Container(
@@ -253,7 +253,7 @@ class _ColorStyleWidgetState extends State<ColorStyleWidget> {
                                   ),
                                   margin: EdgeInsets.only(
                                     top: 13,
-                                    right: !(_isColorExpanded.length <= 1) ? 30 : 0,
+                                    right: !( colorsViewModelProvider.getIsColorExpanded.length <= 1) ? 30 : 0,
                                   ),
                                   child: Row(
                                     children: [
@@ -267,9 +267,9 @@ class _ColorStyleWidgetState extends State<ColorStyleWidget> {
                                             horizontal: 10,
                                           ),
                                           child: Text(
-                                            _searchStyle[i] == null
+                                             colorsViewModelProvider.getSearchStyle[i] == null
                                                 ? AppLocalization.of(context)!.getTranslatedValues("choosestyle")!
-                                                : _searchStyle[i]!.en_name!,
+                                                :  colorsViewModelProvider.getSearchStyle[i]!.en_name!,
                                             maxLines: 1,
                                             overflow: TextOverflow.clip,
                                             style: GoogleFonts.montserrat(
@@ -289,19 +289,19 @@ class _ColorStyleWidgetState extends State<ColorStyleWidget> {
                             ),
                           ]),
                           Visibility(
-                            visible: _isStyleExpanded[i],
+                            visible:  colorsViewModelProvider.getIsStyleExpanded[i],
                             child: Container(
                               decoration: _menuDecoration,
                               margin: const EdgeInsets.only(top: 16),
                               child: SearchStyleRadioWidget<Data>(
                                 groupController: RadioWidgetController<Data>(
                                   items: value.colorsList.data!.typesModel.data!,
-                                  value: _searchStyle[i],
+                                  value:  colorsViewModelProvider.getSearchStyle[i],
                                   onChanged: (_) {
                                     filterPairProvider.setType(i, _.tid!);
-                                    _searchStyle[i] = _;
+                                     colorsViewModelProvider.updateSearchStyle(i,_);
                                     data = _;
-                                    _isStyleExpanded[i] = !_isStyleExpanded[i];
+                                     colorsViewModelProvider.updateIsStyleExpanded(i);
                                     setState(() {});
                                   },
                                 ),
@@ -331,10 +331,10 @@ class _ColorStyleWidgetState extends State<ColorStyleWidget> {
                 backgroundColor: AppColors.primaryColor,
                 child: const Icon(Icons.add),
                 onPressed: () {
-                  _isColorExpanded.add(false);
-                  _isStyleExpanded.add(false);
-                    _selectedGradientColors.add(null);
-                  _searchStyle.add(null);
+                   colorsViewModelProvider.setIsColorExpanded(false);
+                   colorsViewModelProvider.setIsStyleExpanded(false);
+                  colorsViewModelProvider.setIsSelectedGradientColor(null);
+                   colorsViewModelProvider.setSearchStyle(null);
                   filterPairProvider.addNullAtEnd();
                   setState(() {});
                 },

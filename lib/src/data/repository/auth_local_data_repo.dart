@@ -34,4 +34,18 @@ class AuthLocalDataSource {
   static Future<void> setIp(String ip) async {
     await Hive.box(authBox).put(ipKey, ip);
   }
+
+  static bool getLang() {
+    return Hive.box(langBox).get(langKey, defaultValue: false);
+  }
+
+  static Future<void> setLan(bool lang) async {
+    await Hive.box(langBox).put(langKey, lang);
+  }
+
+  static Future<void> clearData() async {
+    await setEmail("");
+    await setUserid("");
+    await setUserName("");
+  }
 }
