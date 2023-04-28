@@ -28,8 +28,8 @@ class RegisterPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(AppLocalization.of(context)!
-                        .getTranslatedValues('createanaccount')!,
+        title: Text(
+          AppLocalization.of(context)!.getTranslatedValues('createanaccount')!,
           style: const TextStyle(
             color: AppColors.blackColor,
           ),
@@ -49,20 +49,20 @@ class RegisterPage extends StatelessWidget {
                   prefixIcon: Icons.person,
                   controller: _firstNameController,
                   hintText: 'firstname',
-                  validator: FormValidator.nameValidator,
+                  validator: (firstname) => FormValidator.nameValidator(firstname, context),
                 ),
                 const SizedBox(height: 20.0),
                 CustomTextField(
                   prefixIcon: Icons.person,
                   controller: _lastNameController,
                   hintText: 'lastname',
-                  validator: FormValidator.lastnameValidator,
+                  validator: (lastname) => FormValidator.lastnameValidator(lastname, context),
                 ),
                 const SizedBox(height: 20.0),
                 CustomTextField(
                   prefixIcon: Icons.email,
                   controller: _emailController,
-                  validator: FormValidator.emailValidator,
+                  validator: (email) => FormValidator.emailValidator(email, context),
                   hintText: 'email',
                   keyboardType: TextInputType.emailAddress,
                 ),
@@ -70,33 +70,35 @@ class RegisterPage extends StatelessWidget {
                 CustomTextField(
                   prefixIcon: Icons.lock,
                   controller: _passwordController,
-                  validator: FormValidator.passwordValidator,
+                  validator: (password) => FormValidator.passwordValidator(password, context),
                   hintText: 'password',
                   obscureText: true,
                   keyboardType: TextInputType.visiblePassword,
                 ),
                 const SizedBox(height: 40.0),
-                authViewModel.signUpLoading ? 
-                const CustomLoader() : 
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 28.0),
-                  child: AppButtonWidget(
-                    onTap: () {
-                      if(formKey.currentState!.validate()){
-                        authViewModel.signUpApi(UserModel(
-                          first_name: _firstNameController.text,
-                          last_name: _lastNameController.text,
-                          email: _emailController.text,
-                          type: 'user',
-                          authProvider: AuthProvider.email,
-                          password: _passwordController.text,
-                        ), context);
-                      }
-                    },
-                    title: 'register',
-                    buttonRadius: 15,
-                  ),
-                ),
+                authViewModel.signUpLoading
+                    ? const CustomLoader()
+                    : Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 28.0),
+                        child: AppButtonWidget(
+                          onTap: () {
+                            if (formKey.currentState!.validate()) {
+                              authViewModel.signUpApi(
+                                  UserModel(
+                                    first_name: _firstNameController.text,
+                                    last_name: _lastNameController.text,
+                                    email: _emailController.text,
+                                    type: 'user',
+                                    authProvider: AuthProvider.email,
+                                    password: _passwordController.text,
+                                  ),
+                                  context);
+                            }
+                          },
+                          title: 'register',
+                          buttonRadius: 15,
+                        ),
+                      ),
                 const SizedBox(height: 20.0),
                 Row(
                   children: [
@@ -108,8 +110,8 @@ class RegisterPage extends StatelessWidget {
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 30.0),
-                      child: Text(AppLocalization.of(context)!
-                          .getTranslatedValues('or')!,
+                      child: Text(
+                        AppLocalization.of(context)!.getTranslatedValues('or')!,
                         style: const TextStyle(
                           color: Colors.grey,
                           fontWeight: FontWeight.bold,
@@ -129,34 +131,45 @@ class RegisterPage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     SocialAuthButton(
-                      image: AppAssets.google, 
-                      onPressed: (){},
+                      image: AppAssets.google,
+                      onPressed: () {
+                        authViewModel.socialLoginApi(
+                            const UserModel(
+                              authProvider: AuthProvider.gmail,
+                            ),
+                            context);
+                      },
                     ),
                     SocialAuthButton(
-                      image: AppAssets.facebook, 
-                      onPressed: (){},
+                      image: AppAssets.facebook,
+                      onPressed: () {
+                        authViewModel.socialLoginApi(
+                            const UserModel(
+                              authProvider: AuthProvider.fb,
+                            ),
+                            context);
+                      },
                     ),
-                    if(Platform.isAndroid)
-                    Container()
+                    if (Platform.isAndroid)
+                      Container()
                     else
-                    SocialAuthButton(
-                      image: AppAssets.apple, 
-                      onPressed: (){},
-                    ),
+                      SocialAuthButton(
+                        image: AppAssets.apple,
+                        onPressed: () {},
+                      ),
                   ],
                 ),
                 const SizedBox(height: 20.0),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(AppLocalization.of(context)!
-                          .getTranslatedValues('alreadyhaveaccount')!),
+                    Text(AppLocalization.of(context)!.getTranslatedValues('alreadyhaveaccount')!),
                     TextButton(
                       onPressed: () {
                         AppNavigation.to(context, LoginPage());
                       },
-                      child: Text(AppLocalization.of(context)!
-                          .getTranslatedValues('login')!,
+                      child: Text(
+                        AppLocalization.of(context)!.getTranslatedValues('login')!,
                         style: const TextStyle(
                           color: AppColors.primaryColor,
                         ),
@@ -197,13 +210,13 @@ class CustomTextField extends StatefulWidget {
 
 class _CustomTextFieldState extends State<CustomTextField> {
   bool hidePassword = true;
-  bool get isPasswordField =>
-      widget.keyboardType == TextInputType.visiblePassword;
-   void _togglePasswordVisibility() {
+  bool get isPasswordField => widget.keyboardType == TextInputType.visiblePassword;
+  void _togglePasswordVisibility() {
     setState(() {
       hidePassword = !hidePassword;
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return TextFormField(
@@ -214,32 +227,35 @@ class _CustomTextFieldState extends State<CustomTextField> {
         filled: true,
         isDense: true,
         fillColor: Colors.grey[200],
-        prefixIcon: Icon(widget.prefixIcon,color: AppColors.primaryColor,),
+        prefixIcon: Icon(
+          widget.prefixIcon,
+          color: AppColors.primaryColor,
+        ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10.0),
           borderSide: BorderSide.none,
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.0),
-            borderSide: const BorderSide(
-              color: AppColors.primaryColor,
-              width: 1.0,
-            ),
-          ),
-        suffixIcon: isPasswordField
-          ? InkWell(
-              onTap: _togglePasswordVisibility,
-              child: Icon(hidePassword ?
-                Icons.visibility : Icons.visibility_off,
-                color: AppColors.primaryColor,
-                size: 22,
-              ),
-            )
-          : null,
         ),
-        keyboardType: widget.keyboardType,
-        obscureText: isPasswordField && hidePassword,
-      );
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+          borderSide: const BorderSide(
+            color: AppColors.primaryColor,
+            width: 1.0,
+          ),
+        ),
+        suffixIcon: isPasswordField
+            ? InkWell(
+                onTap: _togglePasswordVisibility,
+                child: Icon(
+                  hidePassword ? Icons.visibility : Icons.visibility_off,
+                  color: AppColors.primaryColor,
+                  size: 22,
+                ),
+              )
+            : null,
+      ),
+      keyboardType: widget.keyboardType,
+      obscureText: isPasswordField && hidePassword,
+    );
   }
 }
 
@@ -263,7 +279,7 @@ class SocialAuthButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(8.0),
       ),
       child: IconButton(
-        onPressed: onPressed, 
+        onPressed: onPressed,
         icon: Image.asset(image),
       ),
     );

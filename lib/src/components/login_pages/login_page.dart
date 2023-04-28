@@ -8,10 +8,12 @@ import 'package:outfit/src/base/theme.dart';
 import 'package:outfit/src/components/login_pages/register_page.dart';
 import 'package:outfit/src/data/model/user_model.dart';
 import 'package:outfit/src/data/view_model/auth_view_model.dart';
+import 'package:outfit/src/services/analytics.dart';
 import 'package:outfit/src/utils/form_validator.dart';
 import 'package:outfit/src/widgets/app_button_widget.dart';
 import 'package:outfit/src/widgets/custom_loader.dart';
 import 'package:provider/provider.dart';
+
 class LoginPage extends StatelessWidget {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -25,8 +27,8 @@ class LoginPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(AppLocalization.of(context)!
-                        .getTranslatedValues('welcomeback')!,
+        title: Text(
+          AppLocalization.of(context)!.getTranslatedValues('welcomeback')!,
           style: const TextStyle(
             color: AppColors.blackColor,
           ),
@@ -42,7 +44,7 @@ class LoginPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 CustomTextField(
-                  validator: FormValidator.emailValidator,
+                  validator: (email) => FormValidator.emailValidator(email, context),
                   prefixIcon: Icons.email,
                   controller: _emailController,
                   hintText: 'email',
@@ -53,28 +55,32 @@ class LoginPage extends StatelessWidget {
                   prefixIcon: Icons.lock,
                   controller: _passwordController,
                   hintText: 'password',
-                  validator: FormValidator.passwordValidator,
+                  validator: (password) => FormValidator.passwordValidator(password, context),
                   keyboardType: TextInputType.visiblePassword,
                   obscureText: true,
                 ),
                 const SizedBox(height: 40.0),
-                authViewModel.loading ? const CustomLoader(): 
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 28.0),
-                  child: AppButtonWidget(
-                    onTap: () {
-                      if(formKey.currentState!.validate()) {
-                        authViewModel.loginApi(UserModel(
-                          authProvider: AuthProvider.email,
-                          email: _emailController.text,
-                          password: _passwordController.text,
-                        ), context);
-                      }
-                    },
-                    title: 'login',
-                    buttonRadius: 15,
-                  ),
-                ),
+                authViewModel.loading
+                    ? const CustomLoader()
+                    : Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 28.0),
+                        child: AppButtonWidget(
+                          onTap: () {
+                            if (formKey.currentState!.validate()) {
+                              authViewModel.loginApi(
+                                  UserModel(
+                                    authProvider: AuthProvider.email,
+                                    email: _emailController.text,
+                                    password: _passwordController.text,
+                                  ),
+                                  context);
+                              AppAnalytics.onLogin(AuthProvider.email.value);
+                            }
+                          },
+                          title: 'login',
+                          buttonRadius: 15,
+                        ),
+                      ),
                 const SizedBox(height: 20.0),
                 Row(
                   children: [
@@ -86,8 +92,8 @@ class LoginPage extends StatelessWidget {
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 30.0),
-                      child: Text(AppLocalization.of(context)!
-                          .getTranslatedValues('or')!,
+                      child: Text(
+                        AppLocalization.of(context)!.getTranslatedValues('or')!,
                         style: const TextStyle(
                           color: Colors.grey,
                           fontWeight: FontWeight.bold,
@@ -107,38 +113,45 @@ class LoginPage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     SocialAuthButton(
-                      image: AppAssets.google, 
-                      onPressed: (){
-                        authViewModel.socialLoginApi(const UserModel(
-                          authProvider: AuthProvider.gmail,
-                        ), context);
+                      image: AppAssets.google,
+                      onPressed: () {
+                        authViewModel.socialLoginApi(
+                            const UserModel(
+                              authProvider: AuthProvider.gmail,
+                            ),
+                            context);
                       },
                     ),
                     SocialAuthButton(
-                      image: AppAssets.facebook, 
-                      onPressed: (){},
+                      image: AppAssets.facebook,
+                      onPressed: () {
+                        authViewModel.socialLoginApi(
+                            const UserModel(
+                              authProvider: AuthProvider.fb,
+                            ),
+                            context);
+                      },
                     ),
-                    if(Platform.isAndroid)
-                    Container()
+                    if (Platform.isAndroid)
+                      Container()
                     else
-                    SocialAuthButton(
-                      image: AppAssets.apple, 
-                      onPressed: (){},
-                    ),
+                      SocialAuthButton(
+                        image: AppAssets.apple,
+                        onPressed: () {},
+                      ),
                   ],
                 ),
                 const SizedBox(height: 20.0),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(AppLocalization.of(context)!
-                          .getTranslatedValues('donthaveaccount')!),
+                    Text(AppLocalization.of(context)!.getTranslatedValues('donthaveaccount')!),
                     TextButton(
                       onPressed: () {
                         AppNavigation.to(context, RegisterPage());
                       },
-                      child: Text(AppLocalization.of(context)!
-                          .getTranslatedValues('register')!,
+                      child: Text(
+                        AppLocalization.of(context)!.getTranslatedValues('register')!,
                         style: const TextStyle(
                           color: AppColors.primaryColor,
                         ),

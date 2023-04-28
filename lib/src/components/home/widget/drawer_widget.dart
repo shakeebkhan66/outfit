@@ -56,7 +56,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
 
   @override
   Widget build(BuildContext context) {
-  final productViewProvider = Provider.of<ProductsViewModel>(context);
+    final productViewProvider = Provider.of<ProductsViewModel>(context);
     final colorsViewModelProvider = Provider.of<ColorsAndStylesViewModel>(context);
     final padding = MediaQuery.of(context).padding;
     return Drawer(
@@ -71,7 +71,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _getTitle('Style'),
+              _getTitle(AppLocalization.of(context)!.getTranslatedValues("style")!),
               Padding(
                 padding: const EdgeInsets.only(right: 32, left: 22, top: 8),
                 child: AppRadioGroup<Styles>(
@@ -86,7 +86,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                 ),
               ),
               _getDivider(),
-              _getTitle('Hijab'),
+              _getTitle(AppLocalization.of(context)!.getTranslatedValues("hijab")!),
               Padding(
                 padding: const EdgeInsets.only(right: 32, left: 22, top: 8),
                 child: AppRadioGroup<Hijab>(
@@ -101,7 +101,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                 ),
               ),
               _getDivider(),
-              _getTitle('Season'),
+              _getTitle(AppLocalization.of(context)!.getTranslatedValues("season")!),
               Padding(
                 padding: const EdgeInsets.only(right: 32, left: 22, top: 8),
                 child: AppRadioGroup<Seasons>(
@@ -142,7 +142,8 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                       productViewProvider.setPage("filter");
                       AppNavigation.pop(context);
                     },
-                    child: Text(AppLocalization.of(context)!.getTranslatedValues("apply")!,
+                    child: Text(
+                      AppLocalization.of(context)!.getTranslatedValues("apply")!,
                       style: GoogleFonts.roboto(
                         fontWeight: FontWeight.w500,
                         color: const Color(0xFFFFFBF9),
@@ -165,7 +166,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
         title,
         style: GoogleFonts.roboto(
           fontWeight: FontWeight.w500,
-          fontSize: 16,
+          fontSize: 18,
           color: AppColors.blackColor,
         ),
       ),
@@ -186,7 +187,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
   }
 }
 
-dynamic getValueFromStyle(Styles style){
+dynamic getValueFromStyle(Styles style) {
   switch (style) {
     case Styles.allStyle:
       return null;
@@ -198,7 +199,8 @@ dynamic getValueFromStyle(Styles style){
       return 4;
   }
 }
-dynamic getValueFromHjiab(Hijab hijab){
+
+dynamic getValueFromHjiab(Hijab hijab) {
   switch (hijab) {
     case Hijab.all:
       return null;
@@ -208,7 +210,8 @@ dynamic getValueFromHjiab(Hijab hijab){
       return 1;
   }
 }
-dynamic getValueFromSeason(Seasons seasons){
+
+dynamic getValueFromSeason(Seasons seasons) {
   switch (seasons) {
     case Seasons.allSeasons:
       return null;

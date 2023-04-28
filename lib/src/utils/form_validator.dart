@@ -1,28 +1,30 @@
+import 'package:outfit/app_localization.dart';
+
 class FormValidator {
   FormValidator._();
-  static String? emailValidator(String? email) {
+  static String? emailValidator(String? email, context) {
     if (email == null || email.isEmpty) {
-      return FormConstants.emptyEmailInputError;
+      return AppLocalization.of(context)!.getTranslatedValues("emptyemailvalidator");
     } else if (!email.isValidEmail) {
-      return FormConstants.invalidEmailError;
+      return AppLocalization.of(context)!.getTranslatedValues("validemailaddress");
     }
     return null;
   }
 
-  static String? nameValidator(String? name) {
+  static String? nameValidator(String? name, context) {
     if (name == null || name.isEmpty) {
-      return FormConstants.nameInputEmptyError;
+      return AppLocalization.of(context)!.getTranslatedValues("nameemptyerror");
     } else if (name.length < 3) {
-      return FormConstants.nameLengthInputEmptyError;
+      return AppLocalization.of(context)!.getTranslatedValues("namelength");
     }
     return null;
   }
 
-  static String? lastnameValidator(String? name) {
+  static String? lastnameValidator(String? name, context) {
     if (name == null || name.isEmpty) {
-      return FormConstants.lastnameInputEmptyError;
+      return AppLocalization.of(context)!.getTranslatedValues("lastnameempty");
     } else if (name.length < 3) {
-      return FormConstants.lastNameLengthInputEmptyError;
+      return AppLocalization.of(context)!.getTranslatedValues("lastnamelength");
     }
     return null;
   }
@@ -54,17 +56,16 @@ class FormValidator {
     return null;
   }
 
-  static String? passwordValidator(String? password) {
+  static String? passwordValidator(String? password, context) {
     if (password == null || password.isEmpty) {
-      return FormConstants.emptyPasswordInputError;
+      return AppLocalization.of(context)!.getTranslatedValues("emptypassword");
     } else if (password.length < 6) {
-      return FormConstants.passwordgreaterthansix;
+      return AppLocalization.of(context)!.getTranslatedValues("passwordlength");
     }
     return null;
   }
 
-  static String? confirmPasswordValidator(
-      {String? firstPassword, String? confirmPassword}) {
+  static String? confirmPasswordValidator({String? firstPassword, String? confirmPassword}) {
     if (confirmPassword == null || confirmPassword.isEmpty) {
       return FormConstants.emptyConfirmPasswordInputError;
     } else if (firstPassword != confirmPassword) {
@@ -98,14 +99,11 @@ extension StringExt on String {
 }
 
 class FormConstants {
-
   FormConstants._();
   static const invalidEmailError = 'Please enter a valid email address';
   static const emptyPasswordInputError = 'Please enter your password';
-  static const emptyConfirmPasswordInputError =
-      'Please enter a confirm password';
-  static const passwordgreaterthansix =
-      'Password must be greater than 6 character';
+  static const emptyConfirmPasswordInputError = 'Please enter a confirm password';
+  static const passwordgreaterthansix = 'Password must be greater than 6 character';
   static const emptyEmailInputError = 'Please enter your email';
   static const nameInputEmptyError = "Please enter your first name";
   static const lastnameInputEmptyError = "Please enter your first name";

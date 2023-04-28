@@ -11,7 +11,7 @@ class WardrobePageTitleWidget extends StatelessWidget {
       contentPadding: const EdgeInsets.only(left: 30, right: 29),
       title: RichText(
         text: TextSpan(
-          text: 'My ',
+          text: AppLocalization.of(context)!.getTranslatedValues("my"),
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w600,
             fontSize: 20,
@@ -19,7 +19,7 @@ class WardrobePageTitleWidget extends StatelessWidget {
           ),
           children: [
             TextSpan(
-              text: 'Wardrobe',
+              text: AppLocalization.of(context)!.getTranslatedValues("wardrobe"),
               style: GoogleFonts.montserrat(
                 fontWeight: FontWeight.w600,
                 fontSize: 20,
@@ -29,10 +29,11 @@ class WardrobePageTitleWidget extends StatelessWidget {
           ],
         ),
       ),
-      subtitle: Text(AppLocalization.of(context)!.getTranslatedValues("letushelpyoudress")!,
+      subtitle: Text(
+        AppLocalization.of(context)!.getTranslatedValues("letushelpyoudress")!,
         style: GoogleFonts.montserrat(
           fontWeight: FontWeight.w500,
-          fontSize: 11,
+          fontSize: 14,
           color: Colors.white,
         ),
       ),

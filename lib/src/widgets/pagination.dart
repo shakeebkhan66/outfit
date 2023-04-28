@@ -4,41 +4,40 @@ import 'package:flutter/material.dart';
 import 'package:outfit/src/base/theme.dart';
 
 class Pagination extends StatefulWidget {
-  const Pagination(
-      {super.key,
+  const Pagination({
+    super.key,
 
-      /// Total number of pages
-      required this.numOfPages,
+    /// Total number of pages
+    required this.numOfPages,
 
-      /// Current selected page
-      required this.selectedPage,
+    /// Current selected page
+    required this.selectedPage,
 
-      /// Number of pages visible in the widget between the previous and next buttons
-      required this.pagesVisible,
+    /// Number of pages visible in the widget between the previous and next buttons
+    required this.pagesVisible,
 
-      /// Callback function when a page is selected
-      required this.onPageChanged,
+    /// Callback function when a page is selected
+    required this.onPageChanged,
 
-      /// Style for the active page text
+    /// Style for the active page text
 
-      /// Style for the active page button
+    /// Style for the active page button
 
-      /// Style for the inactive page text
+    /// Style for the inactive page text
 
-      /// Style for the inactive page button
+    /// Style for the inactive page button
 
-      /// Icon for the previous button
-      this.previousIcon,
+    /// Icon for the previous button
+    this.previousIcon,
 
-      /// Icon for the next button
-      this.nextIcon,
+    /// Icon for the next button
+    this.nextIcon,
 
-      /// Spacing between the individual page buttons
-      this.spacing,
-      
-      required this.onTapFWD,
-      required this.onTapBWD,
-      });
+    /// Spacing between the individual page buttons
+    this.spacing,
+    required this.onTapFWD,
+    required this.onTapBWD,
+  });
 
   final int numOfPages;
   final int selectedPage;
@@ -95,113 +94,136 @@ class _PaginationState extends State<Pagination> {
   Widget build(BuildContext context) {
     int decPage = widget.selectedPage - 6;
     int incPage = widget.selectedPage + 6;
-    return Wrap(
-      alignment:  WrapAlignment.spaceBetween,
-      // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        /// Previous button
-        InkWell(
-          onTap: decPage > 1
-            ? widget.onTapBWD
-            : null,
-          child: SizedBox(
-            height: 40.0,
-            width: 40.0,
-            child: widget.previousIcon ?? Icon(Icons.arrow_back_ios,
-              size: 15.0,
-              color: decPage > 1 ? AppColors.primaryColor : Colors.grey, 
-            ),
-          ),
-        ),
-        if(widget.numOfPages > widget.pagesVisible && widget.selectedPage == widget.numOfPages)
-        InkWell(
-            onTap: () => widget.onPageChanged(1),
-            child: AnimatedContainer(
-              height: 40.0,
-              width: 40.0,
-              duration: const Duration(milliseconds: 200),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: widget.selectedPage == 1
-                    ? AppColors.primaryColor
-                    : Colors.transparent,
-              ),
-              child: Center(
-                child: Text("1",
-                  style: TextStyle(
-                    color: widget.selectedPage == 1
-                    ? AppColors.white
-                    : AppColors.primaryColor,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        /// loop through the pages and show the page buttons
-        for (int i = _startPage; i <= _endPage; i++)
+    return Directionality(
+      textDirection: TextDirection.ltr,
+      child: Wrap(
+        alignment: WrapAlignment.spaceBetween,
+        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          /// Previous button
           InkWell(
-            onTap: () => widget.onPageChanged(i),
-            child: AnimatedContainer(
+            onTap: decPage > 1 ? widget.onTapBWD : null,
+            child: SizedBox(
               height: 40.0,
               width: 40.0,
-              duration: const Duration(milliseconds: 200),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: i == widget.selectedPage
-                    ? AppColors.primaryColor
-                    : Colors.transparent,
-              ),
-              child: Center(
-                child: Text(
-                  '$i',
-                  style: TextStyle(
-                    color: i == widget.selectedPage
-                    ? AppColors.white
-                    : AppColors.primaryColor,
+              child: widget.previousIcon ??
+                  Icon(
+                    Icons.arrow_back_ios,
+                    size: 15.0,
+                    color: decPage > 1 ? AppColors.primaryColor : Colors.grey,
+                  ),
+            ),
+          ),
+          if (widget.numOfPages > widget.pagesVisible && widget.selectedPage == widget.numOfPages) ...[
+            InkWell(
+              onTap: () => widget.onPageChanged(1),
+              child: AnimatedContainer(
+                height: 40.0,
+                width: 40.0,
+                duration: const Duration(milliseconds: 200),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: widget.selectedPage == 1 ? AppColors.primaryColor : Colors.transparent,
+                ),
+                child: Center(
+                  child: Text(
+                    "1",
+                    style: TextStyle(
+                      color: widget.selectedPage == 1 ? AppColors.white : AppColors.primaryColor,
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
+            SizedBox(
+              height: 30.0,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: const [
+                  Text(
+                    "...",
+                    style: TextStyle(
+                      color: AppColors.primaryColor,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
 
-        if(widget.numOfPages > widget.pagesVisible && widget.selectedPage != widget.numOfPages)
-        InkWell(
-            onTap: () => widget.onPageChanged(widget.numOfPages),
-            child: AnimatedContainer(
-              height: 40.0,
-              width: 40.0,
-              duration: const Duration(milliseconds: 200),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: widget.selectedPage == widget.numOfPages
-                    ? AppColors.primaryColor
-                    : Colors.transparent,
-              ),
-              child: Center(
-                child: Text(widget.numOfPages.toString(),
-                  style: TextStyle(
-                    color: widget.selectedPage == widget.numOfPages
-                    ? AppColors.white
-                    : AppColors.primaryColor,
+          /// loop through the pages and show the page buttons
+          for (int i = _startPage; i <= _endPage; i++)
+            InkWell(
+              onTap: () => widget.onPageChanged(i),
+              child: AnimatedContainer(
+                height: 40.0,
+                width: 40.0,
+                duration: const Duration(milliseconds: 200),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: i == widget.selectedPage ? AppColors.primaryColor : Colors.transparent,
+                ),
+                child: Center(
+                  child: Text(
+                    '$i',
+                    style: TextStyle(
+                      color: i == widget.selectedPage ? AppColors.white : AppColors.primaryColor,
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        InkWell(
-          onTap: incPage < widget.numOfPages
-              ? widget.onTapFWD
-              : null,
-          child: SizedBox(
-            height: 40.0,
-            width: 40.0,
-            child: widget.nextIcon ?? Icon(Icons.arrow_forward_ios,
-              size: 15.0,
-              color: incPage < widget.numOfPages ? AppColors.primaryColor : Colors.grey,
+          if (widget.numOfPages > widget.pagesVisible && widget.selectedPage != widget.numOfPages) ...[
+            SizedBox(
+              height: 30.0,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: const [
+                  Text(
+                    "...",
+                    style: TextStyle(
+                      color: AppColors.primaryColor,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ),
-      ],
+            InkWell(
+              onTap: () => widget.onPageChanged(widget.numOfPages),
+              child: AnimatedContainer(
+                height: 40.0,
+                width: 40.0,
+                duration: const Duration(milliseconds: 200),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: widget.selectedPage == widget.numOfPages ? AppColors.primaryColor : Colors.transparent,
+                ),
+                child: Center(
+                  child: Text(
+                    widget.numOfPages.toString(),
+                    style: TextStyle(
+                      color: widget.selectedPage == widget.numOfPages ? AppColors.white : AppColors.primaryColor,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            InkWell(
+              onTap: incPage < widget.numOfPages ? widget.onTapFWD : null,
+              child: SizedBox(
+                height: 40.0,
+                width: 40.0,
+                child: widget.nextIcon ??
+                    Icon(
+                      Icons.arrow_forward_ios,
+                      size: 15.0,
+                      color: incPage < widget.numOfPages ? AppColors.primaryColor : Colors.grey,
+                    ),
+              ),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }

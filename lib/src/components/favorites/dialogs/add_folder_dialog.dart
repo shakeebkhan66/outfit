@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:outfit/app_localization.dart';
 import 'package:outfit/src/base/nav.dart';
 import 'package:outfit/src/base/theme.dart';
 import 'package:reusables/mixins/form_state_mixin.dart';
@@ -48,17 +49,18 @@ class _AddFolderDialogState extends State<AddFolderDialog> with FormStateMixin {
             mainAxisSize: MainAxisSize.min,
             children: [
               Center(
-                child: Text(widget.title,
+                child: Text(
+                  widget.title,
                   style: GoogleFonts.montserrat(
                     fontWeight: FontWeight.w600,
-                    fontSize: 24,
+                    fontSize: 22,
                   ),
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 28, bottom: 9),
                 child: Text(
-                  'Folder name',
+                  AppLocalization.of(context)!.getTranslatedValues("foldername")!,
                   style: GoogleFonts.montserrat(fontWeight: FontWeight.w500),
                 ),
               ),
@@ -85,7 +87,7 @@ class _AddFolderDialogState extends State<AddFolderDialog> with FormStateMixin {
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
                     onPressed: () => AppNavigation.pop(context),
-                    child: _getButtonTitle('Close'),
+                    child: _getButtonTitle(AppLocalization.of(context)!.getTranslatedValues("close")!),
                   ),
                 ),
                 const SizedBox(width: 18),
@@ -101,7 +103,7 @@ class _AddFolderDialogState extends State<AddFolderDialog> with FormStateMixin {
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
                     onPressed: submitter,
-                    child: _getButtonTitle('Done'),
+                    child: _getButtonTitle(AppLocalization.of(context)!.getTranslatedValues("done")!),
                   ),
                 ),
               ]),

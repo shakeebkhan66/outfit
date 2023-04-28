@@ -10,6 +10,7 @@ import 'package:outfit/src/components/home/views/wardrobe_view.dart';
 import 'package:outfit/src/components/search/search_page.dart';
 import 'package:outfit/src/data/repository/auth_local_data_repo.dart';
 import 'package:outfit/src/data/view_model/photos_view_model.dart';
+import 'package:outfit/src/providers/language_provider.dart';
 import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
@@ -36,6 +37,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final currentLanguage = Provider.of<LanguageProvider>(context).getAppLanguage;
     final page = Provider.of<ProductsViewModel>(context);
     final keyboardIsOpened = MediaQuery.of(context).viewInsets.bottom != 0.0;
     Widget? floatingActionButton;
@@ -47,9 +49,11 @@ class _HomePageState extends State<HomePage> {
           backgroundColor: AppColors.primaryColor,
           child: const Icon(Icons.search),
           onPressed: () {
-            AppNavigation.to(context, SearchPage(
-              productsViewModel: _productsViewModel,
-            ));
+            AppNavigation.to(
+                context,
+                SearchPage(
+                  productsViewModel: _productsViewModel,
+                ));
           },
         ),
       );
@@ -84,7 +88,10 @@ class _HomePageState extends State<HomePage> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               Padding(
-                padding: const EdgeInsets.only(right: 20.0),
+                padding: EdgeInsets.only(
+                  right: currentLanguage.languageCode == "en" ? 20.0 : 0.0,
+                  left: currentLanguage.languageCode == "en" ? 0.0 : 20.0,
+                ),
                 child: InkWell(
                   onTap: () {
                     page.setSetIndex(0);
@@ -94,31 +101,30 @@ class _HomePageState extends State<HomePage> {
                       AppAssets.outfitIdeas,
                       width: 24,
                       height: 26,
-                      color: page.getIndex == 0
-                          ? AppColors.primaryColor
-                          : AppColors.blackColor,
+                      color: page.getIndex == 0 ? AppColors.primaryColor : AppColors.blackColor,
                     ),
                     const SizedBox(height: 4),
-                    Text(AppLocalization.of(context)!
-                        .getTranslatedValues('outfitideas')!,
+                    Text(
+                      AppLocalization.of(context)!.getTranslatedValues('outfitideas')!,
                       style: GoogleFonts.roboto(
-                        fontSize: 10,
-                        color: page.getIndex == 0
-                            ? AppColors.primaryColor
-                            : AppColors.blackColor,
+                        fontSize: 12,
+                        color: page.getIndex == 0 ? AppColors.primaryColor : AppColors.blackColor,
                       ),
                     ),
                   ]),
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(left: 20),
+                padding: EdgeInsets.only(
+                  left: currentLanguage.languageCode == "en" ? 20 : 0.0,
+                  right: currentLanguage.languageCode == "en" ? 0 : 20.0,
+                ),
                 child: InkWell(
                   onTap: () {
-                    if(email == "") {
+                    if (email == "") {
                       AppNavigation.to(context, const SocialAuthPage());
-                    }else {
-                     page.setSetIndex(1);
+                    } else {
+                      page.setSetIndex(1);
                     }
                   },
                   child: Column(mainAxisSize: MainAxisSize.min, children: [
@@ -126,18 +132,14 @@ class _HomePageState extends State<HomePage> {
                       AppAssets.wardrobe,
                       width: 16.33,
                       height: 23.56,
-                      color: page.getIndex == 1
-                          ? AppColors.primaryColor
-                          : AppColors.blackColor,
+                      color: page.getIndex == 1 ? AppColors.primaryColor : AppColors.blackColor,
                     ),
                     const SizedBox(height: 4),
-                    Text(AppLocalization.of(context)!
-                        .getTranslatedValues('mywardrobe')!,
+                    Text(
+                      AppLocalization.of(context)!.getTranslatedValues('mywardrobe')!,
                       style: GoogleFonts.roboto(
-                        fontSize: 10,
-                        color: page.getIndex == 1
-                            ? AppColors.primaryColor
-                            : AppColors.blackColor,
+                        fontSize: 12,
+                        color: page.getIndex == 1 ? AppColors.primaryColor : AppColors.blackColor,
                       ),
                     ),
                   ]),

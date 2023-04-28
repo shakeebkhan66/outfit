@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:outfit/app_localization.dart';
 import 'package:outfit/src/base/nav.dart';
+import 'package:outfit/src/base/theme.dart';
 import 'package:outfit/src/components/search/widget/color_style_widget.dart';
 import 'package:outfit/src/data/model/pair_search_model.dart';
 import 'package:outfit/src/data/repository/auth_local_data_repo.dart';
@@ -27,6 +28,7 @@ class _SearchPageState extends State<SearchPage> {
   final String ip = AuthLocalDataSource.getIp();
   @override
   Widget build(BuildContext context) {
+    final colorsViewModelProvider = Provider.of<ColorsAndStylesViewModel>(context);
     final page = Provider.of<ProductsViewModel>(context);
     final filterPairProvider = Provider.of<FilterPairProvider>(context);
     final padding = MediaQuery.of(context).padding;
@@ -69,61 +71,66 @@ class _SearchPageState extends State<SearchPage> {
             ]),
           ),
           Expanded(
-            child: Container(
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(
-                  top: Radius.circular(30),
-                ),
-              ),
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.only(bottom: 120),
-                physics: const BouncingScrollPhysics(),
-                child: Column(children: [
-                  const SizedBox(height: 37),
-                  ColorStyleWidget(
-                    colorsViewModel: colorsViewModel,
+            child: GestureDetector(onTap: (){
+              print("working");
+                for (var i = 0; i < colorsViewModelProvider.isColorExpanded.length; i++) {
+                  if(colorsViewModelProvider.isColorExpanded[i] == true){
+                    colorsViewModelProvider.updateIsColorExpanded(i);
+                  }
+                }
+              },
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(30),
                   ),
-                ]),
+                ),
+                child: ColorStyleWidget(
+                  colorsViewModel: colorsViewModel,
+                ),
               ),
             ),
           ),
         ]),
       ),
-      bottomSheet: Padding(
-        padding: const EdgeInsets.only(left: 28, right: 28, bottom: 32),
-        child: AppButtonWidget(
-          onTap: () {
-            page.setPage("search");
-              for (var i = 0; i < filterPairProvider.getSearchColor.length; i++) {
-              if(filterPairProvider.getSearchColor[i]==null){
-                return AppUtils.flushBarErrorMessage("Please select color", context);
-              }else if(filterPairProvider.getSearchType[i] == null){
-                return AppUtils.flushBarErrorMessage("Please select type", context);
-              }
-             }
-            page.setSetIndex(0);
-            AppNavigation.pop(context);
-            widget.productsViewModel.setCurrentPage(Pages.search);
-              widget.productsViewModel.fetchFilterPairList(
-                context: context,
-                email: email,
-                ip: ip,
-                FilterPairModel(
-                  pairs: [
-                    for (var i = 0; i < filterPairProvider.getSearchColor.length; i++)
-                    Pairs(
-                      type: filterPairProvider.getSearchType[i],
-                      color: filterPairProvider.getSearchColor[i],
-                    ),
-                  ],
-                  ptn: filterPairProvider.getSearchPattern[0],
-                ),
-              ).then((value) {
-                // filterPairProvider.clearaddNullAtEnd();    
-              });
-          },
-          title: 'search',
+      bottomSheet: Container(
+        color: AppColors.white,
+        child: Padding(
+          padding: const EdgeInsets.only(left: 28, right: 28, bottom: 32),
+          child: AppButtonWidget(
+            onTap: () {
+              page.setPage("search");
+                for (var i = 0; i < filterPairProvider.getSearchColor.length; i++) {
+                if(filterPairProvider.getSearchColor[i]==null){
+                  return AppUtils.flushBarErrorMessage("Please select color", context);
+                }else if(filterPairProvider.getSearchType[i] == null){
+                  return AppUtils.flushBarErrorMessage("Please select type", context);
+                }
+               }
+              page.setSetIndex(0);
+              AppNavigation.pop(context);
+              widget.productsViewModel.setCurrentPage(Pages.search);
+                widget.productsViewModel.fetchFilterPairList(
+                  context: context,
+                  email: email,
+                  ip: ip,
+                  FilterPairModel(
+                    pairs: [
+                      for (var i = 0; i < filterPairProvider.getSearchColor.length; i++)
+                      Pairs(
+                        type: filterPairProvider.getSearchType[i],
+                        color: filterPairProvider.getSearchColor[i],
+                      ),
+                    ],
+                    ptn: filterPairProvider.getSearchPattern[0],
+                  ),
+                ).then((value) {
+                  // filterPairProvider.clearaddNullAtEnd();    
+                });
+            },
+            title: 'search',
+          ),
         ),
       ),
     );

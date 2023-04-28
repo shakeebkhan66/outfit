@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:outfit/app_localization.dart';
@@ -37,7 +35,8 @@ class _WardrobeViewState extends State<WardrobeView> {
       userid: userId,
     );
   }
-    @override
+
+  @override
   void dispose() {
     _scrollController.removeListener(_scrollListener);
     _scrollController.dispose();
@@ -51,8 +50,15 @@ class _WardrobeViewState extends State<WardrobeView> {
     }
   }
 
-  ListTileControlAffinity get _controlAffinity =>
-      ListTileControlAffinity.leading;
+  void _scrollToIndex(int index) {
+    _scrollController.animateTo(
+      index * 50.0, // Replace 50.0 with the height of your list item
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  ListTileControlAffinity get _controlAffinity => ListTileControlAffinity.leading;
 
   VisualDensity get visualDensity => const VisualDensity(
         vertical: -4,
@@ -64,46 +70,46 @@ class _WardrobeViewState extends State<WardrobeView> {
     final currentLanguage = Provider.of<LanguageProvider>(context).getAppLanguage;
     final padding = MediaQuery.of(context).padding;
     return Container(
-        color: AppColors.primaryColor,
-        padding: const EdgeInsets.only(top: 30),
-        margin: EdgeInsets.only(
-          top: padding.top,
-          bottom: padding.bottom,
-        ),
-        child: Column(children: [
-          const WardrobePageTitleWidget(),
-          const SizedBox(height: 25),
-          ChangeNotifierProvider.value(
-            value: wardrobeViewModel,
-            child: Consumer<WardrobeViewModel>(
-              builder: (context, value, child) {
-                switch (value.colorsList.status!) {
-                  case Status.loading:
+      color: AppColors.primaryColor,
+      padding: const EdgeInsets.only(top: 30),
+      margin: EdgeInsets.only(
+        top: padding.top,
+        bottom: padding.bottom,
+      ),
+      child: Column(children: [
+        const WardrobePageTitleWidget(),
+        const SizedBox(height: 25),
+        ChangeNotifierProvider.value(
+          value: wardrobeViewModel,
+          child: Consumer<WardrobeViewModel>(
+            builder: (context, value, child) {
+              switch (value.colorsList.status!) {
+                case Status.loading:
                   return Expanded(
                     child: SingleChildScrollView(
                       controller: _scrollController,
                       child: Container(
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-                        ),
-                        child: const WardrobeColorShimmerLoader()),
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+                          ),
+                          child: const WardrobeColorShimmerLoader()),
                     ),
                   );
-                  case Status.error:
+                case Status.error:
                   return Expanded(
                     child: Container(
-                      alignment: Alignment.center,
-                      width: double.infinity,
+                        alignment: Alignment.center,
+                        width: double.infinity,
                         decoration: const BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
                         ),
-                      child: Text(value.colorsList.message!)),
+                        child: Text(value.colorsList.message!)),
                   );
-                  case Status.completed:
-                  List<String> combinedList = wardrobeViewModel.getSelectedColors.values
-                  .fold<List<String>>([], (prevList, nextList) => prevList..addAll(nextList));
+                case Status.completed:
+                  List<String> combinedList =
+                      wardrobeViewModel.getSelectedColors.values.fold<List<String>>([], (prevList, nextList) => prevList..addAll(nextList));
                   return Expanded(
                     child: Container(
                       decoration: const BoxDecoration(
@@ -111,13 +117,14 @@ class _WardrobeViewState extends State<WardrobeView> {
                         borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
                       ),
                       child: SingleChildScrollView(
+                        controller: _scrollController,
                         padding: const EdgeInsets.only(top: 38),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const ContainerTitleWidget(),
                             const SizedBox(height: 19),
-                            for (final item in wardrobeViewModel.wardRobe) ...[
+                            for (int i = 0; i < wardrobeViewModel.wardRobe.length; i++) ...[
                               Padding(
                                 padding: const EdgeInsets.only(
                                   left: 28,
@@ -128,14 +135,12 @@ class _WardrobeViewState extends State<WardrobeView> {
                                   children: [
                                     GestureDetector(
                                       onTap: () {
-                                        item.isExpanded = !item.isExpanded;
+                                        wardrobeViewModel.wardRobe[i].isExpanded = !wardrobeViewModel.wardRobe[i].isExpanded;
                                         setState(() {});
                                       },
                                       child: Container(
                                         decoration: BoxDecoration(
-                                          color: item.isExpanded
-                                              ? const Color(0xFfFBE7F3)
-                                              : Colors.white,
+                                          color: wardrobeViewModel.wardRobe[i].isExpanded ? const Color(0xFfFBE7F3) : Colors.white,
                                           borderRadius: BorderRadius.circular(11),
                                           boxShadow: AppShadow.primaryShadow,
                                         ),
@@ -148,24 +153,24 @@ class _WardrobeViewState extends State<WardrobeView> {
                                         ),
                                         child: Row(children: [
                                           Image.asset(
-                                            item.icon,
-                                            width: item.width,
-                                            height: item.height,
+                                            wardrobeViewModel.wardRobe[i].icon,
+                                            width: wardrobeViewModel.wardRobe[i].width,
+                                            height: wardrobeViewModel.wardRobe[i].height,
                                           ),
                                           Container(
                                             height: 41,
                                             width: 1,
-                                            color: item.isExpanded
-                                                ? const Color(0xFFD7D6D6)
-                                                : const Color(0xFFECEBEB),
-                                            margin: item.dividerMargin,
+                                            color: wardrobeViewModel.wardRobe[i].isExpanded ? const Color(0xFFD7D6D6) : const Color(0xFFECEBEB),
+                                            margin: wardrobeViewModel.wardRobe[i].dividerMargin,
                                           ),
                                           Expanded(
                                             child: Column(
                                               crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
                                                 Text(
-                                                  item.title,
+                                                  currentLanguage.languageCode == "en"
+                                                      ? wardrobeViewModel.wardRobe[i].title
+                                                      : wardrobeViewModel.wardRobe[i].arabicTitle,
                                                   maxLines: 1,
                                                   style: GoogleFonts.montserrat(
                                                     fontWeight: FontWeight.w500,
@@ -176,7 +181,8 @@ class _WardrobeViewState extends State<WardrobeView> {
                                                     top: 8,
                                                     bottom: 4,
                                                   ),
-                                                  child: Text("${wardrobeViewModel.getSelectedColors[item.id]!.length} items",
+                                                  child: Text(
+                                                    "${wardrobeViewModel.getSelectedColors[wardrobeViewModel.wardRobe[i].id]!.length} items",
                                                     maxLines: 1,
                                                     overflow: TextOverflow.ellipsis,
                                                     style: GoogleFonts.montserrat(
@@ -188,36 +194,45 @@ class _WardrobeViewState extends State<WardrobeView> {
                                                 ),
                                                 Wrap(
                                                   children: value.colorsList.data!.colorsModel.data!.map((colors) {
-                                                    return wardrobeViewModel.getSelectedColors[item.id]!
-                                                            .contains(colors.cid.toString()) ? colors.pattern!!="" ?
-                                                        getImageContainer(colors.pattern!,false,13.0,true):
-                                                        getGradientContainer(
-                                                          [
-                                                            hexToColor(colors.hex!),
-                                                            hexToColor(colors.hex!).withOpacity(0.1),
-                                                          ],
-                                                            false,
-                                                            13.0,true,
-                                                        ): Container(
-                                                          width: 0,
-                                                          height: 0,
-                                                          padding: EdgeInsets.zero,
-                                                        );
+                                                    return wardrobeViewModel.getSelectedColors[wardrobeViewModel.wardRobe[i].id]!
+                                                            .contains(colors.cid.toString())
+                                                        ? colors.pattern! != ""
+                                                            ? getImageContainer(colors.pattern!, false, 13.0, true)
+                                                            : getGradientContainer(
+                                                                [
+                                                                  hexToColor(colors.hex!),
+                                                                  hexToColor(colors.hex!).withOpacity(0.1),
+                                                                ],
+                                                                false,
+                                                                13.0,
+                                                                true,
+                                                              )
+                                                        : Container(
+                                                            width: 0,
+                                                            height: 0,
+                                                            padding: EdgeInsets.zero,
+                                                          );
                                                   }).toList(),
                                                 ),
                                               ],
                                             ),
                                           ),
-                                          const Icon(
-                                            Icons.arrow_forward_ios,
-                                            color: Color(0xFF9F9F9F),
-                                            size: 15,
-                                          )
+                                          wardrobeViewModel.wardRobe[i].isExpanded
+                                              ? const Icon(
+                                                  Icons.keyboard_arrow_up,
+                                                  size: 25.0,
+                                                  color: Color(0xFF9F9F9F),
+                                                )
+                                              : const Icon(
+                                                  Icons.keyboard_arrow_down,
+                                                  size: 25.0,
+                                                  color: Color(0xFF9F9F9F),
+                                                ),
                                         ]),
                                       ),
                                     ),
                                     Visibility(
-                                      visible: item.isExpanded,
+                                      visible: wardrobeViewModel.wardRobe[i].isExpanded,
                                       child: Container(
                                         padding: const EdgeInsets.only(
                                           top: 10,
@@ -231,113 +246,124 @@ class _WardrobeViewState extends State<WardrobeView> {
                                         child: Column(
                                           children: [
                                             Wrap(
-                                              children: value.colorsList.data!.colorsModel.data!.asMap().map((index, colors){
-                                                return MapEntry(index, 
-                                                    SizedBox(
-                                                      width: MediaQuery.of(context).size.width/2-28,
-                                                      child: CheckboxListTile(
-                                                      activeColor: AppColors.primaryColor,
-                                                      controlAffinity: _controlAffinity,
-                                                      visualDensity: visualDensity,
-                                                      dense: true,
-                                                      value:  wardrobeViewModel.getSelectedColors[item.id]!
-                                                      .contains(colors.cid.toString()), 
-                                                      onChanged: (_){
-                                                        if (wardrobeViewModel.getSelectedColors[item.id]!
-                                                            .contains(colors.cid.toString())) {
-                                                          wardrobeViewModel.getSelectedColors[item.id]!
-                                                              .remove(colors.cid.toString());
-                                                        } else {
-                                                          wardrobeViewModel.getSelectedColors[item.id]!
-                                                              .add(colors.cid!.toString());
-                                                        }
-                                                        setState(() {});                                           
-                                                      },
-                                                      title: _getTitle(
-                                                        currentLanguage.languageCode=="en"? 
-                                                        colors.name_en!:
-                                                        colors.name!,
+                                              children: value.colorsList.data!.colorsModel.data!
+                                                  .asMap()
+                                                  .map((index, colors) {
+                                                    return MapEntry(
+                                                      index,
+                                                      SizedBox(
+                                                        width: MediaQuery.of(context).size.width / 2 - 28,
+                                                        child: CheckboxListTile(
+                                                          activeColor: AppColors.primaryColor,
+                                                          controlAffinity: _controlAffinity,
+                                                          visualDensity: visualDensity,
+                                                          dense: true,
+                                                          value: wardrobeViewModel.getSelectedColors[wardrobeViewModel.wardRobe[i].id]!
+                                                              .contains(colors.cid.toString()),
+                                                          onChanged: (_) {
+                                                            if (wardrobeViewModel.getSelectedColors[wardrobeViewModel.wardRobe[i].id]!
+                                                                .contains(colors.cid.toString())) {
+                                                              wardrobeViewModel.getSelectedColors[wardrobeViewModel.wardRobe[i].id]!
+                                                                  .remove(colors.cid.toString());
+                                                            } else {
+                                                              wardrobeViewModel.getSelectedColors[wardrobeViewModel.wardRobe[i].id]!
+                                                                  .add(colors.cid!.toString());
+                                                            }
+                                                            setState(() {});
+                                                          },
+                                                          title: _getTitle(
+                                                            currentLanguage.languageCode == "en" ? colors.name_en! : colors.name!,
+                                                          ),
+                                                          subtitle: colors.pattern! != ""
+                                                              ? getImageContainer(colors.pattern!, false)
+                                                              : getGradientContainer(
+                                                                  [
+                                                                    hexToColor(colors.hex!),
+                                                                    hexToColor(colors.hex!).withOpacity(0.1),
+                                                                  ],
+                                                                  false,
+                                                                ),
+                                                        ),
                                                       ),
-                                                      subtitle: colors.pattern!!="" ?
-                                                      getImageContainer(colors.pattern!,false):
-                                                      getGradientContainer(
-                                                        [
-                                                          hexToColor(colors.hex!),
-                                                          hexToColor(colors.hex!).withOpacity(0.1),
-                                                        ],
-                                                          false,
-                                                      ),
-                                                     ),
+                                                    );
+                                                  })
+                                                  .values
+                                                  .toList(),
+                                            ),
+                                            const SizedBox(height: 20),
+                                            wardrobeViewModel.loading
+                                                ? const CustomLoader()
+                                                : Padding(
+                                                    padding: const EdgeInsets.symmetric(
+                                                      horizontal: 21,
                                                     ),
-                                                  );
-                                              }).values.toList(),
-                                            ),
-                                          const SizedBox(height: 20),
-                                          wardrobeViewModel.loading ? 
-                                          const CustomLoader() :
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 21,
-                                            ),
-                                            child: AppButtonWidget(
-                                              onTap: () {
-                                                  setState(() {
-                                                    item.isExpanded = !item.isExpanded;
-                                                  });
-                                                if(wardrobeViewModel.getwardrobeIds[item.id]!.isNotEmpty){
-                                                  wardrobeViewModel.updateWardrobeApi({
-                                                    "user_id": userId,
-                                                    "type": item.id,
-                                                    "colors": wardrobeViewModel.getSelectedColors[item.id]!,
-                                                  },wardrobeViewModel.getwardrobeIds[item.id]!, context);
-                                                }else {
-                                                  wardrobeViewModel.addWardrobeApi({
-                                                    "user_id": userId,
-                                                    "type": item.id,
-                                                    "colors": wardrobeViewModel.getSelectedColors[item.id]!,
-                                                  }, context);
-                                                }
-                                              },
-                                              buttonSize: const Size.fromHeight(50),
-                                              // onTap: widget.onSaveTap,
-                                              title: 'save',
-                                              titleSize: 18,
-                                            ),
-                                          ),
-                                        ]),
+                                                    child: AppButtonWidget(
+                                                      onTap: () {
+                                                        final position = _scrollController.position;
+                                                        _scrollController.animateTo(
+                                                          position.pixels / (i > 4 ? 4 : 8), // Replace with the position you want to scroll to
+                                                          duration: const Duration(milliseconds: 500),
+                                                          curve: Curves.easeInOut,
+                                                        );
+                                                        setState(() {
+                                                          wardrobeViewModel.wardRobe[i].isExpanded = !wardrobeViewModel.wardRobe[i].isExpanded;
+                                                        });
+                                                        if (wardrobeViewModel.getwardrobeIds[wardrobeViewModel.wardRobe[i].id]!.isNotEmpty) {
+                                                          wardrobeViewModel.updateWardrobeApi({
+                                                            "user_id": userId,
+                                                            "type": wardrobeViewModel.wardRobe[i].id,
+                                                            "colors": wardrobeViewModel.getSelectedColors[wardrobeViewModel.wardRobe[i].id]!,
+                                                          }, wardrobeViewModel.getwardrobeIds[wardrobeViewModel.wardRobe[i].id]!, context);
+                                                        } else {
+                                                          wardrobeViewModel.addWardrobeApi({
+                                                            "user_id": userId,
+                                                            "type": wardrobeViewModel.wardRobe[i].id,
+                                                            "colors": wardrobeViewModel.getSelectedColors[wardrobeViewModel.wardRobe[i].id]!,
+                                                          }, context);
+                                                        }
+                                                      },
+                                                      buttonSize: const Size.fromHeight(50),
+                                                      // onTap: widget.onSaveTap,
+                                                      title: 'save',
+                                                      titleSize: 18,
+                                                    ),
+                                                  ),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ],
                                 ),
                               )
                             ],
-                            if(combinedList.isEmpty)
-                            Container()
+                            if (combinedList.isEmpty)
+                              Container()
                             else
-                            Padding(
-                              padding: const EdgeInsets.only(left: 28.0,right: 28.0,top: 28.0, bottom: 10.0),
-                              child: AppButtonWidget(
-                                onTap: (){
-                                  AppNavigation.to(
-                                  context,
-                                  FavoriteDetailPage(
-                                    page: "wardrobe",
-                                    folderName: AppLocalization.of(context)!.getTranslatedValues("mywardrobe")!,
-                                  ),
-                                  );
-                                }, title: "continue",
-                              ),
-                            )
+                              Padding(
+                                padding: const EdgeInsets.only(left: 28.0, right: 28.0, top: 28.0, bottom: 10.0),
+                                child: AppButtonWidget(
+                                  onTap: () {
+                                    AppNavigation.to(
+                                      context,
+                                      FavoriteDetailPage(
+                                        page: "wardrobe",
+                                        folderName: AppLocalization.of(context)!.getTranslatedValues("mywardrobe")!,
+                                      ),
+                                    );
+                                  },
+                                  title: "dressme",
+                                ),
+                              )
                           ],
                         ),
                       ),
                     ),
                   );
-                }
-              },
-            ),
+              }
+            },
           ),
-        ]),
+        ),
+      ]),
     );
   }
 
@@ -353,45 +379,9 @@ class _WardrobeViewState extends State<WardrobeView> {
       title,
       style: GoogleFonts.montserrat(
         fontWeight: FontWeight.w500,
-        fontSize: 11,
+        fontSize: 14,
         color: const Color(0xFF898686),
       ),
     );
   }
-
-  Widget _getSubtitleContainer(List<Color> colors) {
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.only(top: 10, bottom: 6),
-      height: 13,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(3),
-        gradient: LinearGradient(colors: colors),
-      ),
-    );
-  }
-
-  Widget _getDivider() {
-    return const Divider(color: Color(0xFFE1DFDF), height: 0, thickness: 1);
-  }
-}
-
-enum ListColors {
-  black('Black'),
-  orange('Orange'),
-  white('White/Off White'),
-  brown('Brown'),
-  grey('Grey'),
-  greyTwo('Grey'),
-  darkBlue('Dark blue'),
-  darkBlueTwo('Dark blue'),
-  blue('Blue'),
-  green('Green'),
-  teal('Teal'),
-  yellow('Yellow'),
-  ;
-
-  final String value;
-
-  const ListColors(this.value);
 }

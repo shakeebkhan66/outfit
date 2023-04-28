@@ -13,6 +13,7 @@ import 'package:outfit/src/data/model/user_return_data.dart';
 import 'package:outfit/src/data/model/user_return_data.dart' as ruser;
 import 'package:outfit/src/data/repository/auth_local_data_repo.dart';
 import 'package:outfit/src/data/repository/auth_repo.dart';
+import 'package:outfit/src/services/analytics.dart';
 import 'package:outfit/src/utils/app_utils.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 enum AuthProvider { 
@@ -60,6 +61,7 @@ class AuthViewModel with ChangeNotifier {
             authProvider: data.authProvider,
           ),
         );
+          AppAnalytics.onLogin(data.authProvider!.value);
           AppUtils.flushBarSucessMessage('Login Successfully', context).then((value) {
           AppNavigation.toReplace(context, const HomePage());
         });
@@ -101,6 +103,7 @@ class AuthViewModel with ChangeNotifier {
             email: value.user!.email,
           ));
           setLoading(false);
+          AppAnalytics.onLogin(data.authProvider!.value);
           AppUtils.flushBarSucessMessage('Login Successfully', context).then((value) {
           AppNavigation.toReplace(context, const HomePage());
           });

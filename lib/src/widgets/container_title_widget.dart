@@ -11,30 +11,34 @@ class ContainerTitleWidget extends StatelessWidget {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 28),
-        child: RichText(
-          text: TextSpan(
-            text: AppLocalization.of(context)!.getTranslatedValues("showus"),
-            style: GoogleFonts.montserrat(
-              fontWeight: FontWeight.w600,
-              fontSize: 20,
-              color: Colors.black,
-            ),
-            children: [
-              TextSpan(
-                text: AppLocalization.of(context)!.getTranslatedValues("yourclothes"),
-                style: GoogleFonts.montserrat(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 20,
-                  color: AppColors.primaryColor,
-                ),
+        child: Row(
+          children: [
+            Text(
+              AppLocalization.of(context)!.getTranslatedValues("showus")!,
+              style: GoogleFonts.montserrat(
+                fontWeight: FontWeight.w600,
+                fontSize: 20,
+                color: Colors.black,
               ),
-            ],
-          ),
+            ),
+            const SizedBox(
+              width: 3.0,
+            ),
+            Text(
+              AppLocalization.of(context)!.getTranslatedValues("yourclothes")!,
+              style: GoogleFonts.montserrat(
+                fontWeight: FontWeight.w600,
+                fontSize: 20,
+                color: AppColors.primaryColor,
+              ),
+            ),
+          ],
         ),
       ),
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 28),
-        child: Text(AppLocalization.of(context)!.getTranslatedValues("clickontabtoadd")!,
+        child: Text(
+          AppLocalization.of(context)!.getTranslatedValues("clickontabtoadd")!,
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w500,
             fontSize: 12,

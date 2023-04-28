@@ -80,7 +80,7 @@ class FavFoldersViewModel with ChangeNotifier {
   }
   increaseTotalPages(){
     if(getTotalPages > 14) {
-      int addedPage = getPage + 6;
+      int addedPage = getPage + 9;
       if(addedPage < getTotalPages){
         page = addedPage;
       }
@@ -89,7 +89,7 @@ class FavFoldersViewModel with ChangeNotifier {
   }
   decreaseTotalPages(){
     if(getTotalPages > 14) {
-      int addedPage = getPage - 6;
+      int addedPage = getPage - 9;
       if(addedPage > 1){
         page = addedPage;
       }

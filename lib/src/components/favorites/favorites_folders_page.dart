@@ -32,6 +32,7 @@ class _FavoritesFolderPageState extends State<FavoritesFolderPage> {
     );
     super.initState();
   }
+
   List<BoxShadow> get _shadow => [
         BoxShadow(
           offset: const Offset(0, 4),
@@ -59,7 +60,7 @@ class _FavoritesFolderPageState extends State<FavoritesFolderPage> {
         child: Column(children: [
           FavPageTitleWidget(
             title: AppLocalization.of(context)!.getTranslatedValues("myfavourites")!,
-            onCrossback: (){
+            onCrossback: () {
               Navigator.of(context).pop();
             },
           ),
@@ -79,179 +80,179 @@ class _FavoritesFolderPageState extends State<FavoritesFolderPage> {
                       builder: (context, value, child) {
                         switch (value.favFolders.status!) {
                           case Status.loading:
-                          return const FavFolderShimmerLoader();
+                            return const FavFolderShimmerLoader();
                           case Status.error:
-                          return const Text("error");
+                            return const Text("error");
                           case Status.completed:
-                          return Expanded(
-                            child: GridView.builder(
-                              padding: const EdgeInsets.only(
-                                left: 35,
-                                right: 34,
-                                top: 98,
-                                bottom: 30,
-                              ),
-                              physics: const BouncingScrollPhysics(),
-                              gridDelegate: _delegate,
-                              itemBuilder: (_, i) {
-                                if (i == 0) {
-                                  return GestureDetector(
-                                    onTap: () async {
-                                      await AddFolderDialog(
-                                        title: "Create new folder",
-                                        callback: (_) {
-                                          setState(() {});
-                                        },
-                                      ).show(context);
-                                    },
-                                    child: Container(
-                                      padding: const EdgeInsets.all(1),
-                                      decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                          colors: [
-                                            AppColors.primaryColor,
-                                            AppColors.primaryColor.withOpacity(0.5),
-                                          ],
-                                        ),
-                                        boxShadow: _shadow,
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
+                            return Expanded(
+                              child: GridView.builder(
+                                padding: const EdgeInsets.only(
+                                  left: 35,
+                                  right: 34,
+                                  top: 98,
+                                  bottom: 30,
+                                ),
+                                physics: const BouncingScrollPhysics(),
+                                gridDelegate: _delegate,
+                                itemBuilder: (_, i) {
+                                  if (i == 0) {
+                                    return GestureDetector(
+                                      onTap: () async {
+                                        await AddFolderDialog(
+                                          title: AppLocalization.of(context)!.getTranslatedValues("createnewfolder")!,
+                                          callback: (_) {
+                                            setState(() {});
+                                          },
+                                        ).show(context);
+                                      },
                                       child: Container(
+                                        padding: const EdgeInsets.all(1),
                                         decoration: BoxDecoration(
-                                          color: Colors.white,
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              AppColors.primaryColor,
+                                              AppColors.primaryColor.withOpacity(0.5),
+                                            ],
+                                          ),
+                                          boxShadow: _shadow,
                                           borderRadius: BorderRadius.circular(12),
                                         ),
-                                        child: Column(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            FloatingActionButton(
-                                              backgroundColor: AppColors.primaryColor,
-                                              onPressed: () async {
-                                                await AddFolderDialog(
-                                                  title: "Create new folder",
-                                                  callback: (_) {
-                                                    _favFoldersViewModel.addFolder(
-                                                      userId: userId,
-                                                      data: UpdateFolderData(
-                                                        user: userId,
-                                                        list_name: _,
-                                                        description: "app",
-                                                        type: "outfit",
-                                                      )
-                                                    );
-                                                    setState(() {});
-                                                  },
-                                                ).show(context);
-                                              },
-                                              child: const Icon(Icons.add),
-                                            ),
-                                            const Padding(
-                                              padding: EdgeInsets.only(
-                                                top: 30,
-                                                bottom: 16,
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                          child: Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              FloatingActionButton(
+                                                backgroundColor: AppColors.primaryColor,
+                                                onPressed: () async {
+                                                  await AddFolderDialog(
+                                                    title: AppLocalization.of(context)!.getTranslatedValues("createnewfolder")!,
+                                                    callback: (_) {
+                                                      _favFoldersViewModel.addFolder(
+                                                          userId: userId,
+                                                          data: UpdateFolderData(
+                                                            user: userId,
+                                                            list_name: _,
+                                                            description: "app",
+                                                            type: "outfit",
+                                                          ));
+                                                      setState(() {});
+                                                    },
+                                                  ).show(context);
+                                                },
+                                                child: const Icon(Icons.add),
                                               ),
-                                              child: Divider(
-                                                color: Color(0xFFE0DFDF),
-                                                thickness: 1,
-                                                height: 0,
-                                                indent: 4,
-                                                endIndent: 5,
-                                              ),
-                                            ),
-                                            Text(AppLocalization.of(context)!.getTranslatedValues("createnewfolder")!,
-                                              style: GoogleFonts.montserrat(
-                                                fontWeight: FontWeight.w500,
-                                                fontSize: 12,
-                                                color: const Color(0xFF424242),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                }
-                                final fav = value.favFolders.data!.data![i - 1];
-                                return GestureDetector(
-                                  onTap: () {
-                                    AppNavigation.to(
-                                      context,
-                                      FavoriteDetailPage(
-                                        folderName: fav.list_name!,
-                                        folderId: fav.id.toString(),
-                                      ),
-                                    );
-                                  },
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      boxShadow: _shadow,
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Stack(
-                                      children: [
-                                        Column(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            if(fav.first_image == null || fav.first_image!.photo==null)
-                                            Image.asset(AppAssets.imagePlaceholder, width: 35, height: 30)
-                                            else
-                                            ClipRRect(
-                                              borderRadius: BorderRadius.circular(5.0),
-                                              child: Image.network( AppUrl.webUrl + fav.first_image!.photo!.url!,
-                                                width: 50.0,
-                                                height: 60.0,
-                                                fit: BoxFit.fitWidth,
-                                              ),
-                                            ),
-                                            const Padding(
-                                              padding: EdgeInsets.only(
-                                                top: 28,
-                                                bottom: 13,
-                                              ),
-                                              child: Divider(
-                                                color: Color(0xFFE0DFDF),
-                                                thickness: 1,
-                                                height: 0,
-                                                indent: 4,
-                                                endIndent: 5,
-                                              ),
-                                            ),
-                                            Text(fav.list_name!,
-                                              style: GoogleFonts.montserrat(
-                                                fontWeight: FontWeight.w500,
-                                                fontSize: 12,
-                                                color: const Color(0xFF424242),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        Align(
-                                          alignment: Alignment.topRight,
-                                          child: Padding(
-                                            padding: const EdgeInsets.only(
-                                              top: 11,
-                                              right: 11,
-                                              bottom: 12,
-                                            ),
-                                            child: PopupMenuButton<int>(
-                                              color: Colors.white,
-                                              offset: i.isEven
-                                                  ? const Offset(-100, 18)
-                                                  : const Offset(-10, 18),
-                                              shape: const RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.only(
-                                                  topRight: Radius.zero,
-                                                  bottomLeft: Radius.circular(10),
-                                                  topLeft: Radius.circular(10),
-                                                  bottomRight: Radius.circular(10),
+                                              const Padding(
+                                                padding: EdgeInsets.only(
+                                                  top: 30,
+                                                  bottom: 16,
+                                                ),
+                                                child: Divider(
+                                                  color: Color(0xFFE0DFDF),
+                                                  thickness: 1,
+                                                  height: 0,
+                                                  indent: 4,
+                                                  endIndent: 5,
                                                 ),
                                               ),
-                                              onSelected: (_) async {
-                                                if (_ == 0) {
-                                                  await AddFolderDialog(
-                                                    title: "Edit folder name",
-                                                    callback: (_) {
+                                              Text(
+                                                AppLocalization.of(context)!.getTranslatedValues("createnewfolder")!,
+                                                style: GoogleFonts.montserrat(
+                                                  fontWeight: FontWeight.w500,
+                                                  fontSize: 12,
+                                                  color: const Color(0xFF424242),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                  final fav = value.favFolders.data!.data![i - 1];
+                                  return GestureDetector(
+                                    onTap: () {
+                                      AppNavigation.to(
+                                        context,
+                                        FavoriteDetailPage(
+                                          folderName: fav.list_name!,
+                                          folderId: fav.id.toString(),
+                                        ),
+                                      );
+                                    },
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        boxShadow: _shadow,
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Stack(
+                                        children: [
+                                          Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              if (fav.first_image == null || fav.first_image!.photo == null)
+                                                Image.asset(AppAssets.imagePlaceholder, width: 35, height: 30)
+                                              else
+                                                ClipRRect(
+                                                  borderRadius: BorderRadius.circular(5.0),
+                                                  child: Image.network(
+                                                    AppUrl.webUrl + fav.first_image!.photo!.url!,
+                                                    width: 50.0,
+                                                    height: 60.0,
+                                                    fit: BoxFit.fitWidth,
+                                                  ),
+                                                ),
+                                              const Padding(
+                                                padding: EdgeInsets.only(
+                                                  top: 28,
+                                                  bottom: 13,
+                                                ),
+                                                child: Divider(
+                                                  color: Color(0xFFE0DFDF),
+                                                  thickness: 1,
+                                                  height: 0,
+                                                  indent: 4,
+                                                  endIndent: 5,
+                                                ),
+                                              ),
+                                              Text(
+                                                fav.list_name!,
+                                                style: GoogleFonts.montserrat(
+                                                  fontWeight: FontWeight.w500,
+                                                  fontSize: 12,
+                                                  color: const Color(0xFF424242),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          Align(
+                                            alignment: Alignment.topRight,
+                                            child: Padding(
+                                              padding: const EdgeInsets.only(
+                                                top: 11,
+                                                right: 11,
+                                                bottom: 12,
+                                              ),
+                                              child: PopupMenuButton<int>(
+                                                color: Colors.white,
+                                                offset: i.isEven ? const Offset(-100, 18) : const Offset(-10, 18),
+                                                shape: const RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.only(
+                                                    topRight: Radius.zero,
+                                                    bottomLeft: Radius.circular(10),
+                                                    topLeft: Radius.circular(10),
+                                                    bottomRight: Radius.circular(10),
+                                                  ),
+                                                ),
+                                                onSelected: (_) async {
+                                                  if (_ == 0) {
+                                                    await AddFolderDialog(
+                                                      title: AppLocalization.of(context)!.getTranslatedValues("editfoldername")!,
+                                                      callback: (_) {
                                                         _favFoldersViewModel.updateFolderName(
                                                           userId: userId,
                                                           folderId: fav.id.toString(),
@@ -262,69 +263,69 @@ class _FavoritesFolderPageState extends State<FavoritesFolderPage> {
                                                             list_name: _,
                                                           ),
                                                         );
-                                                      setState(() {});
-                                                    },
-                                                  ).show(context);
-                                                } else {
-                                                  _favFoldersViewModel.deleteFolder(
-                                                    userId: userId,
-                                                    folderId: fav.id.toString());
-                                                  setState(() {});
-                                                }
-                                              },
-                                              itemBuilder: (_) {
-                                                return [
-                                                  PopupMenuItem<int>(
-                                                    value: 0,
-                                                    child: Row(children: [
-                                                      Image.asset(
-                                                        AppAssets.editIcon,
-                                                        height: 24,
-                                                        width: 14.17,
-                                                      ),
-                                                      const SizedBox(width: 9.42),
-                                                      Text(AppLocalization.of(context)!.getTranslatedValues("eidt")!,
-                                                        style: GoogleFonts.montserrat(
-                                                          fontWeight: FontWeight.w500,
-                                                          fontSize: 12,
+                                                        setState(() {});
+                                                      },
+                                                    ).show(context);
+                                                  } else {
+                                                    _favFoldersViewModel.deleteFolder(userId: userId, folderId: fav.id.toString());
+                                                    setState(() {});
+                                                  }
+                                                },
+                                                itemBuilder: (_) {
+                                                  return [
+                                                    PopupMenuItem<int>(
+                                                      value: 0,
+                                                      child: Row(children: [
+                                                        Image.asset(
+                                                          AppAssets.editIcon,
+                                                          height: 24,
+                                                          width: 14.17,
                                                         ),
-                                                      ),
-                                                    ]),
-                                                  ),
-                                                  PopupMenuItem<int>(
-                                                    value: 1,
-                                                    child: Row(children: [
-                                                      Image.asset(
-                                                        AppAssets.deleteIcon,
-                                                        width: 14.17,
-                                                        height: 11.33,
-                                                      ),
-                                                      const SizedBox(width: 9.42),
-                                                      Text(AppLocalization.of(context)!.getTranslatedValues("delete")!,
-                                                        style: GoogleFonts.montserrat(
-                                                          fontWeight: FontWeight.w500,
-                                                          fontSize: 12,
+                                                        const SizedBox(width: 9.42),
+                                                        Text(
+                                                          AppLocalization.of(context)!.getTranslatedValues("eidt")!,
+                                                          style: GoogleFonts.montserrat(
+                                                            fontWeight: FontWeight.w500,
+                                                            fontSize: 12,
+                                                          ),
                                                         ),
-                                                      ),
-                                                    ]),
-                                                  ),
-                                                ];
-                                              },
-                                              child: const Icon(
-                                                Icons.more_vert,
-                                                color: AppColors.primaryColor,
+                                                      ]),
+                                                    ),
+                                                    PopupMenuItem<int>(
+                                                      value: 1,
+                                                      child: Row(children: [
+                                                        Image.asset(
+                                                          AppAssets.deleteIcon,
+                                                          width: 14.17,
+                                                          height: 11.33,
+                                                        ),
+                                                        const SizedBox(width: 9.42),
+                                                        Text(
+                                                          AppLocalization.of(context)!.getTranslatedValues("delete")!,
+                                                          style: GoogleFonts.montserrat(
+                                                            fontWeight: FontWeight.w500,
+                                                            fontSize: 12,
+                                                          ),
+                                                        ),
+                                                      ]),
+                                                    ),
+                                                  ];
+                                                },
+                                                child: const Icon(
+                                                  Icons.more_vert,
+                                                  color: AppColors.primaryColor,
+                                                ),
                                               ),
                                             ),
                                           ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                );
-                              },
-                              itemCount: _favFoldersViewModel.favFolders.data!.data!.length + 1,
-                            ),
-                          );
+                                  );
+                                },
+                                itemCount: _favFoldersViewModel.favFolders.data!.data!.length + 1,
+                              ),
+                            );
                         }
                       },
                     ),

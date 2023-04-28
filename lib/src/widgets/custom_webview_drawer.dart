@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:outfit/app_localization.dart';
 import 'package:outfit/src/base/nav.dart';
 import 'package:outfit/src/components/auth/social_auth_page.dart';
 import 'package:outfit/src/components/favorites/dialogs/change_language_dialog.dart';
@@ -21,20 +22,26 @@ class WebDrawer extends StatelessWidget {
           child: Column(
             children: [
               ListTile(
-                onTap: (){
-                  AppNavigation.to(context, const WebViewPage(url: "https://stylorita.com/instyle/"));
+                onTap: () {
+                  AppNavigation.to(context,
+                      const WebViewPage(url: "https://stylorita.com/instyle/"));
                 },
-                title: const Text("Style Lessons"),
+                title: Text(AppLocalization.of(context)!
+                    .getTranslatedValues("stylelesson")!),
                 dense: true,
                 subtitle: const Divider(
                   height: 1.0,
                 ),
               ),
               ListTile(
-                onTap: (){
-                  AppNavigation.to(context, const WebViewPage(url: "https://www.stylorita.com/hijab-tutorials/"));
+                onTap: () {
+                  AppNavigation.to(
+                      context,
+                      const WebViewPage(
+                          url: "https://www.stylorita.com/hijab-tutorials/"));
                 },
-                title: const Text("Hijab tutorials"),
+                title: Text(AppLocalization.of(context)!
+                    .getTranslatedValues("hijabtutorial")!),
                 dense: true,
                 subtitle: const Divider(
                   height: 1.0,
@@ -43,12 +50,11 @@ class WebDrawer extends StatelessWidget {
               ListTile(
                 onTap: () async {
                   await ChangeLanguageDialog(
-                    callback: (_) {
-                      
-                    },
+                    callback: (_) {},
                   ).show(context);
                 },
-                title: const Text("Change language"),
+                title: Text(AppLocalization.of(context)!
+                    .getTranslatedValues("changelanguge")!),
                 dense: true,
                 subtitle: const Divider(
                   height: 1.0,
@@ -56,14 +62,18 @@ class WebDrawer extends StatelessWidget {
               ),
               ListTile(
                 onTap: () async {
-                  if(id == ""){
+                  if (id == "") {
                     AppNavigation.to(context, const SocialAuthPage());
                   } else {
                     await AuthLocalDataSource.clearData();
-                    AppNavigation.navigateRemoveUntil(context, const HomePage());
-                  } 
+                    AppNavigation.navigateRemoveUntil(
+                        context, const HomePage());
+                  }
                 },
-                title: Text(id == "" ? "Login" : "Logout"),
+                title: Text(id == ""
+                    ? AppLocalization.of(context)!.getTranslatedValues("login")!
+                    : AppLocalization.of(context)!
+                        .getTranslatedValues("logout")!),
                 dense: true,
                 subtitle: const Divider(
                   height: 1.0,

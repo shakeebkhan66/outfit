@@ -4,6 +4,8 @@ import 'package:outfit/app_localization.dart';
 import 'package:outfit/src/base/theme.dart';
 import 'package:outfit/src/components/home/views/outfit_ideas_view.dart';
 import 'package:outfit/src/data/model/types_model.dart';
+import 'package:outfit/src/providers/language_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:reusables/reusables.dart';
 
 class RadioWidgetController<T> extends ChangeNotifier {
@@ -25,8 +27,7 @@ class RadioWidgetController<T> extends ChangeNotifier {
 }
 
 class AppRadioGroup<T> extends ControlledWidget<RadioWidgetController<T>> {
-  const AppRadioGroup({Key? key, required this.groupController})
-      : super(key: key, controller: groupController);
+  const AppRadioGroup({Key? key, required this.groupController}) : super(key: key, controller: groupController);
 
   final RadioWidgetController<T> groupController;
 
@@ -34,8 +35,7 @@ class AppRadioGroup<T> extends ControlledWidget<RadioWidgetController<T>> {
   State<AppRadioGroup> createState() => _AppRadioGroupState();
 }
 
-class _AppRadioGroupState<T> extends State<AppRadioGroup<T>>
-    with ControlledStateMixin {
+class _AppRadioGroupState<T> extends State<AppRadioGroup<T>> with ControlledStateMixin {
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -51,18 +51,14 @@ class _AppRadioGroupState<T> extends State<AppRadioGroup<T>>
               onChanged: widget.controller.change,
               title: Text(
                 e is Styles
-                    ? AppLocalization.of(context)!
-                        .getTranslatedValues(e.value)!
+                    ? AppLocalization.of(context)!.getTranslatedValues(e.value)!
                     : e is Hijab
-                        ? AppLocalization.of(context)!
-                        .getTranslatedValues(e.value)!
+                        ? AppLocalization.of(context)!.getTranslatedValues(e.value)!
                         : e is Seasons
-                            ? AppLocalization.of(context)!
-                        .getTranslatedValues(e.value)!
-                            : AppLocalization.of(context)!
-                        .getTranslatedValues(e.toString())!,
+                            ? AppLocalization.of(context)!.getTranslatedValues(e.value)!
+                            : AppLocalization.of(context)!.getTranslatedValues(e.toString())!,
                 style: GoogleFonts.roboto(
-                  fontSize: 12,
+                  fontSize: 14,
                   color: AppColors.blackColor,
                 ),
               ),
@@ -73,10 +69,8 @@ class _AppRadioGroupState<T> extends State<AppRadioGroup<T>>
   }
 }
 
-class SearchStyleRadioWidget<T>
-    extends ControlledWidget<RadioWidgetController<T>> {
-  const SearchStyleRadioWidget({Key? key, required this.groupController})
-      : super(key: key, controller: groupController);
+class SearchStyleRadioWidget<T> extends ControlledWidget<RadioWidgetController<T>> {
+  const SearchStyleRadioWidget({Key? key, required this.groupController}) : super(key: key, controller: groupController);
 
   final RadioWidgetController<T> groupController;
 
@@ -84,10 +78,10 @@ class SearchStyleRadioWidget<T>
   State<SearchStyleRadioWidget> createState() => _SearchStyleRadioWidgetState();
 }
 
-class _SearchStyleRadioWidgetState<T> extends State<SearchStyleRadioWidget<T>>
-    with ControlledStateMixin {
+class _SearchStyleRadioWidgetState<T> extends State<SearchStyleRadioWidget<T>> with ControlledStateMixin {
   @override
   Widget build(BuildContext context) {
+    final currentLanguage = Provider.of<LanguageProvider>(context).getAppLanguage;
     return Column(
       children: widget.controller.items.map((e) {
         return Column(children: [
@@ -100,10 +94,12 @@ class _SearchStyleRadioWidgetState<T> extends State<SearchStyleRadioWidget<T>>
             controlAffinity: ListTileControlAffinity.trailing,
             groupValue: widget.controller.value,
             onChanged: widget.controller.change,
-            title: Text( 
-               e is Data ?
-               e.en_name!:
-               e is Hijab
+            title: Text(
+              e is Data
+                  ? currentLanguage.languageCode == "en"
+                      ? e.en_name!
+                      : e.name!
+                  : e is Hijab
                       ? e.value
                       : e is Seasons
                           ? e.value
@@ -111,7 +107,7 @@ class _SearchStyleRadioWidgetState<T> extends State<SearchStyleRadioWidget<T>>
                               ? e.value
                               : e.toString(),
               style: GoogleFonts.roboto(
-                fontSize: 12,
+                fontSize: 14,
                 color: AppColors.blackColor,
               ),
             ),
