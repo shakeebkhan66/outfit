@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:outfit/app_localization.dart';
 import 'package:outfit/src/base/nav.dart';
 import 'package:outfit/src/base/theme.dart';
@@ -8,6 +9,7 @@ import 'package:outfit/src/components/search/widget/color_style_widget.dart';
 import 'package:outfit/src/data/repository/auth_local_data_repo.dart';
 import 'package:outfit/src/data/response/api_response.dart';
 import 'package:outfit/src/data/view_model/wardrobe_view_model.dart';
+import 'package:outfit/src/providers/add_helper.dart';
 import 'package:outfit/src/providers/language_provider.dart';
 import 'package:outfit/src/utils/const.dart';
 import 'package:outfit/src/widgets/app_button_widget.dart';
@@ -27,6 +29,33 @@ class _WardrobeViewState extends State<WardrobeView> {
   final WardrobeViewModel wardrobeViewModel = WardrobeViewModel();
   final ScrollController _scrollController = ScrollController();
   final String userId = AuthLocalDataSource.getUserid();
+
+  InterstitialAd? interstitialAd;
+  void _loadInterstitialAd({required VoidCallback onCrossPressed}) {
+    print("on add is requesting");
+    InterstitialAd.load(
+      adUnitId: AdHelper.searchAndWardrobeAdUnitId,
+      request: const AdRequest(),
+      adLoadCallback: InterstitialAdLoadCallback(
+        onAdLoaded: (ad) {
+          print("on add is loading");
+          ad.fullScreenContentCallback = FullScreenContentCallback(
+            onAdDismissedFullScreenContent: (ad) {
+              onCrossPressed();
+            },
+          );
+          setState(() {
+            interstitialAd = ad;
+          });
+          interstitialAd!.show();
+        },
+        onAdFailedToLoad: (err) {
+          print('Failed to load an interstitial ad: ${err.message}');
+        },
+      ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -64,7 +93,6 @@ class _WardrobeViewState extends State<WardrobeView> {
         vertical: -4,
         horizontal: -4,
       );
-
   @override
   Widget build(BuildContext context) {
     final currentLanguage = Provider.of<LanguageProvider>(context).getAppLanguage;
@@ -343,6 +371,7 @@ class _WardrobeViewState extends State<WardrobeView> {
                                 padding: const EdgeInsets.only(left: 28.0, right: 28.0, top: 28.0, bottom: 10.0),
                                 child: AppButtonWidget(
                                   onTap: () {
+                                    _loadInterstitialAd(onCrossPressed: () {});
                                     AppNavigation.to(
                                       context,
                                       FavoriteDetailPage(

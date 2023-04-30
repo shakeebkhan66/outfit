@@ -118,9 +118,16 @@ class _ColorStyleWidgetState extends State<ColorStyleWidget> {
                                                       horizontal: 8,
                                                       vertical: 14,
                                                     ),
-                                                    margin: !(colorsViewModelProvider.getIsColorExpanded.length <= 1)
-                                                        ? const EdgeInsets.only(right: 9.28)
-                                                        : EdgeInsets.zero,
+                                                    margin: EdgeInsets.only(
+                                                      right: currentLanguage.languageCode == "en" &&
+                                                              !(colorsViewModelProvider.getIsColorExpanded.length <= 1)
+                                                          ? 9.28
+                                                          : 0.0,
+                                                      left: currentLanguage.languageCode == "ar" &&
+                                                              !(colorsViewModelProvider.getIsColorExpanded.length <= 1)
+                                                          ? 9.28
+                                                          : 0.0,
+                                                    ),
                                                     child: Row(
                                                       children: [
                                                         const Icon(
@@ -268,7 +275,14 @@ class _ColorStyleWidgetState extends State<ColorStyleWidget> {
                                                     ),
                                                     margin: EdgeInsets.only(
                                                       top: 13,
-                                                      right: !(colorsViewModelProvider.getIsColorExpanded.length <= 1) ? 30 : 0,
+                                                      right: currentLanguage.languageCode == "en" &&
+                                                              !(colorsViewModelProvider.getIsColorExpanded.length <= 1)
+                                                          ? 28
+                                                          : 0.0,
+                                                      left: currentLanguage.languageCode == "en" ||
+                                                              (colorsViewModelProvider.getIsColorExpanded.length <= 1)
+                                                          ? 0.0
+                                                          : 28.0,
                                                     ),
                                                     child: Row(
                                                       children: [
@@ -380,7 +394,7 @@ class _ColorStyleWidgetState extends State<ColorStyleWidget> {
 
   Widget _getTitle(String title) {
     return Padding(
-      padding: const EdgeInsets.only(left: 34, top: 10),
+      padding: const EdgeInsets.only(left: 34, top: 10, right: 34),
       child: Text(
         title,
         style: GoogleFonts.montserrat(

@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:outfit/app_localization.dart';
 import 'package:outfit/src/components/home/home_page.dart';
 import 'package:outfit/src/components/language/language_selection_page.dart';
@@ -22,24 +23,34 @@ import 'base/theme.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
+  static Future<InitializationStatus> _initGoogleMobileAds() {
+    final testDeviceIds = ["CB0574B4785D9C55E994CD9D87813515"];
+    final requestConfiguration = RequestConfiguration(
+      testDeviceIds: testDeviceIds,
+    );
+    MobileAds.instance.updateRequestConfiguration(requestConfiguration);
+    print("INititiltliaeagalielange");
+    return MobileAds.instance.initialize();
+  }
 
   static Future<void> initializeAndRun() async {
     WidgetsFlutterBinding.ensureInitialized();
     await Firebase.initializeApp();
+    await _initGoogleMobileAds();
     await Hive.initFlutter();
     await Hive.openBox(settingsBox);
-    await Hive.openBox(authBox); 
-    await Hive.openBox(langBox); 
+    await Hive.openBox(authBox);
+    await Hive.openBox(langBox);
     runApp(
       MultiProvider(
         providers: [
-          ChangeNotifierProvider(create: (_)=> LanguageProvider(SettingsLocalDataSource())),
-          ChangeNotifierProvider(create: (_)=> AuthViewModel()),
-          ChangeNotifierProvider(create: (_)=> FilterPairProvider()),
-          ChangeNotifierProvider(create: (_)=> WardrobeViewModel()),
-          ChangeNotifierProvider(create: (_)=> ProductsViewModel()),
-          ChangeNotifierProvider(create: (_)=> ColorsAndStylesViewModel()),
-          ChangeNotifierProvider(create: (_)=> FavFoldersViewModel()),
+          ChangeNotifierProvider(create: (_) => LanguageProvider(SettingsLocalDataSource())),
+          ChangeNotifierProvider(create: (_) => AuthViewModel()),
+          ChangeNotifierProvider(create: (_) => FilterPairProvider()),
+          ChangeNotifierProvider(create: (_) => WardrobeViewModel()),
+          ChangeNotifierProvider(create: (_) => ProductsViewModel()),
+          ChangeNotifierProvider(create: (_) => ColorsAndStylesViewModel()),
+          ChangeNotifierProvider(create: (_) => FavFoldersViewModel()),
         ],
         child: const MyApp(),
       ),
@@ -74,10 +85,7 @@ class MyApp extends StatelessWidget {
       supportedLocales: supporatedLocales.map((languageCode) {
         return AppUtils.getLocaleFromLanguageCode(languageCode);
       }).toList(),
-      home: 
-      id == "" && lang == false ?  
-      const LanguageSelectionPage() : 
-      const HomePage(),
+      home: id == "" && lang == false ? const LanguageSelectionPage() : const HomePage(),
     );
   }
 }

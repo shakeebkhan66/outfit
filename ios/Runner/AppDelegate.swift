@@ -11,6 +11,9 @@ import Firebase
     if FirebaseApp.app() == nil {
         FirebaseApp.configure()
     }
+      let listTileFactory = ListTileNativeAdFactory()
+          FLTGoogleMobileAdsPlugin.registerNativeAdFactory(
+              self, factoryId: "listTile", nativeAdFactory: listTileFactory)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 }

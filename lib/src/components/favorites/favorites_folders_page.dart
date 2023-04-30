@@ -53,6 +53,9 @@ class _FavoritesFolderPageState extends State<FavoritesFolderPage> {
 
   @override
   Widget build(BuildContext context) {
+    final mediaQueryData = MediaQuery.of(context);
+    final height = mediaQueryData.size.height;
+    final width = mediaQueryData.size.width;
     final padding = MediaQuery.of(context).padding;
     return Scaffold(
       body: Padding(
@@ -101,6 +104,14 @@ class _FavoritesFolderPageState extends State<FavoritesFolderPage> {
                                         await AddFolderDialog(
                                           title: AppLocalization.of(context)!.getTranslatedValues("createnewfolder")!,
                                           callback: (_) {
+                                            _favFoldersViewModel.addFolder(
+                                                userId: userId,
+                                                data: UpdateFolderData(
+                                                  user: userId,
+                                                  list_name: _,
+                                                  description: "app",
+                                                  type: "outfit",
+                                                ));
                                             setState(() {});
                                           },
                                         ).show(context);
@@ -125,25 +136,19 @@ class _FavoritesFolderPageState extends State<FavoritesFolderPage> {
                                           child: Column(
                                             mainAxisAlignment: MainAxisAlignment.center,
                                             children: [
-                                              FloatingActionButton(
-                                                backgroundColor: AppColors.primaryColor,
-                                                onPressed: () async {
-                                                  await AddFolderDialog(
-                                                    title: AppLocalization.of(context)!.getTranslatedValues("createnewfolder")!,
-                                                    callback: (_) {
-                                                      _favFoldersViewModel.addFolder(
-                                                          userId: userId,
-                                                          data: UpdateFolderData(
-                                                            user: userId,
-                                                            list_name: _,
-                                                            description: "app",
-                                                            type: "outfit",
-                                                          ));
-                                                      setState(() {});
-                                                    },
-                                                  ).show(context);
-                                                },
-                                                child: const Icon(Icons.add),
+                                              Container(
+                                                height: 56,
+                                                width: 56,
+                                                decoration: const BoxDecoration(
+                                                  color: AppColors.primaryColor,
+                                                  shape: BoxShape.circle,
+                                                ),
+                                                child: const Center(
+                                                  child: Icon(
+                                                    Icons.add,
+                                                    color: AppColors.white,
+                                                  ),
+                                                ),
                                               ),
                                               const Padding(
                                                 padding: EdgeInsets.only(

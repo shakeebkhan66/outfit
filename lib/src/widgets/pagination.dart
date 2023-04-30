@@ -208,20 +208,20 @@ class _PaginationState extends State<Pagination> {
                 ),
               ),
             ),
-            InkWell(
-              onTap: incPage < widget.numOfPages ? widget.onTapFWD : null,
-              child: SizedBox(
-                height: 40.0,
-                width: 40.0,
-                child: widget.nextIcon ??
-                    Icon(
-                      Icons.arrow_forward_ios,
-                      size: 15.0,
-                      color: incPage < widget.numOfPages ? AppColors.primaryColor : Colors.grey,
-                    ),
-              ),
-            ),
           ],
+          InkWell(
+            onTap: incPage < widget.numOfPages ? widget.onTapFWD : null,
+            child: SizedBox(
+              height: 40.0,
+              width: 40.0,
+              child: widget.nextIcon ??
+                  Icon(
+                    Icons.arrow_forward_ios,
+                    size: 15.0,
+                    color: incPage < widget.numOfPages ? AppColors.primaryColor : Colors.grey,
+                  ),
+            ),
+          ),
         ],
       ),
     );

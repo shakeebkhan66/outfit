@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:outfit/app_localization.dart';
 import 'package:outfit/src/base/nav.dart';
 import 'package:outfit/src/base/theme.dart';
@@ -7,6 +8,7 @@ import 'package:outfit/src/components/home/views/outfit_ideas_view.dart';
 import 'package:outfit/src/data/repository/auth_local_data_repo.dart';
 import 'package:outfit/src/data/view_model/colors_view_model.dart';
 import 'package:outfit/src/data/view_model/photos_view_model.dart';
+import 'package:outfit/src/providers/add_helper.dart';
 import 'package:outfit/src/widgets/radio_button_widget.dart';
 import 'package:provider/provider.dart';
 
@@ -18,12 +20,14 @@ class DrawerWidget extends StatefulWidget {
     required this.season,
     required this.callback,
     required this.productsViewModel,
+    required this.applyCallback,
   }) : super(key: key);
 
   final Styles style;
   final Hijab hijab;
   final Seasons season;
   final void Function(Styles, Hijab, Seasons) callback;
+  final void Function(String apply) applyCallback;
   final ProductsViewModel productsViewModel;
 
   @override
@@ -36,6 +40,29 @@ class _DrawerWidgetState extends State<DrawerWidget> {
   late Styles _style;
   late Hijab _hijab;
   late Seasons _season;
+  InterstitialAd? interstitialAd;
+  void _loadInterstitialAd({required VoidCallback onCrossPressed}) {
+    InterstitialAd.load(
+      adUnitId: AdHelper.favAndFilterAdUnitId,
+      request: const AdRequest(),
+      adLoadCallback: InterstitialAdLoadCallback(
+        onAdLoaded: (ad) {
+          ad.fullScreenContentCallback = FullScreenContentCallback(
+            onAdDismissedFullScreenContent: (ad) {
+              onCrossPressed();
+            },
+          );
+          setState(() {
+            interstitialAd = ad;
+          });
+          interstitialAd!.show();
+        },
+        onAdFailedToLoad: (err) {
+          print('Failed to load an interstitial ad: ${err.message}');
+        },
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -128,6 +155,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                       minimumSize: const Size(115, 42),
                     ),
                     onPressed: () {
+                      widget.applyCallback("apply");
                       dynamic styleValue = getValueFromStyle(_style);
                       dynamic hijabValue = getValueFromHjiab(_hijab);
                       dynamic seasonValue = getValueFromSeason(_season);

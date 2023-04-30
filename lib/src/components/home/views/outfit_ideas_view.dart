@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:outfit/app_localization.dart';
 import 'package:outfit/src/base/assets.dart';
 import 'package:outfit/src/base/nav.dart';
@@ -15,6 +16,7 @@ import 'package:outfit/src/data/repository/auth_local_data_repo.dart';
 import 'package:outfit/src/data/response/api_response.dart';
 import 'package:outfit/src/data/view_model/colors_view_model.dart';
 import 'package:outfit/src/data/view_model/photos_view_model.dart';
+import 'package:outfit/src/providers/add_helper.dart';
 import 'package:outfit/src/providers/filter_pair_provider.dart';
 import 'package:outfit/src/providers/language_provider.dart';
 import 'package:outfit/src/utils/app_urls.dart';
@@ -38,6 +40,8 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
   final String email = AuthLocalDataSource.getEmail();
   final String ip = AuthLocalDataSource.getIp();
   bool filterDrawer = true;
+  NativeAd? _ad;
+  bool isLoadedNativeAd = false;
   @override
   void initState() {
     widget.productViewModel.fetchPhotosList(
@@ -45,6 +49,29 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
       email: email,
       ip: ip,
     );
+    _ad = NativeAd(
+      adUnitId: AdHelper.nativeAdUnitId,
+      factoryId: 'listTile',
+      request: const AdRequest(),
+      listener: NativeAdListener(
+        onAdLoaded: (ad) {
+          setState(() {
+            _ad = ad as NativeAd;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          // Releases an ad resource when it fails to load
+          ad.dispose();
+          print('Ad load failed (code=${error.code} message=${error.message})');
+        },
+      ),
+    );
+    _ad!.load().then((value) {
+      setState(() {
+        print("Loaded");
+        isLoadedNativeAd = true;
+      });
+    });
     super.initState();
   }
 
@@ -58,10 +85,33 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
         borderRadius: BorderRadius.circular(100),
         borderSide: const BorderSide(color: Color(0x00000000)),
       );
+  InterstitialAd? interstitialAd;
+  void _loadInterstitialAd(String ads) {
+    InterstitialAd.load(
+      adUnitId: ads == "apply" ? AdHelper.searchAndWardrobeAdUnitId : AdHelper.favAndFilterAdUnitId,
+      request: const AdRequest(),
+      adLoadCallback: InterstitialAdLoadCallback(
+        onAdLoaded: (ad) {
+          ad.fullScreenContentCallback = FullScreenContentCallback(
+            onAdDismissedFullScreenContent: (ad) {},
+          );
+          setState(() {
+            interstitialAd = ad;
+          });
+          interstitialAd!.show();
+        },
+        onAdFailedToLoad: (err) {
+          print('Failed to load an interstitial ad: ${err.message}');
+        },
+      ),
+    );
+  }
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
     final String email = AuthLocalDataSource.getEmail();
     final currentLanguage = Provider.of<LanguageProvider>(context).getAppLanguage;
     final filterPairProvider = Provider.of<FilterPairProvider>(context);
@@ -75,7 +125,11 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
               hijab: hijab,
               style: style,
               season: season,
+              applyCallback: (apply) {
+                _loadInterstitialAd(apply);
+              },
               callback: (newStyle, newHijab, newSeason) {
+                print("this is callback");
                 hijab = newHijab;
                 season = newSeason;
                 style = newStyle;
@@ -91,6 +145,7 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
             if (email == "") {
               AppNavigation.to(context, const SocialAuthPage());
             } else {
+              _loadInterstitialAd("fav");
               AppNavigation.to(context, const FavoritesFolderPage());
             }
           },
@@ -245,11 +300,11 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
             const SliverToBoxAdapter()
           else
             SliverPadding(
-              padding: const EdgeInsets.only(left: 22.0, right: 22.0, bottom: 10.0, top: 5.0),
+              padding: const EdgeInsets.only(left: 22.0, right: 22.0, bottom: 10.0, top: 10.0),
               sliver: SliverToBoxAdapter(
                 child: Wrap(
                   runSpacing: 8,
-                  spacing: 10,
+                  spacing: 16,
                   alignment: WrapAlignment.start,
                   children: colorsViewModelProvider.selectedGradientColors
                       .asMap()
@@ -323,106 +378,228 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
               builder: (context, value, child) {
                 switch (value.productsList.status!) {
                   case Status.completed:
+                    List<ProductsData> products = value.productsList.data!.data!.data!;
                     return SliverPadding(
                       padding: const EdgeInsets.only(
                         left: 16,
                         right: 16,
                         bottom: 30.0,
-                        top: 8,
+                        top: 4,
                       ),
-                      sliver: SliverGrid(
-                        delegate: SliverChildBuilderDelegate(
-                          (_, i) {
-                            List<ProductsData> products = value.productsList.data!.data!.data!;
-                            return GestureDetector(
-                              onTap: () {
-                                AppNavigation.to(
-                                  context,
-                                  DressDetailPage(
-                                    productViewModel: widget.productViewModel,
-                                    isFavourite: widget.productViewModel.getFavouriteList.contains(i) ? true : false,
-                                    dress: AppUrl.webUrl + products[i].url!,
-                                    source: products[i].source!,
-                                    imageId: products[i].uid.toString(),
-                                    index: i,
-                                    id: products[i].uid!,
-                                    page: "outfit",
-                                  ),
-                                ).then((value) {
-                                  // favList.clear();
-                                  if (productViewProvider.getPageName == "search") {
-                                    widget.productViewModel.fetchFilterPairList(
-                                      context: context,
-                                      email: email,
-                                      ip: ip,
-                                      FilterPairModel(
-                                        pairs: [
-                                          for (var i = 0; i < filterPairProvider.getSearchColor.length; i++)
-                                            Pairs(
-                                              type: filterPairProvider.getSearchType[i],
-                                              color: filterPairProvider.getSearchColor[i],
-                                            ),
-                                        ],
-                                        ptn: filterPairProvider.getSearchPattern[0],
-                                      ),
-                                    );
-                                  } else if (productViewProvider.getPageName == "filter") {
-                                    widget.productViewModel.filterPhotoPhotosList(
-                                      context: context,
-                                      email: email,
-                                      ip: ip,
-                                    );
-                                  } else {
-                                    widget.productViewModel.fetchPhotosList(
-                                      context: context,
-                                      email: email,
-                                      ip: ip,
-                                    );
-                                  }
-                                });
-                              },
-                              child: GridTile(
-                                footer: GridTileBar(
-                                  leading: GestureDetector(
-                                    onTap: () => AppUtils.share(products[i].uid!, currentLanguage.languageCode),
-                                    child: const Icon(
-                                      Icons.share,
-                                      color: AppColors.blackColor,
+                      sliver: SliverToBoxAdapter(
+                        child: Wrap(
+                            runSpacing: 0,
+                            spacing: 16,
+                            children: products
+                                .asMap()
+                                .map(
+                                  (i, value) => MapEntry(
+                                    i,
+                                    GestureDetector(
+                                      onTap: () {
+                                        AppNavigation.to(
+                                          context,
+                                          DressDetailPage(
+                                            productViewModel: widget.productViewModel,
+                                            isFavourite: widget.productViewModel.getFavouriteList.contains(i) ? true : false,
+                                            dress: AppUrl.webUrl + products[i].url!,
+                                            source: products[i].source!,
+                                            imageId: products[i].uid.toString(),
+                                            index: i,
+                                            id: products[i].uid!,
+                                            page: "outfit",
+                                          ),
+                                        ).then((value) {
+                                          // favList.clear();
+                                          if (productViewProvider.getPageName == "search") {
+                                            widget.productViewModel.fetchFilterPairList(
+                                              context: context,
+                                              email: email,
+                                              ip: ip,
+                                              FilterPairModel(
+                                                pairs: [
+                                                  for (var i = 0; i < filterPairProvider.getSearchColor.length; i++)
+                                                    Pairs(
+                                                      type: filterPairProvider.getSearchType[i],
+                                                      color: filterPairProvider.getSearchColor[i],
+                                                    ),
+                                                ],
+                                                ptn: filterPairProvider.getSearchPattern[0],
+                                              ),
+                                            );
+                                          } else if (productViewProvider.getPageName == "filter") {
+                                            widget.productViewModel.filterPhotoPhotosList(
+                                              context: context,
+                                              email: email,
+                                              ip: ip,
+                                            );
+                                          } else {
+                                            widget.productViewModel.fetchPhotosList(
+                                              context: context,
+                                              email: email,
+                                              ip: ip,
+                                            );
+                                          }
+                                        });
+                                      },
+                                      child: _ad != null && products.length > 7
+                                          ? (i == 6)
+                                              ? Column(
+                                                  children: [
+                                                    Wrap(
+                                                      runSpacing: 0,
+                                                      spacing: 16,
+                                                      children: [
+                                                        Container(
+                                                          margin: const EdgeInsets.symmetric(vertical: 7.0),
+                                                          height: 230,
+                                                          width: (width / 2) - 24,
+                                                          child: GridTile(
+                                                            footer: GridTileBar(
+                                                              leading: GestureDetector(
+                                                                onTap: () => AppUtils.share(products[6].uid!, currentLanguage.languageCode),
+                                                                child: const Icon(
+                                                                  Icons.share,
+                                                                  color: AppColors.blackColor,
+                                                                ),
+                                                              ),
+                                                              title: const Text(""),
+                                                              trailing: GestureDetector(
+                                                                onTap: () {
+                                                                  if (widget.productViewModel.favouriteList.contains(6)) {
+                                                                    widget.productViewModel.removeFromFavourite(6);
+                                                                    widget.productViewModel.decrementFromFavourite(6);
+                                                                    widget.productViewModel
+                                                                        .unLikeImageById(email: email, ip: ip, id: products[6].uid!.toString());
+                                                                  } else {
+                                                                    widget.productViewModel.addFromFavourite(6);
+                                                                    widget.productViewModel.incrementFromFavourite(6);
+                                                                    widget.productViewModel
+                                                                        .likeImageById(email: email, ip: ip, id: products[6].uid!.toString());
+                                                                  }
+                                                                },
+                                                                child: Icon(
+                                                                  widget.productViewModel.favouriteList.contains(6)
+                                                                      ? Icons.favorite
+                                                                      : Icons.favorite_border,
+                                                                  color: widget.productViewModel.favouriteList.contains(6)
+                                                                      ? const Color(0xFFFF2C2C)
+                                                                      : AppColors.blackColor,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            child: ClipRRect(
+                                                                borderRadius: BorderRadius.circular(5.0),
+                                                                child: Image.network(AppUrl.webUrl + products[6].url!, fit: BoxFit.fill)),
+                                                          ),
+                                                        ),
+                                                        Container(
+                                                          margin: const EdgeInsets.symmetric(vertical: 7.0),
+                                                          height: 230,
+                                                          width: (width / 2) - 24,
+                                                          child: GridTile(
+                                                            footer: GridTileBar(
+                                                              leading: GestureDetector(
+                                                                onTap: () => AppUtils.share(products[7].uid!, currentLanguage.languageCode),
+                                                                child: const Icon(
+                                                                  Icons.share,
+                                                                  color: AppColors.blackColor,
+                                                                ),
+                                                              ),
+                                                              title: const Text(""),
+                                                              trailing: GestureDetector(
+                                                                onTap: () {
+                                                                  if (widget.productViewModel.favouriteList.contains(7)) {
+                                                                    widget.productViewModel.removeFromFavourite(7);
+                                                                    widget.productViewModel.decrementFromFavourite(7);
+                                                                    widget.productViewModel
+                                                                        .unLikeImageById(email: email, ip: ip, id: products[7].uid!.toString());
+                                                                  } else {
+                                                                    widget.productViewModel.addFromFavourite(4);
+                                                                    widget.productViewModel.incrementFromFavourite(4);
+                                                                    widget.productViewModel
+                                                                        .likeImageById(email: email, ip: ip, id: products[7].uid!.toString());
+                                                                  }
+                                                                },
+                                                                child: Icon(
+                                                                  widget.productViewModel.favouriteList.contains(7)
+                                                                      ? Icons.favorite
+                                                                      : Icons.favorite_border,
+                                                                  color: widget.productViewModel.favouriteList.contains(7)
+                                                                      ? const Color(0xFFFF2C2C)
+                                                                      : AppColors.blackColor,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            child: ClipRRect(
+                                                                borderRadius: BorderRadius.circular(5.0),
+                                                                child: Image.network(AppUrl.webUrl + products[7].url!, fit: BoxFit.fill)),
+                                                          ),
+                                                        ),
+                                                        _ad != null && isLoadedNativeAd
+                                                            ? Container(
+                                                                margin: EdgeInsets.zero,
+                                                                height: 100.0,
+                                                                alignment: Alignment.center,
+                                                                child: AdWidget(ad: _ad!),
+                                                              )
+                                                            : Container(),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                )
+                                              : i == 7
+                                                  ? Container()
+                                                  : Container(
+                                                      margin: const EdgeInsets.symmetric(vertical: 7.0),
+                                                      height: 230,
+                                                      width: (width / 2) - 24,
+                                                      child: GridTile(
+                                                        footer: GridTileBar(
+                                                          leading: GestureDetector(
+                                                            onTap: () => AppUtils.share(products[i].uid!, currentLanguage.languageCode),
+                                                            child: const Icon(
+                                                              Icons.share,
+                                                              color: AppColors.blackColor,
+                                                            ),
+                                                          ),
+                                                          title: const Text(""),
+                                                          trailing: GestureDetector(
+                                                            onTap: () {
+                                                              if (widget.productViewModel.favouriteList.contains(i)) {
+                                                                widget.productViewModel.removeFromFavourite(i);
+                                                                widget.productViewModel.decrementFromFavourite(i);
+                                                                widget.productViewModel
+                                                                    .unLikeImageById(email: email, ip: ip, id: products[i].uid!.toString());
+                                                              } else {
+                                                                widget.productViewModel.addFromFavourite(i);
+                                                                widget.productViewModel.incrementFromFavourite(i);
+                                                                widget.productViewModel
+                                                                    .likeImageById(email: email, ip: ip, id: products[i].uid!.toString());
+                                                              }
+                                                            },
+                                                            child: Icon(
+                                                              widget.productViewModel.favouriteList.contains(i)
+                                                                  ? Icons.favorite
+                                                                  : Icons.favorite_border,
+                                                              color: widget.productViewModel.favouriteList.contains(i)
+                                                                  ? const Color(0xFFFF2C2C)
+                                                                  : AppColors.blackColor,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        child: ClipRRect(
+                                                          borderRadius: BorderRadius.circular(5.0),
+                                                          child: Image.network(AppUrl.webUrl + products[i].url!, fit: BoxFit.fill),
+                                                        ),
+                                                      ),
+                                                    )
+                                          : Container(),
                                     ),
                                   ),
-                                  title: const Text(""),
-                                  trailing: GestureDetector(
-                                    onTap: () {
-                                      if (widget.productViewModel.favouriteList.contains(i)) {
-                                        widget.productViewModel.removeFromFavourite(i);
-                                        widget.productViewModel.decrementFromFavourite(i);
-                                        widget.productViewModel.unLikeImageById(email: email, ip: ip, id: products[i].uid!.toString());
-                                      } else {
-                                        widget.productViewModel.addFromFavourite(i);
-                                        widget.productViewModel.incrementFromFavourite(i);
-                                        widget.productViewModel.likeImageById(email: email, ip: ip, id: products[i].uid!.toString());
-                                      }
-                                    },
-                                    child: Icon(
-                                      widget.productViewModel.favouriteList.contains(i) ? Icons.favorite : Icons.favorite_border,
-                                      color: widget.productViewModel.favouriteList.contains(i) ? const Color(0xFFFF2C2C) : AppColors.blackColor,
-                                    ),
-                                  ),
-                                ),
-                                child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(5.0),
-                                    child: Image.network(AppUrl.webUrl + products[i].url!, fit: BoxFit.fill)),
-                              ),
-                            );
-                          },
-                          childCount: value.productsList.data!.data!.data!.length,
-                        ),
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          mainAxisExtent: 226,
-                          crossAxisSpacing: 15,
-                          mainAxisSpacing: 16,
-                        ),
+                                )
+                                .values
+                                .toList()),
                       ),
                     );
                   case Status.error:
