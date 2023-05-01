@@ -4,6 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:outfit/app_localization.dart';
+import 'package:outfit/src/components/auth/social_auth_page.dart';
 import 'package:outfit/src/components/home/home_page.dart';
 import 'package:outfit/src/components/language/language_selection_page.dart';
 import 'package:outfit/src/data/repository/auth_local_data_repo.dart';
@@ -85,7 +86,11 @@ class MyApp extends StatelessWidget {
       supportedLocales: supporatedLocales.map((languageCode) {
         return AppUtils.getLocaleFromLanguageCode(languageCode);
       }).toList(),
-      home: id == "" && lang == false ? const LanguageSelectionPage() : const HomePage(),
+      home: id == "" && lang == false
+          ? const LanguageSelectionPage()
+          : id == "" && lang
+              ? const SocialAuthPage()
+              : const HomePage(),
     );
   }
 }

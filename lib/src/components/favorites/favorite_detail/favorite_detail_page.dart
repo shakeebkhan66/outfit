@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:outfit/app_localization.dart';
 import 'package:outfit/src/base/assets.dart';
 import 'package:outfit/src/base/nav.dart';
@@ -11,6 +12,7 @@ import 'package:outfit/src/data/repository/auth_local_data_repo.dart';
 import 'package:outfit/src/data/response/api_response.dart';
 import 'package:outfit/src/data/view_model/favourites_view_model.dart';
 import 'package:outfit/src/data/view_model/photos_view_model.dart';
+import 'package:outfit/src/providers/add_helper.dart';
 import 'package:outfit/src/providers/language_provider.dart';
 import 'package:outfit/src/utils/app_urls.dart';
 import 'package:outfit/src/utils/app_utils.dart';
@@ -326,8 +328,39 @@ class _FavImagesGridViewState extends State<FavImagesGridView> {
   final String ip = AuthLocalDataSource.getIp();
   final String userId = AuthLocalDataSource.getUserid();
   ProductsViewModel productsViewModel = ProductsViewModel();
+  NativeAd? _ad;
+  bool isLoadedNativeAd = false;
+  @override
+  void initState() {
+    super.initState();
+    _ad = NativeAd(
+      adUnitId: AdHelper.nativeAdUnitId,
+      factoryId: 'listTile',
+      request: const AdRequest(),
+      listener: NativeAdListener(
+        onAdLoaded: (ad) {
+          setState(() {
+            _ad = ad as NativeAd;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          // Releases an ad resource when it fails to load
+          ad.dispose();
+          print('Ad load failed (code=${error.code} message=${error.message})');
+        },
+      ),
+    );
+    _ad!.load().then((value) {
+      setState(() {
+        print("Loaded");
+        isLoadedNativeAd = true;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
     final currentLanguage = Provider.of<LanguageProvider>(context).getAppLanguage;
     return SliverPadding(
       padding: const EdgeInsets.only(
@@ -336,86 +369,213 @@ class _FavImagesGridViewState extends State<FavImagesGridView> {
         bottom: 30.0,
         top: 8.0,
       ),
-      sliver: SliverGrid(
-        delegate: SliverChildBuilderDelegate(childCount: widget.productListData!.length, (context, index) {
-          return GestureDetector(
-            onTap: () {
-              print(index);
-              AppNavigation.to(
-                context,
-                DressDetailPage(
-                  productViewModel: productsViewModel,
-                  favFoldersViewModel: widget.favFoldersViewModel,
-                  isFavourite: widget.favFoldersViewModel.favouriteList.contains(index) ? true : false,
-                  dress: AppUrl.webUrl + widget.productListData![index].url!,
-                  source: widget.productListData![index].source!,
-                  imageId: widget.productListData![index].uid.toString(),
-                  index: index,
-                  id: widget.productListData![index].uid!,
-                  page: "favourites",
-                ),
-              ).then((value) {
-                print("which");
-                if (widget.page == "wardrobe") {
-                  widget.favFoldersViewModel.dressMeImagesList(
-                    email: email,
-                    ip: ip,
-                    userId: userId,
-                  );
-                } else {
-                  widget.favFoldersViewModel.favFolderImagesList(
-                    folderId: widget.folderId,
-                    email: email,
-                    ip: ip,
-                  );
-                }
-              });
-            },
-            child: GridTile(
-              footer: GridTileBar(
-                leading: GestureDetector(
-                  onTap: () => AppUtils.share(widget.productListData![index].uid!, currentLanguage.languageCode),
-                  child: const Icon(
-                    Icons.share,
-                    color: AppColors.blackColor,
-                  ),
-                ),
-                title: const Text(""),
-                trailing: GestureDetector(
-                  onTap: () {
-                    print(widget.favFoldersViewModel.favouriteList);
-                    if (widget.favFoldersViewModel.favouriteList.contains(index)) {
-                      widget.favFoldersViewModel.removeFromFavourite(index);
-                      widget.favFoldersViewModel.decrementFromFavourite(index);
-                      productsViewModel.unLikeImageById(email: email, ip: ip, id: widget.productListData![index].uid!.toString());
-                    } else {
-                      widget.favFoldersViewModel.addFromFavourite(index);
-                      widget.favFoldersViewModel.incrementFromFavourite(index);
-                      productsViewModel.likeImageById(email: email, ip: ip, id: widget.productListData![index].uid!.toString());
-                    }
-                    setState(() {});
-                  },
-                  child: Icon(
-                    widget.favFoldersViewModel.favouriteList.contains(index) ? Icons.favorite : Icons.favorite_border,
-                    color: widget.favFoldersViewModel.favouriteList.contains(index) ? const Color(0xFFFF2C2C) : AppColors.blackColor,
-                  ),
-                ),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(5.0),
-                child: Image.network(
-                  AppUrl.webUrl + widget.productListData![index].url!,
-                  fit: BoxFit.fill,
-                ),
-              ),
-            ),
-          );
-        }),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          mainAxisExtent: 226,
-          crossAxisSpacing: 15,
-          mainAxisSpacing: 16,
+      sliver: SliverToBoxAdapter(
+        child: Wrap(
+          spacing: 16,
+          children: widget.productListData!
+              .asMap()
+              .map((index, value) => MapEntry(
+                  index,
+                  GestureDetector(
+                    onTap: () {
+                      print(index);
+                      AppNavigation.to(
+                        context,
+                        DressDetailPage(
+                          productViewModel: productsViewModel,
+                          favFoldersViewModel: widget.favFoldersViewModel,
+                          isFavourite: widget.favFoldersViewModel.favouriteList.contains(index) ? true : false,
+                          dress: AppUrl.webUrl + widget.productListData![index].url!,
+                          source: widget.productListData![index].source!,
+                          imageId: widget.productListData![index].uid.toString(),
+                          index: index,
+                          id: widget.productListData![index].uid!,
+                          page: "favourites",
+                        ),
+                      ).then((value) {
+                        print("which");
+                        if (widget.page == "wardrobe") {
+                          widget.favFoldersViewModel.dressMeImagesList(
+                            email: email,
+                            ip: ip,
+                            userId: userId,
+                          );
+                        } else {
+                          widget.favFoldersViewModel.favFolderImagesList(
+                            folderId: widget.folderId,
+                            email: email,
+                            ip: ip,
+                          );
+                        }
+                      });
+                    },
+                    child: _ad != null && widget.productListData!.length > 5
+                        ? (index == 4)
+                            ? Column(
+                                children: [
+                                  Wrap(
+                                    spacing: 16,
+                                    children: [
+                                      Container(
+                                        margin: const EdgeInsets.symmetric(vertical: 7.0),
+                                        height: 230,
+                                        width: (width / 2) - 32,
+                                        child: GridTile(
+                                          footer: GridTileBar(
+                                            leading: GestureDetector(
+                                              onTap: () => AppUtils.share(widget.productListData![4].uid!, currentLanguage.languageCode),
+                                              child: const Icon(
+                                                Icons.share,
+                                                color: AppColors.blackColor,
+                                              ),
+                                            ),
+                                            title: const Text(""),
+                                            trailing: GestureDetector(
+                                              onTap: () {
+                                                print(widget.favFoldersViewModel.favouriteList);
+                                                if (widget.favFoldersViewModel.favouriteList.contains(4)) {
+                                                  widget.favFoldersViewModel.removeFromFavourite(4);
+                                                  widget.favFoldersViewModel.decrementFromFavourite(4);
+                                                  productsViewModel.unLikeImageById(
+                                                      email: email, ip: ip, id: widget.productListData![4].uid!.toString());
+                                                } else {
+                                                  widget.favFoldersViewModel.addFromFavourite(4);
+                                                  widget.favFoldersViewModel.incrementFromFavourite(4);
+                                                  productsViewModel.likeImageById(
+                                                      email: email, ip: ip, id: widget.productListData![4].uid!.toString());
+                                                }
+                                                setState(() {});
+                                              },
+                                              child: Icon(
+                                                widget.favFoldersViewModel.favouriteList.contains(4) ? Icons.favorite : Icons.favorite_border,
+                                                color: widget.favFoldersViewModel.favouriteList.contains(4)
+                                                    ? const Color(0xFFFF2C2C)
+                                                    : AppColors.blackColor,
+                                              ),
+                                            ),
+                                          ),
+                                          child: ClipRRect(
+                                            borderRadius: BorderRadius.circular(5.0),
+                                            child: Image.network(
+                                              AppUrl.webUrl + widget.productListData![4].url!,
+                                              fit: BoxFit.fill,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Container(
+                                        margin: const EdgeInsets.symmetric(vertical: 7.0),
+                                        height: 230,
+                                        width: (width / 2) - 32,
+                                        child: GridTile(
+                                          footer: GridTileBar(
+                                            leading: GestureDetector(
+                                              onTap: () => AppUtils.share(widget.productListData![5].uid!, currentLanguage.languageCode),
+                                              child: const Icon(
+                                                Icons.share,
+                                                color: AppColors.blackColor,
+                                              ),
+                                            ),
+                                            title: const Text(""),
+                                            trailing: GestureDetector(
+                                              onTap: () {
+                                                print(widget.favFoldersViewModel.favouriteList);
+                                                if (widget.favFoldersViewModel.favouriteList.contains(5)) {
+                                                  widget.favFoldersViewModel.removeFromFavourite(5);
+                                                  widget.favFoldersViewModel.decrementFromFavourite(5);
+                                                  productsViewModel.unLikeImageById(
+                                                      email: email, ip: ip, id: widget.productListData![5].uid!.toString());
+                                                } else {
+                                                  widget.favFoldersViewModel.addFromFavourite(5);
+                                                  widget.favFoldersViewModel.incrementFromFavourite(5);
+                                                  productsViewModel.likeImageById(
+                                                      email: email, ip: ip, id: widget.productListData![5].uid!.toString());
+                                                }
+                                                setState(() {});
+                                              },
+                                              child: Icon(
+                                                widget.favFoldersViewModel.favouriteList.contains(5) ? Icons.favorite : Icons.favorite_border,
+                                                color: widget.favFoldersViewModel.favouriteList.contains(5)
+                                                    ? const Color(0xFFFF2C2C)
+                                                    : AppColors.blackColor,
+                                              ),
+                                            ),
+                                          ),
+                                          child: ClipRRect(
+                                            borderRadius: BorderRadius.circular(5.0),
+                                            child: Image.network(
+                                              AppUrl.webUrl + widget.productListData![5].url!,
+                                              fit: BoxFit.fill,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      if (widget.page == "wardrobe")
+                                        _ad != null && isLoadedNativeAd
+                                            ? Container(
+                                                margin: EdgeInsets.zero,
+                                                height: 120.0,
+                                                alignment: Alignment.center,
+                                                child: AdWidget(ad: _ad!),
+                                              )
+                                            : Container(),
+                                    ],
+                                  ),
+                                ],
+                              )
+                            : index == 7
+                                ? Container()
+                                : Container(
+                                    margin: const EdgeInsets.symmetric(vertical: 7.0),
+                                    height: 230,
+                                    width: (width / 2) - 32,
+                                    child: GridTile(
+                                      footer: GridTileBar(
+                                        leading: GestureDetector(
+                                          onTap: () => AppUtils.share(widget.productListData![index].uid!, currentLanguage.languageCode),
+                                          child: const Icon(
+                                            Icons.share,
+                                            color: AppColors.blackColor,
+                                          ),
+                                        ),
+                                        title: const Text(""),
+                                        trailing: GestureDetector(
+                                          onTap: () {
+                                            print(widget.favFoldersViewModel.favouriteList);
+                                            if (widget.favFoldersViewModel.favouriteList.contains(index)) {
+                                              widget.favFoldersViewModel.removeFromFavourite(index);
+                                              widget.favFoldersViewModel.decrementFromFavourite(index);
+                                              productsViewModel.unLikeImageById(
+                                                  email: email, ip: ip, id: widget.productListData![index].uid!.toString());
+                                            } else {
+                                              widget.favFoldersViewModel.addFromFavourite(index);
+                                              widget.favFoldersViewModel.incrementFromFavourite(index);
+                                              productsViewModel.likeImageById(
+                                                  email: email, ip: ip, id: widget.productListData![index].uid!.toString());
+                                            }
+                                            setState(() {});
+                                          },
+                                          child: Icon(
+                                            widget.favFoldersViewModel.favouriteList.contains(index) ? Icons.favorite : Icons.favorite_border,
+                                            color: widget.favFoldersViewModel.favouriteList.contains(index)
+                                                ? const Color(0xFFFF2C2C)
+                                                : AppColors.blackColor,
+                                          ),
+                                        ),
+                                      ),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(5.0),
+                                        child: Image.network(
+                                          AppUrl.webUrl + widget.productListData![index].url!,
+                                          fit: BoxFit.fill,
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                        : Container(),
+                  )))
+              .values
+              .toList(),
         ),
       ),
     );

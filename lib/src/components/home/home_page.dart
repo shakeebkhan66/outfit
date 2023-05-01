@@ -4,7 +4,6 @@ import 'package:outfit/app_localization.dart';
 import 'package:outfit/src/base/assets.dart';
 import 'package:outfit/src/base/nav.dart';
 import 'package:outfit/src/base/theme.dart';
-import 'package:outfit/src/components/auth/social_auth_page.dart';
 import 'package:outfit/src/components/home/views/outfit_ideas_view.dart';
 import 'package:outfit/src/components/home/views/wardrobe_view.dart';
 import 'package:outfit/src/components/search/search_page.dart';
@@ -121,11 +120,7 @@ class _HomePageState extends State<HomePage> {
                 ),
                 child: InkWell(
                   onTap: () {
-                    if (email == "") {
-                      AppNavigation.to(context, const SocialAuthPage());
-                    } else {
-                      page.setSetIndex(1);
-                    }
+                    page.setSetIndex(1);
                   },
                   child: Column(mainAxisSize: MainAxisSize.min, children: [
                     Image.asset(

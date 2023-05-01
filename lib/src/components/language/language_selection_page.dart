@@ -4,13 +4,14 @@ import 'package:outfit/app_localization.dart';
 import 'package:outfit/src/base/assets.dart';
 import 'package:outfit/src/base/nav.dart';
 import 'package:outfit/src/base/theme.dart';
-import 'package:outfit/src/components/home/home_page.dart';
+import 'package:outfit/src/components/auth/social_auth_page.dart';
 import 'package:outfit/src/data/repository/auth_local_data_repo.dart';
 import 'package:outfit/src/providers/language_provider.dart';
 import 'package:outfit/src/utils/const.dart';
 import 'package:outfit/src/widgets/app_button_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:dart_ipify/dart_ipify.dart';
+
 class LanguageSelectionPage extends StatefulWidget {
   const LanguageSelectionPage({Key? key}) : super(key: key);
 
@@ -25,11 +26,13 @@ class _LanguageSelectionPageState extends State<LanguageSelectionPage> {
     saveIpAddress();
     super.initState();
   }
+
   saveIpAddress() async {
     final ipv4 = await Ipify.ipv4();
     print(ipv4);
     AuthLocalDataSource.setIp(ipv4);
   }
+
   @override
   Widget build(BuildContext context) {
     final padding = MediaQuery.of(context).padding;
@@ -45,8 +48,8 @@ class _LanguageSelectionPageState extends State<LanguageSelectionPage> {
           padding: const EdgeInsets.symmetric(vertical: 45),
           physics: const BouncingScrollPhysics(),
           child: Column(children: [
-            Text(AppLocalization.of(context)!
-                        .getTranslatedValues('chooselanguage')!,
+            Text(
+              AppLocalization.of(context)!.getTranslatedValues('chooselanguage')!,
               style: GoogleFonts.montserrat(
                 fontWeight: FontWeight.w600,
                 fontSize: 22,
@@ -55,7 +58,7 @@ class _LanguageSelectionPageState extends State<LanguageSelectionPage> {
             GestureDetector(
               onTap: () {
                 _selectedLanguage = 'en_us';
-                Provider.of<LanguageProvider>(context,listen: false).changeLanguage(supporatedLocales[0]);
+                Provider.of<LanguageProvider>(context, listen: false).changeLanguage(supporatedLocales[0]);
                 setState(() {});
               },
               child: Container(
@@ -63,9 +66,7 @@ class _LanguageSelectionPageState extends State<LanguageSelectionPage> {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
-                  border: _selectedLanguage == 'en_us'
-                      ? Border.all(width: 1, color: AppColors.primaryColor)
-                      : null,
+                  border: _selectedLanguage == 'en_us' ? Border.all(width: 1, color: AppColors.primaryColor) : null,
                   boxShadow: AppShadow.primaryShadow,
                 ),
                 padding: const EdgeInsets.fromLTRB(44, 23, 44, 24),
@@ -90,16 +91,14 @@ class _LanguageSelectionPageState extends State<LanguageSelectionPage> {
             GestureDetector(
               onTap: () {
                 _selectedLanguage = 'ar';
-                Provider.of<LanguageProvider>(context,listen: false).changeLanguage(supporatedLocales[1]);
+                Provider.of<LanguageProvider>(context, listen: false).changeLanguage(supporatedLocales[1]);
                 setState(() {});
               },
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
-                  border: _selectedLanguage == 'ar'
-                      ? Border.all(width: 1, color: AppColors.primaryColor)
-                      : null,
+                  border: _selectedLanguage == 'ar' ? Border.all(width: 1, color: AppColors.primaryColor) : null,
                   boxShadow: AppShadow.primaryShadow,
                 ),
                 padding: const EdgeInsets.fromLTRB(44, 23, 44, 24),
@@ -129,7 +128,7 @@ class _LanguageSelectionPageState extends State<LanguageSelectionPage> {
               child: AppButtonWidget(
                 onTap: () {
                   AuthLocalDataSource.setLan(true);
-                  AppNavigation.navigateRemoveUntil(context, const HomePage());
+                  AppNavigation.navigateRemoveUntil(context, const SocialAuthPage());
                 },
                 title: 'continue',
                 buttonRadius: 15,

@@ -5,7 +5,6 @@ import 'package:outfit/app_localization.dart';
 import 'package:outfit/src/base/assets.dart';
 import 'package:outfit/src/base/nav.dart';
 import 'package:outfit/src/base/theme.dart';
-import 'package:outfit/src/components/auth/social_auth_page.dart';
 import 'package:outfit/src/components/favorites/favorites_folders_page.dart';
 import 'package:outfit/src/components/home/dress_detail/dress_detail_page.dart';
 import 'package:outfit/src/components/home/widget/drawer_widget.dart';
@@ -111,7 +110,6 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-    final height = MediaQuery.of(context).size.height;
     final String email = AuthLocalDataSource.getEmail();
     final currentLanguage = Provider.of<LanguageProvider>(context).getAppLanguage;
     final filterPairProvider = Provider.of<FilterPairProvider>(context);
@@ -142,12 +140,8 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
         elevation: 0,
         leading: GestureDetector(
           onTap: () {
-            if (email == "") {
-              AppNavigation.to(context, const SocialAuthPage());
-            } else {
-              _loadInterstitialAd("fav");
-              AppNavigation.to(context, const FavoritesFolderPage());
-            }
+            _loadInterstitialAd("fav");
+            AppNavigation.to(context, const FavoritesFolderPage());
           },
           child: const Icon(
             Icons.bookmark_border,
@@ -246,17 +240,28 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
                         padding: const EdgeInsets.all(10),
                         child: Row(
                           children: [
-                            const Icon(
-                              Icons.arrow_back_ios,
-                              size: 15.0,
-                            ),
-                            const SizedBox(width: 4.0),
+                            if (currentLanguage.languageCode == "en") ...[
+                              const Icon(
+                                Icons.arrow_back_ios,
+                                size: 15.0,
+                              ),
+                              const SizedBox(width: 4.0),
+                            ] else
+                              Container(),
                             Text(
                               AppLocalization.of(context)!.getTranslatedValues("back")!,
                               style: const TextStyle(
                                 color: AppColors.blackColor,
                               ),
                             ),
+                            if (currentLanguage.languageCode == "ar") ...[
+                              const SizedBox(width: 4.0),
+                              const Icon(
+                                Icons.arrow_forward_ios,
+                                size: 15.0,
+                              )
+                            ] else
+                              Container(),
                           ],
                         ),
                       ),
