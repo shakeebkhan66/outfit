@@ -227,6 +227,7 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
                   if (productViewProvider.getPageName == "search")
                     InkWell(
                       onTap: () {
+                        filterPairProvider.clearaddNullAtEnd();
                         colorsViewModelProvider.clearStyleAndColorSearch();
                         widget.productViewModel.setCurrentPage(Pages.products);
                         productViewProvider.setPage('outfit');
@@ -544,7 +545,7 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
                                                         _ad != null && isLoadedNativeAd
                                                             ? Container(
                                                                 margin: EdgeInsets.zero,
-                                                                height: 100.0,
+                                                                height: 120.0,
                                                                 alignment: Alignment.center,
                                                                 child: AdWidget(ad: _ad!),
                                                               )

@@ -1,11 +1,10 @@
-
-
 import 'package:flutter/cupertino.dart';
 import 'package:outfit/src/data/model/colors_model.dart';
 import 'package:outfit/src/data/model/types_model.dart';
 import 'package:outfit/src/data/model/types_model.dart' as type;
 import 'package:outfit/src/data/repository/colors_repository.dart';
 import 'package:outfit/src/data/response/api_response.dart';
+
 class ColorsAndStyleModels {
   final ColorsModel colorsModel;
   final TypesModel typesModel;
@@ -14,7 +13,6 @@ class ColorsAndStyleModels {
 }
 
 class ColorsAndStylesViewModel with ChangeNotifier {
-
   final _myRepo = ColorsRepository();
 
   List<Map<String, List<dynamic>>?> selectedGradientColors = <Map<String, List<dynamic>>?>[null];
@@ -30,8 +28,8 @@ class ColorsAndStylesViewModel with ChangeNotifier {
   List<type.Data?> searchStyle = <type.Data?>[null];
 
   List<type.Data?> get getSearchStyle => searchStyle;
-  
-  clearStyleAndColorSearch(){
+
+  clearStyleAndColorSearch() {
     print("clearing");
     isColorExpanded.clear();
     isStyleExpanded.clear();
@@ -56,21 +54,21 @@ class ColorsAndStylesViewModel with ChangeNotifier {
     isColorExpanded.add(colorValue);
     notifyListeners();
   }
-  
+
   setIsStyleExpanded(bool styleValue) {
     isStyleExpanded.add(styleValue);
     notifyListeners();
   }
 
   updateIsStyleExpanded(int i) {
-    isStyleExpanded[i] = ! isStyleExpanded[i];
+    isStyleExpanded[i] = !isStyleExpanded[i];
     notifyListeners();
   }
 
   updateIsColorExpanded(int i) {
     print(i);
     print(isColorExpanded[i]);
-    isColorExpanded[i] = ! isColorExpanded[i];
+    isColorExpanded[i] = !isColorExpanded[i];
     print(isColorExpanded[i]);
     notifyListeners();
   }
@@ -81,7 +79,7 @@ class ColorsAndStylesViewModel with ChangeNotifier {
     notifyListeners();
   }
 
-  updateSearchStyle(int i,type.Data? searchStyleValue) {
+  updateSearchStyle(int i, type.Data? searchStyleValue) {
     searchStyle[i] = searchStyleValue;
     notifyListeners();
   }
@@ -99,14 +97,16 @@ class ColorsAndStylesViewModel with ChangeNotifier {
     isColorExpanded.removeAt(index);
     notifyListeners();
   }
-  
+
   removeIsStyleExpanded(bool styleValue) {
     isStyleExpanded.add(styleValue);
     notifyListeners();
   }
+
   removeSearchStyle(int index) {
     searchStyle.removeAt(index);
   }
+
   removeIsSelectedGradientColor(int index) {
     selectedGradientColors.removeAt(index);
     notifyListeners();
@@ -114,27 +114,22 @@ class ColorsAndStylesViewModel with ChangeNotifier {
 
   ApiResponse<ColorsAndStyleModels> colorsList = ApiResponse.loading();
 
-  setColorsList(ApiResponse<ColorsAndStyleModels> response){
-    colorsList = response ;
+  setColorsList(ApiResponse<ColorsAndStyleModels> response) {
+    colorsList = response;
     notifyListeners();
   }
 
   Future<void> fetchColorsList() async {
-
     setColorsList(ApiResponse.loading());
 
-    _myRepo.fetchAllColors().then((colors){
-    _myRepo.fetchAllStyles().then((styles){
-      setColorsList(
-        ApiResponse.completed(
-          ColorsAndStyleModels(colorsModel: colors,typesModel: styles)
-        ),
-      );
-    });
-    }).onError((error, stackTrace){
-
+    _myRepo.fetchAllColors().then((colors) {
+      _myRepo.fetchAllStyles().then((styles) {
+        setColorsList(
+          ApiResponse.completed(ColorsAndStyleModels(colorsModel: colors, typesModel: styles)),
+        );
+      });
+    }).onError((error, stackTrace) {
       setColorsList(ApiResponse.error(error.toString()));
-
     });
   }
 }

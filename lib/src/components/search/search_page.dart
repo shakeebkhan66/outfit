@@ -132,6 +132,7 @@ class _SearchPageState extends State<SearchPage> {
                 onCrossPressed: () {},
               );
               page.setPage("search");
+              print(filterPairProvider.getSearchColor);
               for (var i = 0; i < filterPairProvider.getSearchColor.length; i++) {
                 if (filterPairProvider.getSearchColor[i] == null) {
                   return AppUtils.flushBarErrorMessage("Please select color", context);
