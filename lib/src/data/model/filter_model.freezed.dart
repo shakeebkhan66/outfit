@@ -20,12 +20,16 @@ FilterModel _$FilterModelFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$FilterModel {
+// ignore: invalid_annotation_target
   @JsonKey(includeIfNull: false)
-  dynamic get style => throw _privateConstructorUsedError;
+  dynamic get style =>
+      throw _privateConstructorUsedError; // ignore: invalid_annotation_target
   @JsonKey(includeIfNull: false)
-  dynamic get hijab => throw _privateConstructorUsedError;
+  dynamic get hijab =>
+      throw _privateConstructorUsedError; // ignore: invalid_annotation_target
   @JsonKey(includeIfNull: false)
-  dynamic get season => throw _privateConstructorUsedError;
+  dynamic get season =>
+      throw _privateConstructorUsedError; // ignore: invalid_annotation_target
   @JsonKey(includeIfNull: false)
   dynamic get page => throw _privateConstructorUsedError;
 
@@ -151,15 +155,19 @@ class _$_FilterModel implements _FilterModel {
   factory _$_FilterModel.fromJson(Map<String, dynamic> json) =>
       _$$_FilterModelFromJson(json);
 
+// ignore: invalid_annotation_target
   @override
   @JsonKey(includeIfNull: false)
   final dynamic style;
+// ignore: invalid_annotation_target
   @override
   @JsonKey(includeIfNull: false)
   final dynamic hijab;
+// ignore: invalid_annotation_target
   @override
   @JsonKey(includeIfNull: false)
   final dynamic season;
+// ignore: invalid_annotation_target
   @override
   @JsonKey(includeIfNull: false)
   final dynamic page;
@@ -213,16 +221,16 @@ abstract class _FilterModel implements FilterModel {
   factory _FilterModel.fromJson(Map<String, dynamic> json) =
       _$_FilterModel.fromJson;
 
-  @override
+  @override // ignore: invalid_annotation_target
   @JsonKey(includeIfNull: false)
   dynamic get style;
-  @override
+  @override // ignore: invalid_annotation_target
   @JsonKey(includeIfNull: false)
   dynamic get hijab;
-  @override
+  @override // ignore: invalid_annotation_target
   @JsonKey(includeIfNull: false)
   dynamic get season;
-  @override
+  @override // ignore: invalid_annotation_target
   @JsonKey(includeIfNull: false)
   dynamic get page;
   @override

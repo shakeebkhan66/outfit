@@ -48,4 +48,53 @@ class AuthLocalDataSource {
     await setUserid("");
     await setUserName("");
   }
+
+  static bool getTutorial1() {
+    return Hive.box(tutorialBox).get(tutorial1, defaultValue: false);
+  }
+
+  static Future<void> setTutorial1() async {
+    await Hive.box(tutorialBox).put(tutorial1, true);
+  }
+
+  static bool getTutorial2() {
+    return Hive.box(tutorialBox).get(tutorial2, defaultValue: false);
+  }
+
+  static Future<void> setTutorial2() async {
+    await Hive.box(tutorialBox).put(tutorial2, true);
+  }
+
+  static bool getTutorial3() {
+    return Hive.box(tutorialBox).get(tutorial3, defaultValue: false);
+  }
+
+  static Future<void> setTutorial3() async {
+    await Hive.box(tutorialBox).put(tutorial3, true);
+  }
+
+  static bool getTutorial4() {
+    return Hive.box(tutorialBox).get(tutorial4, defaultValue: false);
+  }
+
+  static Future<void> setTutorial4() async {
+    print('finished');
+    await Hive.box(tutorialBox).put(tutorial4, true);
+  }
+
+  static bool getTutorial6() {
+    return Hive.box(tutorialBox).get(tutorial6, defaultValue: false);
+  }
+
+  static Future<void> setTutorial6() async {
+    await Hive.box(tutorialBox).put(tutorial6, true);
+  }
+
+  static bool getonBoardingScreen() {
+    return Hive.box(authBox).get(onboardingKey, defaultValue: false);
+  }
+
+  static Future<void> setonBoardingScreen() async {
+    await Hive.box(authBox).put(onboardingKey, true);
+  }
 }

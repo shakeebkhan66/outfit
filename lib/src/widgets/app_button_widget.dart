@@ -11,6 +11,7 @@ class AppButtonWidget extends StatelessWidget {
     this.titleSize = 19,
     this.buttonSize = const Size.fromHeight(56),
     this.buttonRadius = 11,
+    this.color = AppColors.primaryColor,
   }) : super(key: key);
 
   final VoidCallback onTap;
@@ -18,12 +19,13 @@ class AppButtonWidget extends StatelessWidget {
   final double titleSize;
   final Size buttonSize;
   final double buttonRadius;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.primaryColor,
+        color: color,
         borderRadius: BorderRadius.circular(buttonRadius),
         boxShadow: AppShadow.primaryShadow,
       ),
@@ -39,8 +41,8 @@ class AppButtonWidget extends StatelessWidget {
           ),
         ),
         onPressed: onTap,
-        child: Text(AppLocalization.of(context)!
-                        .getTranslatedValues(title)!,
+        child: Text(
+          AppLocalization.of(context)!.getTranslatedValues(title)!,
           style: GoogleFonts.montserrat(
             color: Colors.white,
             fontWeight: FontWeight.w600,

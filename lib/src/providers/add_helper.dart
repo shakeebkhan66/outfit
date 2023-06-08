@@ -1,5 +1,8 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+
 class AdHelper {
   static String get favAndFilterAdUnitId {
     if (Platform.isAndroid) {
@@ -29,5 +32,32 @@ class AdHelper {
     } else {
       throw UnsupportedError("Unsupported platform");
     }
+  }
+}
+
+class NativeAdsProvider extends ChangeNotifier {
+  NativeAd? nativeAd;
+
+  NativeAd? get getNativeAd => nativeAd;
+
+  setNativeAds() {
+    print("i am calling");
+    nativeAd = NativeAd(
+      adUnitId: AdHelper.nativeAdUnitId,
+      factoryId: 'listTile',
+      request: const AdRequest(),
+      listener: NativeAdListener(
+        onAdLoaded: (ad) {
+          nativeAd = ad as NativeAd;
+          notifyListeners();
+        },
+        onAdFailedToLoad: (ad, error) {
+          // Releases an ad resource when it fails to load
+          ad.dispose();
+          print('Ad load failed (code=${error.code} message=${error.message})');
+        },
+      ),
+    );
+    nativeAd!.load();
   }
 }

@@ -1,5 +1,3 @@
-
-
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
@@ -10,6 +8,7 @@ import 'package:outfit/src/data/model/wardrobe_list_model.dart';
 import 'package:outfit/src/data/repository/wardrobe_repo.dart';
 import 'package:outfit/src/data/response/api_response.dart';
 import 'package:outfit/src/utils/app_utils.dart';
+
 class WardrobeModels {
   final ColorsModel colorsModel;
   final WardrobeListModel wardrobeListModel;
@@ -18,79 +17,98 @@ class WardrobeModels {
 }
 
 class WardrobeViewModel with ChangeNotifier {
-
   final _myRepo = WardrobeRepository();
 
   bool _loading = false;
   bool get loading => _loading;
 
-  setLoading(bool value){
+  setLoading(bool value) {
     _loading = value;
     notifyListeners();
   }
 
   ApiResponse<WardrobeModels> colorsList = ApiResponse.loading();
 
-  setColorsList(ApiResponse<WardrobeModels> response){
-    colorsList = response ;
+  setColorsList(ApiResponse<WardrobeModels> response) {
+    colorsList = response;
     notifyListeners();
   }
 
   Future<void> fetchWardrobeList({required String userid}) async {
-
     setColorsList(ApiResponse.loading());
 
-    _myRepo.fetchAllColors().then((colors){
-    _myRepo.fetchAllWardrobeList(
-      userId: userid,
-    ).then((wardrobelist){
-      setColorsList(
-        ApiResponse.completed(
-          WardrobeModels(colorsModel: colors,wardrobeListModel: wardrobelist)
-        ),
-      );
-      setSelectedColors(wardrobelist);
-    });
-    }).onError((error, stackTrace){
+    _myRepo.fetchAllColors().then((colors) {
+      _myRepo
+          .fetchAllWardrobeList(
+        userId: userid,
+      )
+          .then((wardrobelist) {
+        setColorsList(
+          ApiResponse.completed(WardrobeModels(colorsModel: colors, wardrobeListModel: wardrobelist)),
+        );
+        setSelectedColors(wardrobelist);
+      });
+    }).onError((error, stackTrace) {
       setColorsList(ApiResponse.error(error.toString()));
     });
   }
 
-  Future<void> addWardrobeApi(dynamic data , BuildContext context) async {
+  Future<void> deleteWardrobe({required int wardrobeId, required String userId, context}) async {
+    try {
+      await _myRepo.deleteWardrobe(wardrobeId);
+      AppUtils.flushBarSucessMessage('Wardrobe deleted successsfully', context);
+    } catch (e) {
+      setColorsList(ApiResponse.error(e.toString()));
+    }
+  }
+
+  Future<void> addWardrobeApi(dynamic data, BuildContext context) async {
     setLoading(true);
-    _myRepo.addWardrobe(data).then((value){
+    _myRepo.addWardrobe(data).then((value) {
       setLoading(false);
+      setTypeIds(data['type'], value['data']['id']);
       AppUtils.flushBarSucessMessage('Added to wardrobe', context);
-      if(kDebugMode){
+      if (kDebugMode) {
         print(value.toString());
       }
-    }).onError((error, stackTrace){
+    }).onError((error, stackTrace) {
       setLoading(false);
       AppUtils.flushBarErrorMessage(error.toString(), context);
-      if(kDebugMode){
+      if (kDebugMode) {
         print(error.toString());
       }
     });
   }
 
-  Future<void> updateWardrobeApi(dynamic data, String wardrobeId, BuildContext context) async {
+  Future<void> updateWardrobeApi(dynamic data, String wardrobeId, String id, BuildContext context) async {
     setLoading(true);
-    _myRepo.updateWardrobe(jsonEncode(data),wardrobeId).then((value){
+    _myRepo.updateWardrobe(jsonEncode(data), wardrobeId).then((value) {
       setLoading(false);
       AppUtils.flushBarSucessMessage('Added to wardrobe', context);
-      if(kDebugMode){
+      clearValuesForDelete();
+      if (kDebugMode) {
         print(value.toString());
       }
-    }).onError((error, stackTrace){
+    }).onError((error, stackTrace) {
       setLoading(false);
-      AppUtils.flushBarErrorMessage(error.toString(), context);
-      if(kDebugMode){
+      if (error.toString() == "Exception: The colors field is required.") {
+        updateAgainAferException(id);
+        AppUtils.flushBarErrorMessage(
+          """you have to enter at least 1 color to save, or instead click on "clear all" button which under the save button""",
+          context,
+          duration: 5,
+        );
+      }
+      if (kDebugMode) {
         print(error.toString());
       }
     });
   }
 
-  
+  updateAgainAferException(String id) {
+    getSelectedColors[id]!.addAll(getSelectedColorsForDelete[id]!);
+    notifyListeners();
+  }
 
   final wardRobe = <DataModel>[
     DataModel(
@@ -170,6 +188,9 @@ class WardrobeViewModel with ChangeNotifier {
   late final Map<String, List<String>> selectedColors = <String, List<String>>{
     for (int i = 0; i < wardRobe.length; i++) wardRobe[i].id: [],
   };
+  late final Map<String, List<String>> selectedColorsForDelete = <String, List<String>>{
+    for (int i = 0; i < wardRobe.length; i++) wardRobe[i].id: [],
+  };
 
   late final Map<String, String> wardrobeIds = <String, String>{
     for (int i = 0; i < wardRobe.length; i++) wardRobe[i].id: "",
@@ -177,22 +198,38 @@ class WardrobeViewModel with ChangeNotifier {
 
   Map<String, List<String>> get getSelectedColors => selectedColors;
 
+  Map<String, List<String>> get getSelectedColorsForDelete => selectedColorsForDelete;
+
   Map<String, String> get getwardrobeIds => wardrobeIds;
 
-  setSelectedColors(WardrobeListModel  wardrobeList) {
-      for (var d in wardrobeList.data!) {
-        debugPrint(d.colors.toString());
-        debugPrint(d.id.toString());
-        selectedColors[d.type!]!.addAll(d.colors!);
-        wardrobeIds[d.type!] = d.id.toString();
-      }
-     notifyListeners();
+  Future<void> clearValuesForDelete() async {
+    for (var element in selectedColorsForDelete.values) {
+      element.clear();
+    }
+    notifyListeners();
+  }
+
+  setSelectedColors(WardrobeListModel wardrobeList) {
+    for (var d in wardrobeList.data!) {
+      debugPrint(d.colors.toString());
+      debugPrint(d.id.toString());
+      debugPrint(d.type.toString());
+      selectedColors[d.type!]!.addAll(d.colors!);
+      wardrobeIds[d.type!] = d.id.toString();
+    }
+    notifyListeners();
+  }
+
+  setTypeIds(String type, int id) {
+    wardrobeIds[type] = id.toString();
+    notifyListeners();
+  }
+
+  UpdateTypeIds(String type) {
+    wardrobeIds[type] = "";
+    notifyListeners();
   }
 }
-
-
-
-
 
 class DataModel {
   final String id;

@@ -114,7 +114,7 @@ class _PaginationState extends State<Pagination> {
                   ),
             ),
           ),
-          if (widget.numOfPages > widget.pagesVisible && widget.selectedPage == widget.numOfPages) ...[
+          if (widget.selectedPage != 1) ...[
             InkWell(
               onTap: () => widget.onPageChanged(1),
               child: AnimatedContainer(
@@ -135,11 +135,11 @@ class _PaginationState extends State<Pagination> {
                 ),
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 30.0,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.end,
-                children: const [
+                children: [
                   Text(
                     "...",
                     style: TextStyle(
@@ -174,11 +174,11 @@ class _PaginationState extends State<Pagination> {
               ),
             ),
           if (widget.numOfPages > widget.pagesVisible && widget.selectedPage != widget.numOfPages) ...[
-            SizedBox(
+            const SizedBox(
               height: 30.0,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.end,
-                children: const [
+                children: [
                   Text(
                     "...",
                     style: TextStyle(

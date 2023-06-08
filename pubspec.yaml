@@ -1,15 +1,15 @@
 name: outfit
 description: A new Flutter project.
 publish_to: 'none'
-version: 1.0.0+1
+version: 5.4.0+28
 environment:
-  sdk: '>=2.18.2 <3.0.0'
+  sdk: '>=3.0.0 <4.0.0'
 dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.2
   google_fonts: ^4.0.3
-  share_plus: ^6.3.1
+  share_plus: ^7.0.0
   flutter_localizations:
     sdk: flutter
   reusables:
@@ -31,13 +31,25 @@ dependencies:
   dart_ipify: ^1.1.1
   url_launcher: ^6.1.10
   number_paginator: ^0.2.3
-  webview_flutter: ^4.0.7
+  webview_flutter: ^4.2.0
   scrollable_positioned_list: ^0.3.5
   firebase_analytics: ^10.2.1
   google_mobile_ads: ^3.0.0
   flutter_staggered_grid_view: ^0.6.2
-  flutter_inappwebview: ^5.7.2+3
-  flutter_webview_plugin: ^0.4.0
+  flutter_native_splash: ^2.2.19
+  progressive_image: ^2.0.1
+  flutter_pagewise: ^2.0.4
+  dio_cache_interceptor_hive_store: ^3.2.1
+  dio_cache_interceptor: ^3.4.2
+  path_provider: ^2.0.15
+  cached_network_image: ^3.2.3
+  flutter_cache_manager: ^3.3.0
+  tutorial_coach_mark: ^1.2.8
+  firebase_crashlytics: ^3.3.2
+  video_player: ^2.6.1
+  auto_orientation: ^2.3.1
+dependency_overrides:
+  intl: ^0.18.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -50,3 +62,10 @@ flutter:
   assets:
     - assets/images/
     - assets/languages/
+
+flutter_native_splash:
+  color: '#FFFFFF'
+  image: assets/images/logo.png
+  android_12: 
+    image: assets/images/logo.png
+  fullscreen: true

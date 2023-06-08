@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:outfit/app_localization.dart';
 import 'package:outfit/src/base/nav.dart';
 import 'package:outfit/src/components/auth/social_auth_page.dart';
+import 'package:outfit/src/components/contact_us/contact_us.dart';
 import 'package:outfit/src/components/favorites/dialogs/change_language_dialog.dart';
+import 'package:outfit/src/components/profile_settings/profile_settings_screen.dart';
 import 'package:outfit/src/data/repository/auth_local_data_repo.dart';
 import 'package:outfit/src/providers/language_provider.dart';
 import 'package:outfit/src/widgets/webview_loader.dart';
@@ -38,7 +40,12 @@ class WebDrawer extends StatelessWidget {
                     ),
                   );
                 },
-                title: Text(AppLocalization.of(context)!.getTranslatedValues("stylelesson")!),
+                title: Text(
+                  AppLocalization.of(context)!.getTranslatedValues("stylelesson")!,
+                  style: TextStyle(
+                    fontSize: currentLanguage.languageCode == "ar" ? 16.0 : 14.0,
+                  ),
+                ),
                 dense: true,
                 subtitle: const Divider(
                   height: 1.0,
@@ -55,7 +62,27 @@ class WebDrawer extends StatelessWidget {
                     ),
                   );
                 },
-                title: Text(AppLocalization.of(context)!.getTranslatedValues("hijabtutorial")!),
+                title: Text(
+                  AppLocalization.of(context)!.getTranslatedValues("hijabtutorial")!,
+                  style: TextStyle(
+                    fontSize: currentLanguage.languageCode == "ar" ? 16.0 : 14.0,
+                  ),
+                ),
+                dense: true,
+                subtitle: const Divider(
+                  height: 1.0,
+                ),
+              ),
+              ListTile(
+                onTap: () async {
+                  AppNavigation.to(context, const ContactUsScreen());
+                },
+                title: Text(
+                  AppLocalization.of(context)!.getTranslatedValues("contactus")!,
+                  style: TextStyle(
+                    fontSize: currentLanguage.languageCode == "ar" ? 16.0 : 14.0,
+                  ),
+                ),
                 dense: true,
                 subtitle: const Divider(
                   height: 1.0,
@@ -67,7 +94,27 @@ class WebDrawer extends StatelessWidget {
                     callback: (_) {},
                   ).show(context);
                 },
-                title: Text(AppLocalization.of(context)!.getTranslatedValues("changelanguge")!),
+                title: Text(
+                  AppLocalization.of(context)!.getTranslatedValues("changelanguge")!,
+                  style: TextStyle(
+                    fontSize: currentLanguage.languageCode == "ar" ? 16.0 : 14.0,
+                  ),
+                ),
+                dense: true,
+                subtitle: const Divider(
+                  height: 1.0,
+                ),
+              ),
+              ListTile(
+                onTap: () async {
+                  AppNavigation.to(context, const ProfileSettingsScreen());
+                },
+                title: Text(
+                  AppLocalization.of(context)!.getTranslatedValues("profilesettings")!,
+                  style: TextStyle(
+                    fontSize: currentLanguage.languageCode == "ar" ? 16.0 : 14.0,
+                  ),
+                ),
                 dense: true,
                 subtitle: const Divider(
                   height: 1.0,
@@ -76,10 +123,10 @@ class WebDrawer extends StatelessWidget {
               ListTile(
                 onTap: () async {
                   if (id == "") {
-                    AppNavigation.to(context, const SocialAuthPage());
+                    AppNavigation.navigateRemoveUntil(context, const SocialAuthPage());
                   } else {
                     await AuthLocalDataSource.clearData();
-                    AppNavigation.to(context, const SocialAuthPage());
+                    AppNavigation.navigateRemoveUntil(context, const SocialAuthPage());
                   }
                 },
                 title: Text(id == ""

@@ -4,7 +4,7 @@ import 'package:outfit/app_localization.dart';
 import 'package:outfit/src/base/assets.dart';
 import 'package:outfit/src/base/nav.dart';
 import 'package:outfit/src/base/theme.dart';
-import 'package:outfit/src/components/auth/social_auth_page.dart';
+import 'package:outfit/src/components/intro_screen/intro_screen.dart';
 import 'package:outfit/src/data/repository/auth_local_data_repo.dart';
 import 'package:outfit/src/providers/language_provider.dart';
 import 'package:outfit/src/utils/const.dart';
@@ -29,7 +29,6 @@ class _LanguageSelectionPageState extends State<LanguageSelectionPage> {
 
   saveIpAddress() async {
     final ipv4 = await Ipify.ipv4();
-    print(ipv4);
     AuthLocalDataSource.setIp(ipv4);
   }
 
@@ -128,7 +127,7 @@ class _LanguageSelectionPageState extends State<LanguageSelectionPage> {
               child: AppButtonWidget(
                 onTap: () {
                   AuthLocalDataSource.setLan(true);
-                  AppNavigation.navigateRemoveUntil(context, const SocialAuthPage());
+                  AppNavigation.navigateRemoveUntil(context, const OnboardingScreen());
                 },
                 title: 'continue',
                 buttonRadius: 15,

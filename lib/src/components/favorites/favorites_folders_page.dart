@@ -11,7 +11,9 @@ import 'package:outfit/src/data/model/favourites_folder.dart';
 import 'package:outfit/src/data/repository/auth_local_data_repo.dart';
 import 'package:outfit/src/data/response/api_response.dart';
 import 'package:outfit/src/data/view_model/favourites_view_model.dart';
+import 'package:outfit/src/data/view_model/wardrobe_view_model.dart';
 import 'package:outfit/src/utils/app_urls.dart';
+import 'package:outfit/src/widgets/refresh_widget.dart';
 import 'package:outfit/src/widgets/shimmer_loader.dart';
 import 'package:provider/provider.dart';
 
@@ -53,9 +55,6 @@ class _FavoritesFolderPageState extends State<FavoritesFolderPage> {
 
   @override
   Widget build(BuildContext context) {
-    final mediaQueryData = MediaQuery.of(context);
-    final height = mediaQueryData.size.height;
-    final width = mediaQueryData.size.width;
     final padding = MediaQuery.of(context).padding;
     return Scaffold(
       body: Padding(
@@ -85,7 +84,14 @@ class _FavoritesFolderPageState extends State<FavoritesFolderPage> {
                           case Status.loading:
                             return const FavFolderShimmerLoader();
                           case Status.error:
-                            return const Text("error");
+                            return RefreshWidget(
+                              error: value.favFolders.message.toString(),
+                              onRefresh: () {
+                                _favFoldersViewModel.favFoldersList(
+                                  userId: userId,
+                                );
+                              },
+                            );
                           case Status.completed:
                             return Expanded(
                               child: GridView.builder(
@@ -185,6 +191,10 @@ class _FavoritesFolderPageState extends State<FavoritesFolderPage> {
                                         FavoriteDetailPage(
                                           folderName: fav.list_name!,
                                           folderId: fav.id.toString(),
+                                          page: "favPage",
+                                          favFoldersViewModel: _favFoldersViewModel,
+                                          gettingFavFolder: _favFoldersViewModel,
+                                          wardrobeViewModel: WardrobeViewModel(),
                                         ),
                                       );
                                     },

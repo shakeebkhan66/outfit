@@ -124,6 +124,7 @@ class ColorsAndStylesViewModel with ChangeNotifier {
 
     _myRepo.fetchAllColors().then((colors) {
       _myRepo.fetchAllStyles().then((styles) {
+        print(colors);
         setColorsList(
           ApiResponse.completed(ColorsAndStyleModels(colorsModel: colors, typesModel: styles)),
         );

@@ -1,10 +1,9 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:outfit/app_localization.dart';
 import 'package:outfit/src/base/assets.dart';
-import 'package:outfit/src/base/nav.dart';
 import 'package:outfit/src/base/theme.dart';
-import 'package:outfit/src/components/auth/social_auth_page.dart';
 import 'package:outfit/src/components/favorites/dialogs/add_folder_dialog.dart';
 import 'package:outfit/src/data/model/favourites_folder.dart';
 import 'package:outfit/src/data/repository/auth_local_data_repo.dart';
@@ -20,17 +19,20 @@ import 'package:url_launcher/url_launcher.dart';
 
 class DressDetailPage extends StatefulWidget {
   final ProductsViewModel? productViewModel;
-  final FavFoldersViewModel? favFoldersViewModel;
+  final FavFoldersViewModel favFoldersViewModel;
+  final FavFoldersViewModel gettingFolderModel;
   final String imageId;
   final String source;
   final int id;
   final bool isFavourite;
   final int index;
   final String page;
+  final String loadAd;
+  final FavFoldersViewModel loadAdFavFoldersViewModel;
   const DressDetailPage({
     Key? key,
     this.productViewModel,
-    this.favFoldersViewModel,
+    required this.favFoldersViewModel,
     required this.dress,
     required this.source,
     required this.imageId,
@@ -38,6 +40,9 @@ class DressDetailPage extends StatefulWidget {
     required this.isFavourite,
     required this.index,
     required this.page,
+    required this.loadAdFavFoldersViewModel,
+    this.loadAd = "false",
+    required this.gettingFolderModel,
   }) : super(key: key);
 
   final String dress;
@@ -57,6 +62,9 @@ class _DressDetailPageState extends State<DressDetailPage> {
   @override
   void initState() {
     if (email != "") {
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        Provider.of<FavFoldersViewModel>(context, listen: false).clearFavImageIds();
+      });
       Provider.of<FavFoldersViewModel>(context, listen: false).checkIfFav(
         photoId: widget.id.toString(),
         userId: userid,
@@ -74,7 +82,6 @@ class _DressDetailPageState extends State<DressDetailPage> {
     } else {
       throw 'Could not launch $url';
     }
-    print(Uri.parse(url));
   }
 
   @override
@@ -100,8 +107,8 @@ class _DressDetailPageState extends State<DressDetailPage> {
               child: Column(children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(5.0),
-                  child: Image.network(
-                    widget.dress,
+                  child: CachedNetworkImage(
+                    imageUrl: widget.dress,
                     height: 460,
                     fit: BoxFit.fill,
                   ),
@@ -110,89 +117,111 @@ class _DressDetailPageState extends State<DressDetailPage> {
                   padding: const EdgeInsets.fromLTRB(34, 16, 31, 90),
                   child: Stack(
                     children: [
-                      Row(children: [
-                        GestureDetector(
-                          onTap: () {
-                            if (isFav) {
-                              isFav = false;
+                      Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
                               if (widget.page == "outfit") {
-                                widget.productViewModel!.decrementFromFavourite(widget.index);
+                                if (widget.productViewModel!.favouriteList.contains(widget.index)) {
+                                  widget.productViewModel!.removeFromFavourite(widget.index);
+                                  widget.productViewModel!.decrementFromFavourite(widget.index);
+
+                                  widget.productViewModel!.unLikeImageById(
+                                    email: email,
+                                    ip: ip,
+                                    id: widget.imageId,
+                                  );
+                                } else {
+                                  widget.productViewModel!.addFromFavourite(widget.index);
+                                  widget.productViewModel!.incrementFromFavourite(widget.index);
+                                  widget.productViewModel!.likeImageById(
+                                    email: email,
+                                    ip: ip,
+                                    id: widget.imageId,
+                                  );
+                                }
                               } else {
-                                widget.favFoldersViewModel!.decrementFromFavourite(widget.index);
+                                if (widget.favFoldersViewModel.favouriteList.contains(widget.index)) {
+                                  widget.favFoldersViewModel.decrementFromFavourite(widget.index);
+                                  widget.favFoldersViewModel.removeFromFavourite(widget.index);
+                                  widget.productViewModel!.unLikeImageById(
+                                    email: email,
+                                    ip: ip,
+                                    id: widget.imageId,
+                                  );
+                                } else {
+                                  widget.favFoldersViewModel.incrementFromFavourite(widget.index);
+                                  widget.favFoldersViewModel.addFromFavourite(widget.index);
+                                  widget.productViewModel!.likeImageById(
+                                    email: email,
+                                    ip: ip,
+                                    id: widget.imageId,
+                                  );
+                                }
                               }
-                              widget.productViewModel!.unLikeImageById(
-                                email: email,
-                                ip: ip,
-                                id: widget.imageId,
-                              );
-                            } else {
-                              isFav = true;
-                              if (widget.page == "outfit") {
-                                widget.productViewModel!.incrementFromFavourite(widget.index);
-                              } else {
-                                widget.favFoldersViewModel!.incrementFromFavourite(widget.index);
-                              }
-                              widget.productViewModel!.likeImageById(
-                                email: email,
-                                ip: ip,
-                                id: widget.imageId,
-                              );
-                            }
-                            setState(() {});
-                          },
-                          child: Icon(
-                            isFav ? Icons.favorite : Icons.favorite_border,
-                            color: (isFav ? const Color(0xFFFF2C2C) : AppColors.blackColor),
+                              setState(() {});
+                            },
+                            child: widget.page == "outfit"
+                                ? Icon(
+                                    widget.productViewModel!.favouriteList.contains(widget.index) ? Icons.favorite : Icons.favorite_border,
+                                    color: widget.productViewModel!.favouriteList.contains(widget.index)
+                                        ? const Color(0xFFFF2C2C)
+                                        : AppColors.blackColor,
+                                  )
+                                : Icon(
+                                    widget.favFoldersViewModel.favouriteList.contains(widget.index) ? Icons.favorite : Icons.favorite_border,
+                                    color: widget.favFoldersViewModel.favouriteList.contains(widget.index)
+                                        ? const Color(0xFFFF2C2C)
+                                        : AppColors.blackColor,
+                                  ),
                           ),
-                        ),
-                        const SizedBox(width: 10),
-                        if (widget.page == "outfit")
-                          Text(widget.productViewModel!.likesList[widget.index].toString())
-                        else
-                          Text(widget.favFoldersViewModel!.likesList[widget.index].toString()),
-                        const Spacer(),
-                        IconButton(
-                          onPressed: () {
-                            AppUtils.share(widget.id, currentLanguage.languageCode);
-                          },
-                          icon: const Icon(
-                            Icons.share,
-                            color: AppColors.blackColor,
+                          const SizedBox(width: 10),
+                          if (widget.page == "outfit")
+                            Text(widget.productViewModel!.likesList[widget.index].toString())
+                          else
+                            Text(widget.favFoldersViewModel.likesList[widget.index].toString()),
+                          const Spacer(),
+                          IconButton(
+                            onPressed: () {
+                              AppUtils.share(widget.id, currentLanguage.languageCode);
+                            },
+                            icon: const Icon(
+                              Icons.share,
+                              color: AppColors.blackColor,
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 19.5),
-                        IconButton(
-                          icon: favourites.favImageIds.contains(widget.id)
-                              ? Icon(
-                                  Icons.bookmark,
-                                  size: 26,
-                                  color: favourites.favImageIds.contains(widget.id) ? AppColors.primaryColor : null,
-                                )
-                              : const Icon(Icons.bookmark_border),
-                          onPressed: () {
-                            if (email == "") {
-                              AppNavigation.to(context, const SocialAuthPage());
-                            } else {
+                          const SizedBox(width: 19.5),
+                          IconButton(
+                            icon: favourites.favImageIds.contains(widget.id)
+                                ? Icon(
+                                    Icons.bookmark,
+                                    size: 26,
+                                    color: favourites.favImageIds.contains(widget.id) ? AppColors.primaryColor : null,
+                                  )
+                                : const Icon(Icons.bookmark_border),
+                            onPressed: () {
                               showModalBottomSheet(
                                 isScrollControlled: true,
                                 context: context,
                                 builder: (BuildContext ctx) {
                                   return CustomBottomSheet(
                                     imageId: widget.imageId,
+                                    loadAd: widget.loadAd,
+                                    loadAdFavFoldersViewModel: widget.loadAdFavFoldersViewModel,
+                                    gettingFoldersModel: widget.gettingFolderModel,
                                     ctx: ctx,
                                   );
                                 },
                               );
-                            }
-                          },
-                        ),
-                      ]),
+                            },
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
                 InkWell(
                   onTap: () {
-                    print(widget.source);
                     openInstagramProfile(widget.source);
                   },
                   child: Container(
@@ -227,13 +256,24 @@ class _DressDetailPageState extends State<DressDetailPage> {
 class CustomBottomSheet extends StatefulWidget {
   final String imageId;
   final BuildContext ctx;
-  const CustomBottomSheet({super.key, required this.imageId, required this.ctx});
+  final String loadAd;
+  final FavFoldersViewModel gettingFoldersModel;
+  final FavFoldersViewModel loadAdFavFoldersViewModel;
+  const CustomBottomSheet(
+      {super.key,
+      required this.imageId,
+      required this.ctx,
+      required this.gettingFoldersModel,
+      required this.loadAdFavFoldersViewModel,
+      this.loadAd = ""});
 
   @override
   State<CustomBottomSheet> createState() => _CustomBottomSheetState();
 }
 
 class _CustomBottomSheetState extends State<CustomBottomSheet> {
+  final String ip = AuthLocalDataSource.getIp();
+  final String email = AuthLocalDataSource.getEmail();
   List<int> folderIds = [];
   final FavFoldersViewModel favFoldersViewModel = FavFoldersViewModel();
   final String userId = AuthLocalDataSource.getUserid();
@@ -291,10 +331,21 @@ class _CustomBottomSheetState extends State<CustomBottomSheet> {
                                                 value: favourites.getFavImageFolderIds.contains(folders.id),
                                                 activeColor: AppColors.primaryColor,
                                                 onChanged: (_) {
+                                                  print(widget.loadAd);
                                                   if (favourites.getFavImageFolderIds.contains(folders.id)) {
-                                                    favourites.setRemovefavImageFolderIds(folders.id!);
+                                                    favourites.setRemovefavImageFolderIds(folders.id!, int.parse(widget.imageId));
                                                     favFoldersViewModel.deleteImageToFolderApi(
-                                                        id: folders.id!, folderName: folders.list_name!, context: widget.ctx);
+                                                        id: int.parse(widget.imageId), folderName: folders.list_name!, context: widget.ctx);
+                                                    if (widget.loadAd == "yes") {
+                                                      widget.loadAdFavFoldersViewModel.favFolderImagesList(
+                                                        folderId: folders.id.toString(),
+                                                        email: email,
+                                                        ip: ip,
+                                                      );
+                                                      widget.gettingFoldersModel.favFoldersList(
+                                                        userId: userId,
+                                                      );
+                                                    }
                                                   } else {
                                                     favourites.setfavImageFolderIds(folders.id!, int.parse(widget.imageId));
                                                     favFoldersViewModel.addImageToFolderApi(data: {

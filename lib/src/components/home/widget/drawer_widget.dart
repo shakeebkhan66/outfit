@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:outfit/app_localization.dart';
 import 'package:outfit/src/base/nav.dart';
 import 'package:outfit/src/base/theme.dart';
@@ -8,7 +7,6 @@ import 'package:outfit/src/components/home/views/outfit_ideas_view.dart';
 import 'package:outfit/src/data/repository/auth_local_data_repo.dart';
 import 'package:outfit/src/data/view_model/colors_view_model.dart';
 import 'package:outfit/src/data/view_model/photos_view_model.dart';
-import 'package:outfit/src/providers/add_helper.dart';
 import 'package:outfit/src/widgets/radio_button_widget.dart';
 import 'package:provider/provider.dart';
 
@@ -40,29 +38,6 @@ class _DrawerWidgetState extends State<DrawerWidget> {
   late Styles _style;
   late Hijab _hijab;
   late Seasons _season;
-  InterstitialAd? interstitialAd;
-  void _loadInterstitialAd({required VoidCallback onCrossPressed}) {
-    InterstitialAd.load(
-      adUnitId: AdHelper.favAndFilterAdUnitId,
-      request: const AdRequest(),
-      adLoadCallback: InterstitialAdLoadCallback(
-        onAdLoaded: (ad) {
-          ad.fullScreenContentCallback = FullScreenContentCallback(
-            onAdDismissedFullScreenContent: (ad) {
-              onCrossPressed();
-            },
-          );
-          setState(() {
-            interstitialAd = ad;
-          });
-          interstitialAd!.show();
-        },
-        onAdFailedToLoad: (err) {
-          print('Failed to load an interstitial ad: ${err.message}');
-        },
-      ),
-    );
-  }
 
   @override
   void initState() {

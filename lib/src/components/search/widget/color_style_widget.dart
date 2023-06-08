@@ -3,30 +3,52 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:outfit/app_localization.dart';
 import 'package:outfit/src/base/theme.dart';
 import 'package:outfit/src/data/model/types_model.dart';
+import 'package:outfit/src/data/repository/auth_local_data_repo.dart';
 import 'package:outfit/src/data/response/api_response.dart';
 import 'package:outfit/src/data/view_model/colors_view_model.dart';
 import 'package:outfit/src/providers/filter_pair_provider.dart';
 import 'package:outfit/src/providers/language_provider.dart';
 import 'package:outfit/src/utils/const.dart';
+import 'package:outfit/src/utils/tutorial_guide.dart';
 import 'package:outfit/src/widgets/custom_loader.dart';
 import 'package:outfit/src/widgets/radio_button_widget.dart';
+import 'package:outfit/src/widgets/refresh_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 class ColorStyleWidget extends StatefulWidget {
-  final ColorsAndStylesViewModel colorsViewModel;
-  const ColorStyleWidget({Key? key, required this.colorsViewModel}) : super(key: key);
+  final GlobalKey searchButtonGuideKey;
+  final Function target3Pressed;
+  const ColorStyleWidget({Key? key, required this.searchButtonGuideKey, required this.target3Pressed}) : super(key: key);
 
   @override
   State<ColorStyleWidget> createState() => _ColorStyleWidgetState();
 }
 
 class _ColorStyleWidgetState extends State<ColorStyleWidget> {
-  final ItemScrollController _scrollController = ItemScrollController();
+  final bool isShowtutorial = AuthLocalDataSource.getTutorial3();
+  GlobalKey addGuideKey = GlobalKey();
   @override
   void initState() {
-    widget.colorsViewModel.fetchColorsList();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      final colorAndStyleProvider = Provider.of<ColorsAndStylesViewModel>(
+        context,
+        listen: false,
+      );
+      if (colorAndStyleProvider.colorsList.status == Status.loading) {
+        colorAndStyleProvider.fetchColorsList();
+      }
+    });
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    TutorialGuide tutorialGuide = TutorialGuide(
+      addGuideKey: addGuideKey,
+    );
+    tutorialGuide.finishAddSearchTutorial();
+    super.dispose();
   }
 
   Decoration get _boxDecoration {
@@ -54,21 +76,15 @@ class _ColorStyleWidgetState extends State<ColorStyleWidget> {
     );
   }
 
-  // final _isColorExpanded = [false];
-  // final  widget.colorsViewModel.isStyleExpanded = [false];
-
-  // void  widget.colorsViewModel.selectGradientColors(int i, String color, List<dynamic> colors) {
-  //    widget.colorsViewModel.selectGradientColors[i] = {};
-  //    widget.colorsViewModel.selectGradientColors[i]![color] = colors;
-  //   _isColorExpanded[i] = !_isColorExpanded[i];
-  //   setState(() {});
-  // }
-
   @override
   Widget build(BuildContext context) {
     final colorsViewModelProvider = Provider.of<ColorsAndStylesViewModel>(context);
     final currentLanguage = Provider.of<LanguageProvider>(context).getAppLanguage;
     final filterPairProvider = Provider.of<FilterPairProvider>(context);
+    TutorialGuide tutorialGuide = TutorialGuide(
+      addGuideKey: addGuideKey,
+      searchButtonGuideKey: widget.searchButtonGuideKey,
+    );
     return Column(
       children: [
         Expanded(
@@ -92,14 +108,16 @@ class _ColorStyleWidgetState extends State<ColorStyleWidget> {
                         Expanded(
                           child: Padding(
                             padding: const EdgeInsets.fromLTRB(13, 20, 9.28, 20),
-                            child: ChangeNotifierProvider<ColorsAndStylesViewModel>.value(
-                              value: widget.colorsViewModel,
-                              child: Consumer<ColorsAndStylesViewModel>(
-                                builder: (context, value, child) {
-                                  switch (value.colorsList.status!) {
-                                    case Status.completed:
-                                      late Data data = value.colorsList.data!.typesModel.data!.first;
-                                      return Column(
+                            child: colorsViewModelProvider.colorsList.status == Status.loading
+                                ? const SizedBox(height: 125.0, child: CustomLoader())
+                                : colorsViewModelProvider.colorsList.status == Status.error
+                                    ? RefreshWidget(
+                                        error: colorsViewModelProvider.colorsList.message.toString(),
+                                        onRefresh: () {
+                                          colorsViewModelProvider.fetchColorsList();
+                                        },
+                                      )
+                                    : Column(
                                         children: [
                                           Row(
                                             children: [
@@ -210,7 +228,7 @@ class _ColorStyleWidgetState extends State<ColorStyleWidget> {
                                               decoration: _menuDecoration,
                                               child: Column(
                                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: value.colorsList.data!.colorsModel.data!
+                                                children: colorsViewModelProvider.colorsList.data!.colorsModel.data!
                                                     .map(
                                                       (colors) => GestureDetector(
                                                         onTap: () {
@@ -220,7 +238,9 @@ class _ColorStyleWidgetState extends State<ColorStyleWidget> {
                                                             colorsViewModelProvider.selectGradientColors(
                                                                 index, currentLanguage.languageCode == "en" ? colors.name_en! : colors.name!, [
                                                               hexToColor(colors.hex!),
-                                                              hexToColor(colors.hex!).withOpacity(0.1),
+                                                              colors.hex == "#000000"
+                                                                  ? hexToColor(colors.hex!)
+                                                                  : hexToColor(colors.hex!).withOpacity(0.1),
                                                             ]);
                                                           } else {
                                                             colorsViewModelProvider.selectGradientColors(
@@ -244,7 +264,9 @@ class _ColorStyleWidgetState extends State<ColorStyleWidget> {
                                                                   : getGradientContainer(
                                                                       [
                                                                         hexToColor(colors.hex!),
-                                                                        hexToColor(colors.hex!).withOpacity(0.1),
+                                                                        colors.hex == "#000000"
+                                                                            ? hexToColor(colors.hex!)
+                                                                            : hexToColor(colors.hex!).withOpacity(0.1),
                                                                       ],
                                                                     ),
                                                               _getDivider(),
@@ -329,12 +351,21 @@ class _ColorStyleWidgetState extends State<ColorStyleWidget> {
                                               margin: const EdgeInsets.only(top: 16),
                                               child: SearchStyleRadioWidget<Data>(
                                                 groupController: RadioWidgetController<Data>(
-                                                  items: value.colorsList.data!.typesModel.data!,
+                                                  items: colorsViewModelProvider.colorsList.data!.typesModel.data!,
                                                   value: colorsViewModelProvider.getSearchStyle[index],
                                                   onChanged: (_) {
+                                                    if (filterPairProvider.getSearchType.length == 1) {
+                                                      tutorialGuide.createAddSearchTutorial(onClickTarget: (target) {
+                                                        if (target.identify == "Target 3") {
+                                                          widget.target3Pressed.call();
+                                                        }
+                                                      });
+                                                      if (!isShowtutorial) {
+                                                        Future.delayed(Duration.zero, tutorialGuide.showAddSearchTutorial(context));
+                                                      }
+                                                    }
                                                     filterPairProvider.setType(index, _.tid!);
                                                     colorsViewModelProvider.updateSearchStyle(index, _);
-                                                    data = _;
                                                     colorsViewModelProvider.updateIsStyleExpanded(index);
                                                     setState(() {});
                                                   },
@@ -343,15 +374,7 @@ class _ColorStyleWidgetState extends State<ColorStyleWidget> {
                                             ),
                                           ),
                                         ],
-                                      );
-                                    case Status.loading:
-                                      return const CustomLoader();
-                                    case Status.error:
-                                      return Text(value.colorsList.message!);
-                                  }
-                                },
-                              ),
-                            ),
+                                      ),
                           ),
                         ),
                       ],
@@ -363,6 +386,7 @@ class _ColorStyleWidgetState extends State<ColorStyleWidget> {
                       child: Padding(
                         padding: const EdgeInsets.only(right: 28),
                         child: Transform.scale(
+                          key: addGuideKey,
                           scale: 0.85,
                           child: FloatingActionButton(
                             backgroundColor: AppColors.primaryColor,
@@ -433,6 +457,20 @@ Widget getGradientContainer(List<dynamic> colors, [bool hasPadding = true, doubl
   );
 }
 
+Widget getColorContainer(List<dynamic> colors) {
+  List<Color> listColor = colors.whereType<Color>().toList();
+  return Container(
+    width: 20,
+    height: 20,
+    margin: const EdgeInsets.symmetric(vertical: 8),
+    decoration: colors.length < 2
+        ? null
+        : BoxDecoration(
+            gradient: LinearGradient(colors: listColor),
+          ),
+  );
+}
+
 Widget getImageContainer(String pattern, [bool hasPadding = true, double width = double.infinity, bool isCircle = false]) {
   return Container(
     width: width,
@@ -451,6 +489,18 @@ Widget getImageContainer(String pattern, [bool hasPadding = true, double width =
         "https://stylorita.com/admin/$pattern",
         fit: BoxFit.cover,
       ),
+    ),
+  );
+}
+
+Widget getImage(String pattern, [bool hasPadding = true, double width = double.infinity, bool isCircle = false]) {
+  return Container(
+    width: 20,
+    height: 20,
+    margin: const EdgeInsets.symmetric(vertical: 8),
+    child: Image.network(
+      "https://stylorita.com/admin/$pattern",
+      fit: BoxFit.cover,
     ),
   );
 }

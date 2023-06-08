@@ -110,6 +110,9 @@ class ProductsViewModel with ChangeNotifier {
   Future<void> fetchPhotosList({required String email, required String ip, required context}) async {
     setPhotosList(ApiResponse.loading());
     _myRepo.fetchAllPhotos(getPage).then((value) async {
+      setImagesUrls(value.data!.data!);
+      calculateTotalPages();
+      setDisplayImages();
       setTotalPages(value.data!.last_page!);
       setFavouriteList(value.data!.data!, email: email, ip: ip);
       setPhotosList(ApiResponse.completed(value));
@@ -119,10 +122,71 @@ class ProductsViewModel with ChangeNotifier {
     });
   }
 
+  bool isLoadingImages = false;
+  bool get getIsLoadingImages => isLoadingImages;
+
+  final int pageSize = 12;
+  int currentImage = 1;
+  int totalImages = 0;
+  int get getCurrentImage => currentImage;
+  int get getTotalImage => totalImages;
+
+  calculateTotalPages() {
+    totalImages = (imagesUrls.length / pageSize).ceil();
+    notifyListeners();
+  }
+
+  loadMoreImages() {
+    currentImage++;
+    setDisplayImages();
+    notifyListeners();
+  }
+
+  setImagesLoading() {
+    isLoadingImages = !isLoadingImages;
+    notifyListeners();
+  }
+
+  List<String> imagesUrls = [];
+  List<String> get getImagesUrls => imagesUrls;
+
+  setImagesUrls(List<ProductsData> products) {
+    for (var element in products) {
+      imagesUrls.add(element.url!);
+    }
+    notifyListeners();
+  }
+
+  List<String> displayImages = [];
+  List<String> get getDisplayImages => displayImages;
+
+  Future setDisplayImages() async {
+    print(imagesUrls);
+    isLoadingImages = true;
+    final int startIndex = (currentImage - 1) * pageSize;
+    final int endIndex = startIndex + pageSize;
+    displayImages.addAll(imagesUrls.sublist(startIndex, endIndex));
+    Future.delayed(const Duration(milliseconds: 500), () {
+      isLoadingImages = false;
+    });
+    notifyListeners();
+  }
+
+  setImagesData() {
+    currentImage = 1;
+    totalImages = 0;
+    imagesUrls.clear();
+    displayImages.clear();
+    notifyListeners();
+  }
+
   Future<void> filterPhotoPhotosList({required String email, required String ip, required context}) async {
     setPhotosList(ApiResponse.loading());
 
     _myRepo.filterAllPhotos(getstyle, gethijab, getseason, getPage).then((value) {
+      setImagesUrls(value.data!.data!);
+      calculateTotalPages();
+      setDisplayImages();
       setFavouriteList(value.data!.data!, email: email, ip: ip);
       setTotalPages(value.data!.last_page!);
       setPhotosList(ApiResponse.completed(value));
@@ -135,6 +199,11 @@ class ProductsViewModel with ChangeNotifier {
     setPhotosList(ApiResponse.loading());
 
     _myRepoFilter.fetchAllPairs(pairModel, getPage).then((value) {
+      print("this is the data");
+      print(value.data!.data!.length);
+      setImagesUrls(value.data!.data!);
+      calculateTotalPages();
+      setDisplayImages();
       setFavouriteList(value.data!.data!, email: email, ip: ip);
       setTotalPages(value.data!.last_page!);
       setPhotosList(ApiResponse.completed(value));
@@ -217,8 +286,6 @@ class ProductsViewModel with ChangeNotifier {
   }
 
   incrementFromFavourite(int index) {
-    print(index);
-    print(likesList);
     likesList[index]++;
     notifyListeners();
   }

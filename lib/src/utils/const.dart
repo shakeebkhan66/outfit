@@ -17,9 +17,17 @@ Color hexToColor(String hexColor) {
 
 const String authBox = "auth";
 const String langBox = "langBox";
+const String tutorialBox = "tutorialBox";
 
 const String idkey = "userid";
 const String nameKey = "name";
 const String emailKey = "email";
 const String ipKey = "ip";
 const String langKey = "lang";
+const String onboardingKey = "onboardingKey";
+
+const String tutorial1 = "tutorial1";
+const String tutorial2 = "tutorial2";
+const String tutorial3 = "tutorial3";
+const String tutorial4 = "tutorial4";
+const String tutorial6 = "tutorial6";

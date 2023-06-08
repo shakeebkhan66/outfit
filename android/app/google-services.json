@@ -14,15 +14,15 @@
       },
       "oauth_client": [
         {
-          "client_id": "122025805891-7mn5ogipg0friuirq9avmcha57sifur9.apps.googleusercontent.com",
+          "client_id": "122025805891-lusrhamecr9ov9utbth6v3ibe3ticvhj.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.stylorita.outfit",
-            "certificate_hash": "9d9088707f2418abe529f8f20ae8d80a9d803232"
+            "certificate_hash": "c8f1b217dffce1a9aae56e5b1f6cd94957178197"
           }
         },
         {
-          "client_id": "122025805891-se44cfpjbvbkq5f9oc7iau1q4c1c6u3g.apps.googleusercontent.com",
+          "client_id": "122025805891-e75trho2tlkj0b0n5fd97von6ubr1qv5.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
@@ -35,8 +35,59 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "122025805891-se44cfpjbvbkq5f9oc7iau1q4c1c6u3g.apps.googleusercontent.com",
+              "client_id": "122025805891-e75trho2tlkj0b0n5fd97von6ubr1qv5.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "122025805891-23geep9a1j1sddh3keicjph2doqcl54o.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.stylorita.outfit"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:122025805891:android:041870de73db6a3a55ecf6",
+        "android_client_info": {
+          "package_name": "com.wearrwhat.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "122025805891-j83gpnbnqrdufis4f9i6r234p7htj5fs.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.wearrwhat.app",
+            "certificate_hash": "78d0ac48050dd0354684aeb64a3ef702ac4fb8db"
+          }
+        },
+        {
+          "client_id": "122025805891-e75trho2tlkj0b0n5fd97von6ubr1qv5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDqvHTsyx1ExVfx98cNRYHLqYSHgRsJPcw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "122025805891-e75trho2tlkj0b0n5fd97von6ubr1qv5.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "122025805891-23geep9a1j1sddh3keicjph2doqcl54o.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.stylorita.outfit"
+              }
             }
           ]
         }

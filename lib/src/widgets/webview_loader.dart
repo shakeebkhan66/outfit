@@ -19,7 +19,6 @@ class WebViewPage extends StatefulWidget {
 }
 
 class _WebViewPageState extends State<WebViewPage> {
-  final double _progressValue = 0.0;
   late final WebViewController controller;
   @override
   void initState() {

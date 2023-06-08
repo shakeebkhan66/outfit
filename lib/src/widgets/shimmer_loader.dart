@@ -24,7 +24,7 @@ class _CustomShimmerLoaderState extends State<CustomShimmerLoader> {
         delegate: SliverChildBuilderDelegate(
           (context, index) {
             return ClipRRect(
-              borderRadius: BorderRadius.circular(5.0),
+              borderRadius: BorderRadius.circular(15.0),
               child: GridTile(
                 child: ShimmerLoader(
                   child: Container(
@@ -37,6 +37,43 @@ class _CustomShimmerLoaderState extends State<CustomShimmerLoader> {
           childCount: widget.itemCount,
         ),
       ),
+    );
+  }
+}
+
+class CustomShimmerLoader2 extends StatefulWidget {
+  final int itemCount;
+
+  const CustomShimmerLoader2({Key? key, required this.itemCount}) : super(key: key);
+
+  @override
+  State<CustomShimmerLoader2> createState() => _CustomShimmerLoader2State();
+}
+
+class _CustomShimmerLoader2State extends State<CustomShimmerLoader2> {
+  @override
+  Widget build(BuildContext context) {
+    return GridView.builder(
+      shrinkWrap: true,
+      itemCount: widget.itemCount,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        mainAxisExtent: 226,
+        crossAxisSpacing: 15,
+        mainAxisSpacing: 16,
+      ),
+      itemBuilder: (context, index) {
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(15.0),
+          child: GridTile(
+            child: ShimmerLoader(
+              child: Container(
+                color: Colors.grey[300],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
@@ -59,6 +96,7 @@ class Shimmer extends StatelessWidget {
     );
   }
 }
+
 class ShimmerLoader extends StatefulWidget {
   final Widget child;
   const ShimmerLoader({super.key, required this.child});
@@ -67,7 +105,7 @@ class ShimmerLoader extends StatefulWidget {
   State<ShimmerLoader> createState() => _ShimmerLoaderState();
 }
 
-class _ShimmerLoaderState extends State<ShimmerLoader> with SingleTickerProviderStateMixin{
+class _ShimmerLoaderState extends State<ShimmerLoader> with SingleTickerProviderStateMixin {
   late final controller = AnimationController(
     duration: const Duration(milliseconds: 700),
     vsync: this,
@@ -78,18 +116,20 @@ class _ShimmerLoaderState extends State<ShimmerLoader> with SingleTickerProvider
     controller.dispose();
     super.dispose();
   }
+
   @override
   void initState() {
-      controller.addStatusListener((status) {
-        if (status == AnimationStatus.completed) {
-          controller.reverse();
-        } else if (status == AnimationStatus.dismissed) {
-          controller.forward();
-        }
-      });
-      controller.forward();
+    controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        controller.reverse();
+      } else if (status == AnimationStatus.dismissed) {
+        controller.forward();
+      }
+    });
+    controller.forward();
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     return FadeTransition(
@@ -100,7 +140,6 @@ class _ShimmerLoaderState extends State<ShimmerLoader> with SingleTickerProvider
 }
 
 class FavFolderShimmerLoader extends StatefulWidget {
-
   const FavFolderShimmerLoader({Key? key}) : super(key: key);
 
   @override
@@ -125,17 +164,18 @@ class _FavFolderShimmerLoaderState extends State<FavFolderShimmerLoader> {
             crossAxisSpacing: 34,
             mainAxisSpacing: 34,
           ),
-          children: List.generate(4, (index) => ClipRRect(
-            borderRadius: BorderRadius.circular(12.0),
-            child: GridTile(
-                child: ShimmerLoader(
-                  child: Container(
-                    color: Colors.grey[300],
-                  ),
-                ),
-              ),
-          )
-          ),
+          children: List.generate(
+              4,
+              (index) => ClipRRect(
+                    borderRadius: BorderRadius.circular(12.0),
+                    child: GridTile(
+                      child: ShimmerLoader(
+                        child: Container(
+                          color: Colors.grey[300],
+                        ),
+                      ),
+                    ),
+                  )),
         ),
       ),
     );
@@ -143,7 +183,6 @@ class _FavFolderShimmerLoaderState extends State<FavFolderShimmerLoader> {
 }
 
 class WardrobeColorShimmerLoader extends StatefulWidget {
-
   const WardrobeColorShimmerLoader({Key? key}) : super(key: key);
 
   @override
@@ -167,13 +206,13 @@ class _WardrobeColorShimmerLoaderState extends State<WardrobeColorShimmerLoader>
             width: double.infinity,
             height: 70.0,
             child: ShimmerLoader(
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10.0),
-                color: Colors.grey[300],
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10.0),
+                  color: Colors.grey[300],
+                ),
               ),
             ),
-           ),
           );
         }),
       ),
@@ -182,7 +221,6 @@ class _WardrobeColorShimmerLoaderState extends State<WardrobeColorShimmerLoader>
 }
 
 class FolderShimmerLoader extends StatefulWidget {
-
   const FolderShimmerLoader({Key? key}) : super(key: key);
 
   @override
@@ -201,13 +239,13 @@ class _FolderShimmerLoaderState extends State<FolderShimmerLoader> {
             width: double.infinity,
             height: 35.0,
             child: ShimmerLoader(
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(2.0),
-                color: Colors.grey[300],
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(2.0),
+                  color: Colors.grey[300],
+                ),
               ),
             ),
-           ),
           );
         }),
       ),

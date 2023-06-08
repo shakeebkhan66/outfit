@@ -104,7 +104,9 @@ class _SaveWardrobePageState extends State<SaveWardrobePage> {
         color: AppColors.primaryColor,
         padding: const EdgeInsets.only(top: 30),
         child: Column(children: [
-          const WardrobePageTitleWidget(),
+          WardrobePageTitleWidget(
+            wardrobeGuideKey: GlobalKey(),
+          ),
           const SizedBox(height: 25),
           Expanded(
             child: Container(

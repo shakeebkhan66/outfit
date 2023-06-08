@@ -8,13 +8,16 @@ import 'package:outfit/src/components/favorites/favorite_detail/favorite_detail_
 import 'package:outfit/src/components/search/widget/color_style_widget.dart';
 import 'package:outfit/src/data/repository/auth_local_data_repo.dart';
 import 'package:outfit/src/data/response/api_response.dart';
+import 'package:outfit/src/data/view_model/favourites_view_model.dart';
 import 'package:outfit/src/data/view_model/wardrobe_view_model.dart';
 import 'package:outfit/src/providers/add_helper.dart';
 import 'package:outfit/src/providers/language_provider.dart';
 import 'package:outfit/src/utils/const.dart';
+import 'package:outfit/src/utils/tutorial_guide.dart';
 import 'package:outfit/src/widgets/app_button_widget.dart';
 import 'package:outfit/src/widgets/container_title_widget.dart';
 import 'package:outfit/src/widgets/custom_loader.dart';
+import 'package:outfit/src/widgets/refresh_widget.dart';
 import 'package:outfit/src/widgets/shimmer_loader.dart';
 import 'package:outfit/src/widgets/wardrobe_page_title_widget.dart';
 import 'package:provider/provider.dart';
@@ -29,16 +32,15 @@ class _WardrobeViewState extends State<WardrobeView> {
   final WardrobeViewModel wardrobeViewModel = WardrobeViewModel();
   final ScrollController _scrollController = ScrollController();
   final String userId = AuthLocalDataSource.getUserid();
-
+  final bool isShowwardrobeTutorial = AuthLocalDataSource.getTutorial6();
+  final GlobalKey wardrobeGuideKey = GlobalKey();
   InterstitialAd? interstitialAd;
   void _loadInterstitialAd({required VoidCallback onCrossPressed}) {
-    print("on add is requesting");
     InterstitialAd.load(
       adUnitId: AdHelper.searchAndWardrobeAdUnitId,
       request: const AdRequest(),
       adLoadCallback: InterstitialAdLoadCallback(
         onAdLoaded: (ad) {
-          print("on add is loading");
           ad.fullScreenContentCallback = FullScreenContentCallback(
             onAdDismissedFullScreenContent: (ad) {
               onCrossPressed();
@@ -50,7 +52,7 @@ class _WardrobeViewState extends State<WardrobeView> {
           interstitialAd!.show();
         },
         onAdFailedToLoad: (err) {
-          print('Failed to load an interstitial ad: ${err.message}');
+          debugPrint('Failed to load an interstitial ad: ${err.message}');
         },
       ),
     );
@@ -63,6 +65,23 @@ class _WardrobeViewState extends State<WardrobeView> {
     wardrobeViewModel.fetchWardrobeList(
       userid: userId,
     );
+    TutorialGuide tutorialGuide = TutorialGuide(
+      wardrobeViewGuideKey: wardrobeGuideKey,
+    );
+    tutorialGuide.createWardrobeTutorial(onFinished: () {
+      AuthLocalDataSource.setTutorial6();
+      Future.delayed(Duration.zero, () {
+        showDialog(
+          context: context,
+          builder: (BuildContext contextz) {
+            return const CustomDialog();
+          },
+        );
+      });
+    });
+    if (!isShowwardrobeTutorial) {
+      Future.delayed(Duration.zero, tutorialGuide.showWardrobeTutorial(context));
+    }
   }
 
   @override
@@ -77,14 +96,6 @@ class _WardrobeViewState extends State<WardrobeView> {
       _scrollController.animateTo(_scrollController.position.maxScrollExtent - 1,
           duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
     }
-  }
-
-  void _scrollToIndex(int index) {
-    _scrollController.animateTo(
-      index * 50.0, // Replace 50.0 with the height of your list item
-      duration: const Duration(milliseconds: 500),
-      curve: Curves.easeInOut,
-    );
   }
 
   ListTileControlAffinity get _controlAffinity => ListTileControlAffinity.leading;
@@ -105,7 +116,9 @@ class _WardrobeViewState extends State<WardrobeView> {
         bottom: padding.bottom,
       ),
       child: Column(children: [
-        const WardrobePageTitleWidget(),
+        WardrobePageTitleWidget(
+          wardrobeGuideKey: wardrobeGuideKey,
+        ),
         const SizedBox(height: 25),
         ChangeNotifierProvider.value(
           value: wardrobeViewModel,
@@ -126,14 +139,14 @@ class _WardrobeViewState extends State<WardrobeView> {
                   );
                 case Status.error:
                   return Expanded(
-                    child: Container(
-                        alignment: Alignment.center,
-                        width: double.infinity,
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-                        ),
-                        child: Text(value.colorsList.message!)),
+                    child: RefreshWidget(
+                      error: value.colorsList.message.toString(),
+                      onRefresh: () {
+                        wardrobeViewModel.fetchWardrobeList(
+                          userid: userId,
+                        );
+                      },
+                    ),
                   );
                 case Status.completed:
                   List<String> combinedList =
@@ -229,7 +242,9 @@ class _WardrobeViewState extends State<WardrobeView> {
                                                             : getGradientContainer(
                                                                 [
                                                                   hexToColor(colors.hex!),
-                                                                  hexToColor(colors.hex!).withOpacity(0.1),
+                                                                  colors.hex == "#000000"
+                                                                      ? hexToColor(colors.hex!)
+                                                                      : hexToColor(colors.hex!).withOpacity(0.1),
                                                                 ],
                                                                 false,
                                                                 13.0,
@@ -264,7 +279,7 @@ class _WardrobeViewState extends State<WardrobeView> {
                                       child: Container(
                                         padding: const EdgeInsets.only(
                                           top: 10,
-                                          bottom: 32,
+                                          bottom: 8,
                                         ),
                                         decoration: BoxDecoration(
                                           color: const Color(0xFFF9F9F9),
@@ -293,6 +308,8 @@ class _WardrobeViewState extends State<WardrobeView> {
                                                                 .contains(colors.cid.toString())) {
                                                               wardrobeViewModel.getSelectedColors[wardrobeViewModel.wardRobe[i].id]!
                                                                   .remove(colors.cid.toString());
+                                                              wardrobeViewModel.getSelectedColorsForDelete[wardrobeViewModel.wardRobe[i].id]!
+                                                                  .add(colors.cid!.toString());
                                                             } else {
                                                               wardrobeViewModel.getSelectedColors[wardrobeViewModel.wardRobe[i].id]!
                                                                   .add(colors.cid!.toString());
@@ -307,7 +324,9 @@ class _WardrobeViewState extends State<WardrobeView> {
                                                               : getGradientContainer(
                                                                   [
                                                                     hexToColor(colors.hex!),
-                                                                    hexToColor(colors.hex!).withOpacity(0.1),
+                                                                    colors.hex == "#000000"
+                                                                        ? hexToColor(colors.hex!)
+                                                                        : hexToColor(colors.hex!).withOpacity(0.1),
                                                                   ],
                                                                   false,
                                                                 ),
@@ -337,17 +356,25 @@ class _WardrobeViewState extends State<WardrobeView> {
                                                           wardrobeViewModel.wardRobe[i].isExpanded = !wardrobeViewModel.wardRobe[i].isExpanded;
                                                         });
                                                         if (wardrobeViewModel.getwardrobeIds[wardrobeViewModel.wardRobe[i].id]!.isNotEmpty) {
-                                                          wardrobeViewModel.updateWardrobeApi({
-                                                            "user_id": userId,
-                                                            "type": wardrobeViewModel.wardRobe[i].id,
-                                                            "colors": wardrobeViewModel.getSelectedColors[wardrobeViewModel.wardRobe[i].id]!,
-                                                          }, wardrobeViewModel.getwardrobeIds[wardrobeViewModel.wardRobe[i].id]!, context);
+                                                          wardrobeViewModel.updateWardrobeApi(
+                                                            {
+                                                              "user_id": userId,
+                                                              "type": wardrobeViewModel.wardRobe[i].id,
+                                                              "colors": wardrobeViewModel.getSelectedColors[wardrobeViewModel.wardRobe[i].id]!,
+                                                            },
+                                                            wardrobeViewModel.getwardrobeIds[wardrobeViewModel.wardRobe[i].id]!,
+                                                            wardrobeViewModel.wardRobe[i].id,
+                                                            context,
+                                                          );
                                                         } else {
-                                                          wardrobeViewModel.addWardrobeApi({
-                                                            "user_id": userId,
-                                                            "type": wardrobeViewModel.wardRobe[i].id,
-                                                            "colors": wardrobeViewModel.getSelectedColors[wardrobeViewModel.wardRobe[i].id]!,
-                                                          }, context);
+                                                          wardrobeViewModel.addWardrobeApi(
+                                                            {
+                                                              "user_id": userId,
+                                                              "type": wardrobeViewModel.wardRobe[i].id,
+                                                              "colors": wardrobeViewModel.getSelectedColors[wardrobeViewModel.wardRobe[i].id]!,
+                                                            },
+                                                            context,
+                                                          );
                                                         }
                                                       },
                                                       buttonSize: const Size.fromHeight(50),
@@ -356,6 +383,50 @@ class _WardrobeViewState extends State<WardrobeView> {
                                                       titleSize: 18,
                                                     ),
                                                   ),
+                                            wardrobeViewModel.getwardrobeIds[wardrobeViewModel.wardRobe[i].id]!.isNotEmpty
+                                                ? Align(
+                                                    alignment: Alignment.centerRight,
+                                                    child: TextButton(
+                                                      onPressed: () async {
+                                                        await showDialog(
+                                                          context: context,
+                                                          builder: (_) {
+                                                            return DeleteWardrobeDialog(
+                                                              onDelete: () {
+                                                                wardrobeViewModel.getSelectedColors[wardrobeViewModel.wardRobe[i].id]!.clear();
+                                                                wardrobeViewModel.deleteWardrobe(
+                                                                  wardrobeId: int.parse(
+                                                                    wardrobeViewModel.getwardrobeIds[wardrobeViewModel.wardRobe[i].id]!,
+                                                                  ),
+                                                                  userId: userId,
+                                                                  context: context,
+                                                                );
+                                                                wardrobeViewModel.UpdateTypeIds(wardrobeViewModel.wardRobe[i].id);
+                                                                final position = _scrollController.position;
+                                                                _scrollController.animateTo(
+                                                                  position.pixels /
+                                                                      (i > 4 ? 4 : 8), // Replace with the position you want to scroll to
+                                                                  duration: const Duration(milliseconds: 500),
+                                                                  curve: Curves.easeInOut,
+                                                                );
+                                                                wardrobeViewModel.wardRobe[i].isExpanded = !wardrobeViewModel.wardRobe[i].isExpanded;
+                                                                setState(() {});
+                                                                Navigator.of(context).pop();
+                                                              },
+                                                            );
+                                                          },
+                                                          barrierDismissible: false,
+                                                        );
+                                                      },
+                                                      child: const Text(
+                                                        "clear all",
+                                                        style: TextStyle(
+                                                          color: AppColors.primaryColor,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  )
+                                                : Container(),
                                           ],
                                         ),
                                       ),
@@ -376,7 +447,10 @@ class _WardrobeViewState extends State<WardrobeView> {
                                       context,
                                       FavoriteDetailPage(
                                         page: "wardrobe",
+                                        favFoldersViewModel: FavFoldersViewModel(),
                                         folderName: AppLocalization.of(context)!.getTranslatedValues("mywardrobe")!,
+                                        wardrobeViewModel: wardrobeViewModel,
+                                        gettingFavFolder: FavFoldersViewModel(),
                                       ),
                                     );
                                   },
@@ -396,13 +470,6 @@ class _WardrobeViewState extends State<WardrobeView> {
     );
   }
 
-  Widget _getRow(List<Widget> children) {
-    return Row(children: [
-      Expanded(child: children.first),
-      Expanded(child: children.last),
-    ]);
-  }
-
   Widget _getTitle(String title) {
     return Text(
       title,
@@ -410,6 +477,79 @@ class _WardrobeViewState extends State<WardrobeView> {
         fontWeight: FontWeight.w500,
         fontSize: 14,
         color: const Color(0xFF898686),
+      ),
+    );
+  }
+}
+
+class DeleteWardrobeDialog extends StatelessWidget {
+  final VoidCallback onDelete;
+  const DeleteWardrobeDialog({super.key, required this.onDelete});
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 27),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Center(
+              child: Text(
+                AppLocalization.of(context)!.getTranslatedValues("wardrobeDelete")!,
+                style: GoogleFonts.montserrat(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16.0,
+                ),
+              ),
+            ),
+            const SizedBox(
+              height: 25.0,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(
+                        0xFF319D97,
+                      ).withOpacity(0.7126),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 10.0),
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text(
+                      AppLocalization.of(context)!.getTranslatedValues("close")!,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 18),
+                Expanded(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFEE3E38),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 10.0),
+                    ),
+                    onPressed: onDelete,
+                    child: Text(
+                      AppLocalization.of(context)!.getTranslatedValues("delete")!,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

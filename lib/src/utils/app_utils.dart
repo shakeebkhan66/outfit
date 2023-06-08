@@ -18,7 +18,7 @@ class AppUtils {
     );
   }
 
-  static void flushBarErrorMessage(String message, BuildContext context) {
+  static void flushBarErrorMessage(String message, BuildContext context, {int duration = 3}) {
     showFlushbar(
       context: context,
       flushbar: Flushbar(
@@ -26,7 +26,7 @@ class AppUtils {
         margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         padding: const EdgeInsets.all(15),
         message: message,
-        duration: const Duration(seconds: 3),
+        duration: Duration(seconds: duration),
         borderRadius: BorderRadius.circular(8),
         flushbarPosition: FlushbarPosition.TOP,
         backgroundColor: Colors.red,

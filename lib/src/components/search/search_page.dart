@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:outfit/app_localization.dart';
 import 'package:outfit/src/base/nav.dart';
 import 'package:outfit/src/base/theme.dart';
@@ -9,7 +8,6 @@ import 'package:outfit/src/data/model/pair_search_model.dart';
 import 'package:outfit/src/data/repository/auth_local_data_repo.dart';
 import 'package:outfit/src/data/view_model/colors_view_model.dart';
 import 'package:outfit/src/data/view_model/photos_view_model.dart';
-import 'package:outfit/src/providers/add_helper.dart';
 import 'package:outfit/src/providers/filter_pair_provider.dart';
 import 'package:outfit/src/utils/app_utils.dart';
 import 'package:outfit/src/widgets/app_button_widget.dart';
@@ -17,7 +15,8 @@ import 'package:provider/provider.dart';
 
 class SearchPage extends StatefulWidget {
   final ProductsViewModel productsViewModel;
-  const SearchPage({Key? key, required this.productsViewModel}) : super(key: key);
+  final Function callback;
+  const SearchPage({Key? key, required this.productsViewModel, required this.callback}) : super(key: key);
 
   @override
   State<SearchPage> createState() => _SearchPageState();
@@ -28,36 +27,52 @@ class _SearchPageState extends State<SearchPage> {
   final productsViewModel = ProductsViewModel();
   final String email = AuthLocalDataSource.getEmail();
   final String ip = AuthLocalDataSource.getIp();
-  InterstitialAd? interstitialAd;
-  void _loadInterstitialAd({required VoidCallback onCrossPressed}) {
-    InterstitialAd.load(
-      adUnitId: AdHelper.searchAndWardrobeAdUnitId,
-      request: const AdRequest(),
-      adLoadCallback: InterstitialAdLoadCallback(
-        onAdLoaded: (ad) {
-          ad.fullScreenContentCallback = FullScreenContentCallback(
-            onAdDismissedFullScreenContent: (ad) {
-              onCrossPressed();
-            },
-          );
-          setState(() {
-            interstitialAd = ad;
-          });
-          interstitialAd!.show();
-        },
-        onAdFailedToLoad: (err) {
-          print('Failed to load an interstitial ad: ${err.message}');
-        },
-      ),
-    );
-  }
-
+  GlobalKey searchButtonGuideKey = GlobalKey();
   @override
   Widget build(BuildContext context) {
     final colorsViewModelProvider = Provider.of<ColorsAndStylesViewModel>(context);
     final page = Provider.of<ProductsViewModel>(context);
     final filterPairProvider = Provider.of<FilterPairProvider>(context);
     final padding = MediaQuery.of(context).padding;
+    _searchPressed() {
+      for (var i = 0; i < filterPairProvider.getSearchColor.length; i++) {
+        if (filterPairProvider.getSearchColor[i] == null) {
+          return AppUtils.flushBarErrorMessage("Please select color", context);
+        } else if (filterPairProvider.getSearchColor[i] == null && filterPairProvider.getSearchType[i] != null) {
+          return AppUtils.flushBarErrorMessage("Please select color", context);
+        } else if (filterPairProvider.getSearchColor[i] != null && filterPairProvider.getSearchType[i] == null) {
+          return AppUtils.flushBarErrorMessage("Please select type", context);
+        } else if (filterPairProvider.getSearchType[i] == null) {
+          return AppUtils.flushBarErrorMessage("Please select type", context);
+        }
+      }
+      widget.productsViewModel.setImagesData();
+      page.setPage("search");
+      page.setSetIndex(0);
+      widget.callback;
+      AppNavigation.pop(context);
+      widget.productsViewModel.setCurrentPage(Pages.search);
+      widget.productsViewModel
+          .fetchFilterPairList(
+        context: context,
+        email: email,
+        ip: ip,
+        FilterPairModel(
+          pairs: [
+            for (var i = 0; i < filterPairProvider.getSearchColor.length; i++)
+              Pairs(
+                type: filterPairProvider.getSearchType[i],
+                color: filterPairProvider.getSearchColor[i],
+              ),
+          ],
+          ptn: filterPairProvider.getSearchPattern[0],
+        ),
+      )
+          .then((value) {
+        // filterPairProvider.clearaddNullAtEnd();
+      });
+    }
+
     return Scaffold(
       body: Padding(
         padding: EdgeInsets.only(top: padding.top, bottom: padding.bottom),
@@ -100,7 +115,6 @@ class _SearchPageState extends State<SearchPage> {
           Expanded(
             child: GestureDetector(
               onTap: () {
-                print("working");
                 for (var i = 0; i < colorsViewModelProvider.isColorExpanded.length; i++) {
                   if (colorsViewModelProvider.isColorExpanded[i] == true) {
                     colorsViewModelProvider.updateIsColorExpanded(i);
@@ -115,7 +129,10 @@ class _SearchPageState extends State<SearchPage> {
                   ),
                 ),
                 child: ColorStyleWidget(
-                  colorsViewModel: colorsViewModel,
+                  searchButtonGuideKey: searchButtonGuideKey,
+                  target3Pressed: () {
+                    _searchPressed();
+                  },
                 ),
               ),
             ),
@@ -127,41 +144,9 @@ class _SearchPageState extends State<SearchPage> {
         child: Padding(
           padding: const EdgeInsets.only(left: 28, right: 28, bottom: 32),
           child: AppButtonWidget(
-            onTap: () {
-              _loadInterstitialAd(
-                onCrossPressed: () {},
-              );
-              page.setPage("search");
-              print(filterPairProvider.getSearchColor);
-              for (var i = 0; i < filterPairProvider.getSearchColor.length; i++) {
-                if (filterPairProvider.getSearchColor[i] == null) {
-                  return AppUtils.flushBarErrorMessage("Please select color", context);
-                } else if (filterPairProvider.getSearchType[i] == null) {
-                  return AppUtils.flushBarErrorMessage("Please select type", context);
-                }
-              }
-              page.setSetIndex(0);
-              AppNavigation.pop(context);
-              widget.productsViewModel.setCurrentPage(Pages.search);
-              widget.productsViewModel
-                  .fetchFilterPairList(
-                context: context,
-                email: email,
-                ip: ip,
-                FilterPairModel(
-                  pairs: [
-                    for (var i = 0; i < filterPairProvider.getSearchColor.length; i++)
-                      Pairs(
-                        type: filterPairProvider.getSearchType[i],
-                        color: filterPairProvider.getSearchColor[i],
-                      ),
-                  ],
-                  ptn: filterPairProvider.getSearchPattern[0],
-                ),
-              )
-                  .then((value) {
-                // filterPairProvider.clearaddNullAtEnd();
-              });
+            key: searchButtonGuideKey,
+            onTap: () async {
+              _searchPressed();
             },
             title: 'search',
           ),

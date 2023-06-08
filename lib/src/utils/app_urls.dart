@@ -1,16 +1,14 @@
-
-
 class AppUrl {
-
-
   static var baseUrl = 'https://api.stylorita.com';
   static var webUrl = "https://www.stylorita.com/";
 
-  static var loginEndPint =  '$baseUrl/login' ;
-  static var socialLoginEndPint =  '$baseUrl/social-login' ;
+  static var loginEndPint = '$baseUrl/login';
+  static var socialLoginEndPint = '$baseUrl/social-login';
 
-  static var registerApiEndPoint =  '$baseUrl/register' ;
-  static var allphotosApi =  '$baseUrl/photos' ;
+  static var registerApiEndPoint = '$baseUrl/register';
+  static var passwordupdateApiEndPoint = '$baseUrl/users/password';
+  static var accountDelApiEndPoint = '$baseUrl/users/delete';
+  static var allphotosApi = '$baseUrl/photos';
   static var filterPhotoApi = "$baseUrl/photos/filter?";
   static var listofColors = "$baseUrl/colors";
   static var listofTypes = "$baseUrl/types";

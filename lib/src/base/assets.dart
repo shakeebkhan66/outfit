@@ -22,8 +22,7 @@ class AppAssets {
   static const trousers = '$_path/trousers.png';
   static const trousersTwo = '$_path/trousers2.png';
   static const trouserIcon = '$_path/trouser_icon.png';
-  static const cardigonKimonoBoleroIcon =
-      '$_path/cardigon_kimono_bolero_icon.png';
+  static const cardigonKimonoBoleroIcon = '$_path/cardigon_kimono_bolero_icon.png';
   static const blazerIcon = '$_path/blazer_icon.png';
   static const jacketCoatIcon = '$_path/jacket_coat_icon.png';
   static const dressJumpsuitAbayaIcon = '$_path/dress_jumpsuit_abaya_icon.png';
@@ -34,4 +33,15 @@ class AppAssets {
   static const folderDetail = '$_path/folder_detail.png';
   static const deleteIcon = '$_path/delete_icon.png';
   static const editIcon = '$_path/edit_icon.png';
+  static const contactus = '$_path/contactus.jpeg';
+  static const facebookblack = '$_path/facebookblack.png';
+  static const instagramblack = '$_path/instagramblack.png';
+  static const intro1 = '$_path/intro1.png';
+  static const intro2 = '$_path/intro2.png';
+  static const intro3 = '$_path/intro3.png';
+  static const intro4 = '$_path/intro4.png';
+  static const introen1 = '$_path/introen1.png';
+  static const introen2 = '$_path/introen2.png';
+  static const tutorialVideo = '$_path/tutorial3.mp4';
+  static const tutorialen = '$_path/tutorialen.mp4';
 }
