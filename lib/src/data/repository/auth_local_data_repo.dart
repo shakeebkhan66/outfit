@@ -27,14 +27,6 @@ class AuthLocalDataSource {
     await Hive.box(authBox).put(emailKey, email);
   }
 
-  static String getIp() {
-    return Hive.box(authBox).get(ipKey, defaultValue: "");
-  }
-
-  static Future<void> setIp(String ip) async {
-    await Hive.box(authBox).put(ipKey, ip);
-  }
-
   static bool getLang() {
     return Hive.box(langBox).get(langKey, defaultValue: false);
   }

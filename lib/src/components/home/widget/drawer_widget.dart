@@ -34,7 +34,6 @@ class DrawerWidget extends StatefulWidget {
 
 class _DrawerWidgetState extends State<DrawerWidget> {
   final String email = AuthLocalDataSource.getEmail();
-  final String ip = AuthLocalDataSource.getIp();
   late Styles _style;
   late Hijab _hijab;
   late Seasons _season;
@@ -139,7 +138,6 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                       colorsViewModelProvider.clearStyleAndColorSearch();
                       widget.productsViewModel.filterPhotoPhotosList(
                         context: context,
-                        ip: ip,
                         email: email,
                       );
                       productViewProvider.setPage("filter");

@@ -45,8 +45,8 @@ class _SocialAuthPageState extends State<SocialAuthPage> {
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 35, bottom: 30),
-                child: Text(AppLocalization.of(context)!
-                        .getTranslatedValues('loginwith')!,
+                child: Text(
+                  AppLocalization.of(context)!.getTranslatedValues('loginwith')!,
                   style: GoogleFonts.montserrat(
                     fontSize: 19,
                     fontWeight: FontWeight.w600,
@@ -55,9 +55,11 @@ class _SocialAuthPageState extends State<SocialAuthPage> {
               ),
               _AuthButtonWidget(
                 onTap: () {
-                  authViewModel.socialLoginApi(const UserModel(
-                    authProvider: AuthProvider.gmail,
-                  ), context);
+                  authViewModel.socialLoginApi(
+                      const UserModel(
+                        authProvider: AuthProvider.gmail,
+                      ),
+                      context);
                 },
                 title: 'Google',
                 icon: Image.asset(
@@ -67,31 +69,39 @@ class _SocialAuthPageState extends State<SocialAuthPage> {
                 ),
                 gap: 13.46,
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 20),
-                child: _AuthButtonWidget(
+              Platform.isIOS
+                  ? Container(
+                      padding: const EdgeInsets.symmetric(vertical: 10.0),
+                    )
+                  : Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 20),
+                      child: _AuthButtonWidget(
+                        onTap: () {
+                          authViewModel.socialLoginApi(
+                              const UserModel(
+                                authProvider: AuthProvider.fb,
+                              ),
+                              context);
+                        },
+                        title: 'Facebook',
+                        icon: Image.asset(
+                          AppAssets.facebook,
+                          width: 20,
+                          height: 20,
+                        ),
+                        gap: 11,
+                      ),
+                    ),
+              if (Platform.isAndroid)
+                Container()
+              else ...[
+                _AuthButtonWidget(
                   onTap: () {
-                    authViewModel.socialLoginApi(const UserModel(
-                    authProvider: AuthProvider.fb,
-                  ), context);
-                  },
-                  title: 'Facebook',
-                  icon: Image.asset(
-                    AppAssets.facebook,
-                    width: 20,
-                    height: 20,
-                  ),
-                  gap: 11,
-                ),
-              ),
-              if(Platform.isAndroid)
-              Container()
-              else
-              ...[_AuthButtonWidget(
-                onTap: () {
-                  authViewModel.socialLoginApi(const UserModel(
-                      authProvider: AuthProvider.apple,
-                    ), context);   
+                    authViewModel.socialLoginApi(
+                        const UserModel(
+                          authProvider: AuthProvider.apple,
+                        ),
+                        context);
                   },
                   title: 'Apple',
                   icon: Image.asset(
@@ -159,8 +169,7 @@ class _AuthButtonWidgetState extends State<_AuthButtonWidget> {
         style: TextButton.styleFrom(
           foregroundColor: const Color(0xFFFBE7F3),
           surfaceTintColor: const Color(0xFFFBE7F3),
-          backgroundColor:
-              _isButtonTapped ? const Color(0xFFFBE7F3) : Colors.white,
+          backgroundColor: _isButtonTapped ? const Color(0xFFFBE7F3) : Colors.white,
           minimumSize: const Size.fromHeight(52),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
@@ -186,9 +195,7 @@ class _AuthButtonWidgetState extends State<_AuthButtonWidget> {
               style: GoogleFonts.montserrat(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
-                color: _isButtonTapped
-                    ? AppColors.primaryColor
-                    : const Color(0xFF565656),
+                color: _isButtonTapped ? AppColors.primaryColor : const Color(0xFF565656),
               ),
             ),
           )

@@ -15,7 +15,7 @@ import 'package:provider/provider.dart';
 
 class SearchPage extends StatefulWidget {
   final ProductsViewModel productsViewModel;
-  final Function callback;
+  final VoidCallback callback;
   const SearchPage({Key? key, required this.productsViewModel, required this.callback}) : super(key: key);
 
   @override
@@ -26,7 +26,6 @@ class _SearchPageState extends State<SearchPage> {
   ColorsAndStylesViewModel colorsViewModel = ColorsAndStylesViewModel();
   final productsViewModel = ProductsViewModel();
   final String email = AuthLocalDataSource.getEmail();
-  final String ip = AuthLocalDataSource.getIp();
   GlobalKey searchButtonGuideKey = GlobalKey();
   @override
   Widget build(BuildContext context) {
@@ -34,7 +33,7 @@ class _SearchPageState extends State<SearchPage> {
     final page = Provider.of<ProductsViewModel>(context);
     final filterPairProvider = Provider.of<FilterPairProvider>(context);
     final padding = MediaQuery.of(context).padding;
-    _searchPressed() {
+    searchPressed() {
       for (var i = 0; i < filterPairProvider.getSearchColor.length; i++) {
         if (filterPairProvider.getSearchColor[i] == null) {
           return AppUtils.flushBarErrorMessage("Please select color", context);
@@ -49,14 +48,13 @@ class _SearchPageState extends State<SearchPage> {
       widget.productsViewModel.setImagesData();
       page.setPage("search");
       page.setSetIndex(0);
-      widget.callback;
+      widget.callback.call();
       AppNavigation.pop(context);
       widget.productsViewModel.setCurrentPage(Pages.search);
       widget.productsViewModel
           .fetchFilterPairList(
         context: context,
         email: email,
-        ip: ip,
         FilterPairModel(
           pairs: [
             for (var i = 0; i < filterPairProvider.getSearchColor.length; i++)
@@ -131,7 +129,7 @@ class _SearchPageState extends State<SearchPage> {
                 child: ColorStyleWidget(
                   searchButtonGuideKey: searchButtonGuideKey,
                   target3Pressed: () {
-                    _searchPressed();
+                    searchPressed();
                   },
                 ),
               ),
@@ -146,7 +144,7 @@ class _SearchPageState extends State<SearchPage> {
           child: AppButtonWidget(
             key: searchButtonGuideKey,
             onTap: () async {
-              _searchPressed();
+              searchPressed();
             },
             title: 'search',
           ),

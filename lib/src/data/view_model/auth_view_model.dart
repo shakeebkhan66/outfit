@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:outfit/src/base/nav.dart';
@@ -102,34 +104,39 @@ class AuthViewModel with ChangeNotifier {
     setLoading(true);
     late UserCredential? value;
     if (data.authProvider == AuthProvider.gmail) {
-      value = await signInWithGoogle();
+      value = await signInWithGoogle(context);
     } else if (data.authProvider == AuthProvider.fb) {
-      value = await signInWithFacebook();
+      value = await signInWithFacebook(context);
     } else if (data.authProvider == AuthProvider.apple) {
       value = await signInWithApple();
     }
     if (value != null) {
+      print("rvalue2:${value.credential!.providerId!}:${value.user!.uid}");
       _myRepo
           .socialLogin(UserModel(
-        userid: value.user!.uid,
+        userid: data.authProvider == AuthProvider.gmail?
+        value.additionalUserInfo!.profile!["sub"]:
+        value.user!.uid,
         name: value.user!.displayName,
         type: data.authProvider!.value,
         email: value.user!.email,
       ).toJson())
           .then((rvalue) {
-        setDataToLocalStorage(UserModel(
-          userid: value!.user!.uid,
-          name: value.user!.displayName,
+            print(value);
+//            print("rvalue:$rvalue:${rvalue['data']["userid"]}:${value.additionalUserInfo!.profile!["sub"]}");
+            setDataToLocalStorage(UserModel(
+          userid: rvalue['data']["userid"],
+          name: value!.user!.displayName,
           type: data.authProvider!.value,
           email: value.user!.email,
         ));
         setLoading(false);
         AppAnalytics.onLogin(data.authProvider!.value);
         AppUtils.flushBarSucessMessage('Login Successfully', context).then((value) {
-          AppNavigation.toReplace(context, const HomePage());
+          AppNavigation.navigateRemoveUntil(context, const HomePage());
         });
         if (kDebugMode) {
-          print(value.toString());
+          print("value.toString():${value.toString()}");
         }
       }).onError((error, stackTrace) {
         setLoading(false);
@@ -212,16 +219,25 @@ class AuthViewModel with ChangeNotifier {
     });
   }
 
-  Future<UserCredential> signInWithGoogle() async {
-    final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-    final GoogleSignInAuthentication googleAuth = await googleUser!.authentication;
+  Future<UserCredential> signInWithGoogle(context) async {
+    try {
+      final GoogleSignInAccount? googleUser = await GoogleSignIn(scopes: ['profile', 'email']).signIn();
+      final GoogleSignInAuthentication? googleAuth = await googleUser!.authentication;
 
-    final AuthCredential credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth.accessToken,
-      idToken: googleAuth.idToken,
-    );
-    final UserCredential userCredential = await _firebaseAuth.signInWithCredential(credential);
-    return userCredential;
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth?.accessToken,
+        idToken: googleAuth?.idToken,
+      );
+      print(credential.providerId);
+      print(googleUser.id);
+      final UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+      return userCredential;
+    }catch (e) {
+      AppUtils.flushBarErrorMessage(e.toString(), context);
+      FirebaseCrashlytics.instance.log(e.toString());
+      throw Exception(e.toString());
+    }
+    throw Exception("Error occurs with google sign in");
   }
 
   Future<UserCredential> signInWithApple() async {
@@ -247,30 +263,39 @@ class AuthViewModel with ChangeNotifier {
       final String givenName = appleIdCredential.givenName ?? "";
 
       final String familyName = appleIdCredential.familyName ?? "";
-      await user.updateDisplayName("$givenName $familyName");
+      await user.updateDisplayName("$givenName $familyName").onError((error, stackTrace) => print);
       await user.reload();
     }
     return userCredential;
   }
 
-  Future<UserCredential?> signInWithFacebook() async {
-    final LoginResult result = await FacebookAuth.instance.login();
+  Future<UserCredential?> signInWithFacebook(BuildContext context) async {
+    try{
+    final LoginResult result = await FacebookAuth.instance.login(
+   //   loginBehavior: LoginBehavior.dialogOnly,
+      permissions: ['email', 'public_profile'],
+    );
 // Check result status
     switch (result.status) {
       case LoginStatus.success:
+        print("result.accessToken!.userId:${result.accessToken!.toJson()}");
 
         // Send access token to server for validation and auth
-        final AccessToken? accessToken = result.accessToken;
-        AuthCredential authCredential = FacebookAuthProvider.credential(accessToken!.token);
-        final UserCredential userCredential = await _firebaseAuth.signInWithCredential(authCredential);
+        OAuthCredential authCredential = FacebookAuthProvider.credential(result.accessToken!.token);
+        final UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(authCredential);
+        print(userCredential.additionalUserInfo!.profile);
         return userCredential;
       case LoginStatus.cancelled:
         return null;
-
       case LoginStatus.failed:
+        AppUtils.flushBarErrorMessage(result.message.toString(), context);
         return null;
       default:
+        AppUtils.flushBarErrorMessage(result.message.toString(), context);
         return null;
+    }}catch(e){
+      AppUtils.flushBarErrorMessage(e.toString(), context);
+      return null;
     }
   }
 

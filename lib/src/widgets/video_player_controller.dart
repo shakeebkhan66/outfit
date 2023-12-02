@@ -1,6 +1,4 @@
-import 'package:auto_orientation/auto_orientation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:outfit/src/base/theme.dart';
 import 'package:video_player/video_player.dart';
 
@@ -42,7 +40,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
         child: Column(
           children: [
             AspectRatio(
-              aspectRatio: 1 / 1,
+              aspectRatio: 3.2 / 4,
               child: Stack(
                 children: [
                   VideoPlayer(_controller),
@@ -92,7 +90,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                   ),
                   IconButton(
                     onPressed: () {
-                      AutoOrientation.landscapeAutoMode();
+                      // AutoOrientation.landscapeAutoMode();
                       showDialog(
                         barrierDismissible: false,
                         context: context,
@@ -163,84 +161,92 @@ class FullScreenDialog extends StatefulWidget {
 
 class _FullScreenDialogState extends State<FullScreenDialog> {
   @override
-  void initState() {
-    super.initState();
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
-  }
-
-  @override
-  void dispose() {
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Dialog(
       insetPadding: EdgeInsets.zero,
-      backgroundColor: Colors.transparent,
+      // backgroundColor: Colors.transparent,
       child: InkWell(
         onTap: () {
-          AutoOrientation.portraitAutoMode();
+          // AutoOrientation.portraitAutoMode();
           Navigator.of(context).pop();
         },
-        child: SizedBox(
-          width: double.infinity,
-          height: double.infinity,
+        child: Container(
+          alignment: Alignment.topCenter,
           child: Stack(
-            alignment: Alignment.bottomCenter,
+            fit: StackFit.expand,
             children: [
-              VideoPlayer(widget.controller),
-              Container(
-                height: 40.0,
-                color: Colors.black,
-                child: Row(
-                  children: [
-                    AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 50),
-                      reverseDuration: const Duration(milliseconds: 200),
-                      child: IconButton(
-                        icon: Icon(
-                          widget.controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
-                          color: AppColors.primaryColor,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            if (widget.controller.value.isPlaying) {
-                              widget.controller.pause();
-                            } else {
-                              widget.controller.play();
-                            }
-                          });
-                        },
-                      ),
+              FittedBox(
+                fit: BoxFit.cover,
+                child: SizedBox(
+                  width: widget.controller.value.size.width,
+                  height: widget.controller.value.size.height,
+                  child: AspectRatio(
+                    aspectRatio: widget.controller.value.aspectRatio,
+                    child: VideoPlayer(
+                      widget.controller,
                     ),
-                    Expanded(
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10.0),
-                        child: VideoProgressIndicator(
-                          widget.controller,
-                          padding: EdgeInsets.zero,
-                          allowScrubbing: true,
-                          colors: const VideoProgressColors(
-                            backgroundColor: AppColors.white,
-                            playedColor: AppColors.primaryColor,
-                          ),
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        AutoOrientation.portraitAutoMode();
-                        Navigator.of(context).pop();
-                      },
-                      icon: const Icon(
-                        Icons.fullscreen_exit,
-                        color: AppColors.primaryColor,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
+              ),
+              Stack(
+                children: [
+                  Positioned(
+                    left: 0,
+                    bottom: 0,
+                    right: 0,
+                    child: Container(
+                      height: 40.0,
+                      color: Colors.black,
+                      child: Row(
+                        children: [
+                          AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 50),
+                            reverseDuration: const Duration(milliseconds: 200),
+                            child: IconButton(
+                              icon: Icon(
+                                widget.controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
+                                color: AppColors.primaryColor,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  if (widget.controller.value.isPlaying) {
+                                    widget.controller.pause();
+                                  } else {
+                                    widget.controller.play();
+                                  }
+                                });
+                              },
+                            ),
+                          ),
+                          Expanded(
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(10.0),
+                              child: VideoProgressIndicator(
+                                widget.controller,
+                                padding: EdgeInsets.zero,
+                                allowScrubbing: true,
+                                colors: const VideoProgressColors(
+                                  backgroundColor: AppColors.white,
+                                  playedColor: AppColors.primaryColor,
+                                ),
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: () {
+                              // AutoOrientation.portraitAutoMode();
+                              Navigator.of(context).pop();
+                            },
+                            icon: const Icon(
+                              Icons.fullscreen_exit,
+                              color: AppColors.primaryColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -267,7 +273,6 @@ class VideoPlayerFullscreenWidget extends StatelessWidget {
         fit: StackFit.expand,
         children: <Widget>[
           buildVideoPlayer(),
-          BasicOverlayWidget(controller: controller),
         ],
       );
 
@@ -304,7 +309,6 @@ class BasicOverlayWidget extends StatelessWidget {
   Widget build(BuildContext context) => GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () {
-          AutoOrientation.portraitAutoMode();
           controller.value.isPlaying ? controller.pause() : controller.play();
         },
         child: Stack(

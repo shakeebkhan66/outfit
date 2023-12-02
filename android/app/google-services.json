@@ -7,50 +7,6 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:122025805891:android:55efca42b8bda74555ecf6",
-        "android_client_info": {
-          "package_name": "com.stylorita.outfit"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "122025805891-lusrhamecr9ov9utbth6v3ibe3ticvhj.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.stylorita.outfit",
-            "certificate_hash": "c8f1b217dffce1a9aae56e5b1f6cd94957178197"
-          }
-        },
-        {
-          "client_id": "122025805891-e75trho2tlkj0b0n5fd97von6ubr1qv5.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyDqvHTsyx1ExVfx98cNRYHLqYSHgRsJPcw"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "122025805891-e75trho2tlkj0b0n5fd97von6ubr1qv5.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "122025805891-23geep9a1j1sddh3keicjph2doqcl54o.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.stylorita.outfit"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
         "mobilesdk_app_id": "1:122025805891:android:041870de73db6a3a55ecf6",
         "android_client_info": {
           "package_name": "com.wearrwhat.app"
@@ -58,11 +14,43 @@
       },
       "oauth_client": [
         {
-          "client_id": "122025805891-j83gpnbnqrdufis4f9i6r234p7htj5fs.apps.googleusercontent.com",
+          "client_id": "122025805891-10fquuf5ukpcrseu1345tejtov14cvcf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.wearrwhat.app",
+            "certificate_hash": "515d74ddcf4a268ab02f0bf6541225816923c3ed"
+          }
+        },
+        {
+          "client_id": "122025805891-mv0c9shjoeu6srkehgg72neaivnt6fm3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.wearrwhat.app",
+            "certificate_hash": "c8f1b217dffce1a9aae56e5b1f6cd94957178197"
+          }
+        },
+        {
+          "client_id": "122025805891-spdb1nmmhimhgd7qae9f1bgn3q2pd2p5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.wearrwhat.app",
+            "certificate_hash": "2794c863f01e08138d9fbfe5deff649f873e1758"
+          }
+        },
+        {
+          "client_id": "122025805891-u3c1lhlsj1a2rt2k75ni2nabv393c4ov.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.wearrwhat.app",
             "certificate_hash": "78d0ac48050dd0354684aeb64a3ef702ac4fb8db"
+          }
+        },
+        {
+          "client_id": "122025805891-vsfdekuk9mpe68kdk4leme4r9j64c360.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.wearrwhat.app",
+            "certificate_hash": "6a5373877731410fe34b564a9b6d1d33f72422fa"
           }
         },
         {

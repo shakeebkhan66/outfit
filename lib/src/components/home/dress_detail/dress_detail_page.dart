@@ -28,6 +28,7 @@ class DressDetailPage extends StatefulWidget {
   final int index;
   final String page;
   final String loadAd;
+  final String folderName;
   final FavFoldersViewModel loadAdFavFoldersViewModel;
   const DressDetailPage({
     Key? key,
@@ -43,6 +44,7 @@ class DressDetailPage extends StatefulWidget {
     required this.loadAdFavFoldersViewModel,
     this.loadAd = "false",
     required this.gettingFolderModel,
+    this.folderName = "",
   }) : super(key: key);
 
   final String dress;
@@ -54,7 +56,6 @@ class DressDetailPage extends StatefulWidget {
 class _DressDetailPageState extends State<DressDetailPage> {
   final String email = AuthLocalDataSource.getEmail();
   final String userid = AuthLocalDataSource.getUserid();
-  final String ip = AuthLocalDataSource.getIp();
   bool isFav = false;
 
   bool isShow = false;
@@ -78,7 +79,7 @@ class _DressDetailPageState extends State<DressDetailPage> {
 
   void openInstagramProfile(String url) async {
     if (await canLaunchUrl(Uri.parse(url.trim()))) {
-      await launchUrl(Uri.parse(url.trim()));
+      await launchUrl(Uri.parse(url.trim()), mode: LaunchMode.externalApplication);
     } else {
       throw 'Could not launch $url';
     }
@@ -128,7 +129,6 @@ class _DressDetailPageState extends State<DressDetailPage> {
 
                                   widget.productViewModel!.unLikeImageById(
                                     email: email,
-                                    ip: ip,
                                     id: widget.imageId,
                                   );
                                 } else {
@@ -136,7 +136,6 @@ class _DressDetailPageState extends State<DressDetailPage> {
                                   widget.productViewModel!.incrementFromFavourite(widget.index);
                                   widget.productViewModel!.likeImageById(
                                     email: email,
-                                    ip: ip,
                                     id: widget.imageId,
                                   );
                                 }
@@ -146,7 +145,6 @@ class _DressDetailPageState extends State<DressDetailPage> {
                                   widget.favFoldersViewModel.removeFromFavourite(widget.index);
                                   widget.productViewModel!.unLikeImageById(
                                     email: email,
-                                    ip: ip,
                                     id: widget.imageId,
                                   );
                                 } else {
@@ -154,7 +152,6 @@ class _DressDetailPageState extends State<DressDetailPage> {
                                   widget.favFoldersViewModel.addFromFavourite(widget.index);
                                   widget.productViewModel!.likeImageById(
                                     email: email,
-                                    ip: ip,
                                     id: widget.imageId,
                                   );
                                 }
@@ -210,6 +207,7 @@ class _DressDetailPageState extends State<DressDetailPage> {
                                     loadAdFavFoldersViewModel: widget.loadAdFavFoldersViewModel,
                                     gettingFoldersModel: widget.gettingFolderModel,
                                     ctx: ctx,
+                                    folderName: widget.folderName,
                                   );
                                 },
                               );
@@ -257,6 +255,7 @@ class CustomBottomSheet extends StatefulWidget {
   final String imageId;
   final BuildContext ctx;
   final String loadAd;
+  final String folderName;
   final FavFoldersViewModel gettingFoldersModel;
   final FavFoldersViewModel loadAdFavFoldersViewModel;
   const CustomBottomSheet(
@@ -265,6 +264,7 @@ class CustomBottomSheet extends StatefulWidget {
       required this.ctx,
       required this.gettingFoldersModel,
       required this.loadAdFavFoldersViewModel,
+      required this.folderName,
       this.loadAd = ""});
 
   @override
@@ -272,7 +272,6 @@ class CustomBottomSheet extends StatefulWidget {
 }
 
 class _CustomBottomSheetState extends State<CustomBottomSheet> {
-  final String ip = AuthLocalDataSource.getIp();
   final String email = AuthLocalDataSource.getEmail();
   List<int> folderIds = [];
   final FavFoldersViewModel favFoldersViewModel = FavFoldersViewModel();
@@ -331,21 +330,28 @@ class _CustomBottomSheetState extends State<CustomBottomSheet> {
                                                 value: favourites.getFavImageFolderIds.contains(folders.id),
                                                 activeColor: AppColors.primaryColor,
                                                 onChanged: (_) {
+                                                  print(folders.id);
+                                                  print(folders.list_name);
                                                   print(widget.loadAd);
+                                                  print(folders.list_name!);
+                                                  print(widget.folderName);
                                                   if (favourites.getFavImageFolderIds.contains(folders.id)) {
                                                     favourites.setRemovefavImageFolderIds(folders.id!, int.parse(widget.imageId));
                                                     favFoldersViewModel.deleteImageToFolderApi(
-                                                        id: int.parse(widget.imageId), folderName: folders.list_name!, context: widget.ctx);
-                                                    if (widget.loadAd == "yes") {
+                                                      imageId: int.parse(widget.imageId),
+                                                      folderId: folders.id!,
+                                                      folderName: folders.list_name!,
+                                                      context: widget.ctx,
+                                                    );
+                                                    if (widget.loadAd == "yes" && widget.folderName == folders.list_name!) {
                                                       widget.loadAdFavFoldersViewModel.favFolderImagesList(
                                                         folderId: folders.id.toString(),
                                                         email: email,
-                                                        ip: ip,
-                                                      );
-                                                      widget.gettingFoldersModel.favFoldersList(
-                                                        userId: userId,
                                                       );
                                                     }
+                                                    widget.gettingFoldersModel.favFoldersList(
+                                                      userId: userId,
+                                                    );
                                                   } else {
                                                     favourites.setfavImageFolderIds(folders.id!, int.parse(widget.imageId));
                                                     favFoldersViewModel.addImageToFolderApi(data: {
@@ -353,6 +359,10 @@ class _CustomBottomSheetState extends State<CustomBottomSheet> {
                                                       "list": folders.id,
                                                       "img": widget.imageId,
                                                     }, folderName: folders.list_name!, context: widget.ctx);
+
+                                                    widget.gettingFoldersModel.favFoldersList(
+                                                      userId: userId,
+                                                    );
                                                   }
                                                   setState(() {});
                                                 },

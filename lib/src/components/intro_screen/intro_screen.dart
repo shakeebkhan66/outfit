@@ -128,41 +128,44 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 20.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: List.generate(
-                    onboardingItems.length,
-                    (index) => Indicator(
-                      isActive: index == _currentPage,
+            child: Directionality(
+              textDirection: TextDirection.ltr,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: List.generate(
+                      onboardingItems.length,
+                      (index) => Indicator(
+                        isActive: index == _currentPage,
+                      ),
                     ),
                   ),
-                ),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: SizedBox(
-                    width: 80.0,
-                    height: 40.0,
-                    child: AppButtonWidget(
-                      onTap: () {
-                        if (_currentPage == 3) {
-                          AuthLocalDataSource.setonBoardingScreen();
-                          AppNavigation.to(context, const SocialAuthPage());
-                        } else {
-                          _pageController.nextPage(
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeInOut,
-                          );
-                        }
-                      },
-                      buttonRadius: 4.0,
-                      title: _currentPage == 3 ? "done" : "next",
-                      titleSize: 14.0,
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: SizedBox(
+                      width: 80.0,
+                      height: 40.0,
+                      child: AppButtonWidget(
+                        onTap: () {
+                          if (_currentPage == 3) {
+                            AuthLocalDataSource.setonBoardingScreen();
+                            AppNavigation.to(context, const SocialAuthPage());
+                          } else {
+                            _pageController.nextPage(
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                            );
+                          }
+                        },
+                        buttonRadius: 4.0,
+                        title: _currentPage == 3 ? "done" : "next",
+                        titleSize: 14.0,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],

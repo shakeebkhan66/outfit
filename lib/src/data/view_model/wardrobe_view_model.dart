@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:outfit/app_localization.dart';
 import 'package:outfit/src/base/assets.dart';
 import 'package:outfit/src/data/model/colors_model.dart';
 import 'package:outfit/src/data/model/wardrobe_list_model.dart';
@@ -94,7 +95,7 @@ class WardrobeViewModel with ChangeNotifier {
       if (error.toString() == "Exception: The colors field is required.") {
         updateAgainAferException(id);
         AppUtils.flushBarErrorMessage(
-          """you have to enter at least 1 color to save, or instead click on "clear all" button which under the save button""",
+          AppLocalization.of(context)!.getTranslatedValues("wardrobeError")!,
           context,
           duration: 5,
         );
@@ -106,6 +107,7 @@ class WardrobeViewModel with ChangeNotifier {
   }
 
   updateAgainAferException(String id) {
+    getSelectedColors[id]!.clear();
     getSelectedColors[id]!.addAll(getSelectedColorsForDelete[id]!);
     notifyListeners();
   }

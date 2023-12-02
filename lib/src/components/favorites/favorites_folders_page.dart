@@ -58,7 +58,7 @@ class _FavoritesFolderPageState extends State<FavoritesFolderPage> {
     final padding = MediaQuery.of(context).padding;
     return Scaffold(
       body: Padding(
-        padding: EdgeInsets.only(top: padding.top, bottom: padding.bottom),
+        padding: EdgeInsets.only(top: padding.top),
         child: Column(children: [
           FavPageTitleWidget(
             title: AppLocalization.of(context)!.getTranslatedValues("myfavourites")!,
@@ -282,7 +282,13 @@ class _FavoritesFolderPageState extends State<FavoritesFolderPage> {
                                                       },
                                                     ).show(context);
                                                   } else {
-                                                    _favFoldersViewModel.deleteFolder(userId: userId, folderId: fav.id.toString());
+                                                    await DeleteFolderDialog(
+                                                      callback: (_) {
+                                                        _favFoldersViewModel.deleteFolder(userId: userId, folderId: fav.id.toString());
+                                                        setState(() {});
+                                                      },
+                                                    ).show(context);
+                                                    // _favFoldersViewModel.deleteFolder(userId: userId, folderId: fav.id.toString());
                                                     setState(() {});
                                                   }
                                                 },

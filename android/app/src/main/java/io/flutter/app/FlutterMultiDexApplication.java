@@ -21,3 +21,4 @@ public class FlutterMultiDexApplication extends Application {
     super.attachBaseContext(base);
   }
 }
+// FlutterMultiDexApplication

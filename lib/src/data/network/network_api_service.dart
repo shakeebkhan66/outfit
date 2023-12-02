@@ -49,9 +49,9 @@ class NetworkApiService extends BaseApiServices {
 
   @override
   Future getPostApiResponse(String url, dynamic data, {Map<String, dynamic>? queryParameters}) async {
-    print(url);
-    print(data);
-    print(apiKey);
+    print("url:$url");
+    print("data:$data");
+    print("apiKey:$apiKey");
     dynamic responseJson;
     try {
       Response response = await dio
@@ -72,7 +72,7 @@ class NetworkApiService extends BaseApiServices {
   }
 
   dynamic returnResponse(Response response) {
-    print(response.data);
+    print("response.data:${response.data}");
     switch (response.statusCode) {
       case 200:
         dynamic responseJson = response.data;

@@ -67,7 +67,7 @@ class TutorialGuide {
       targets: _createOutfitTarget(context),
       colorShadow: Colors.red,
       hideSkip: true,
-      paddingFocus: 10,
+      paddingFocus: 10.0,
       opacityShadow: 0.8,
       onFinish: () async {
         await AuthLocalDataSource.setTutorial4();
@@ -139,10 +139,13 @@ class TutorialGuide {
   }
 
   List<TargetFocus> _createOutfitTarget(context) {
+    final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
     List<TargetFocus> targets = [];
     targets.add(
       TargetFocus(
         identify: "Target 4",
+        targetPosition: TargetPosition(Size(width + 100, height), const Offset(350, 150)),
         keyTarget: outfitViewGuideKey,
         color: Colors.grey,
         contents: [

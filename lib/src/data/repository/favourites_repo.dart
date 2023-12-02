@@ -12,6 +12,7 @@ class FavFolderRepository {
   Future<FavouritesFolder> fetchAllFavFolders({required String userId}) async {
     try {
       dynamic response = await _apiServices.getGetApiResponse("${AppUrl.favouritesFolders}/$userId");
+      print("${AppUrl.favouritesFolders}/$userId");
       return response = FavouritesFolder.fromJson(response);
     } catch (e) {
       rethrow;
@@ -93,9 +94,9 @@ class FavFolderRepository {
     }
   }
 
-  Future<dynamic> deleteFolderImages({required int id}) async {
+  Future<dynamic> deleteFolderImages({required int imageId, required int folderId}) async {
     try {
-      dynamic response = await _apiServices.getDeleteApiResponse("${AppUrl.addImageToFolder}/$id");
+      dynamic response = await _apiServices.getDeleteApiResponse("${AppUrl.favouritesFolders}/$folderId/images/$imageId");
       return response;
     } catch (e) {
       rethrow;

@@ -135,7 +135,7 @@ class _PaginationState extends State<Pagination> {
                 ),
               ),
             ),
-            const SizedBox(
+             SizedBox(
               height: 30.0,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -174,7 +174,7 @@ class _PaginationState extends State<Pagination> {
               ),
             ),
           if (widget.numOfPages > widget.pagesVisible && widget.selectedPage != widget.numOfPages) ...[
-            const SizedBox(
+             SizedBox(
               height: 30.0,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.end,

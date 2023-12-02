@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:auto_orientation/auto_orientation.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -17,7 +16,6 @@ import 'package:outfit/src/data/view_model/colors_view_model.dart';
 import 'package:outfit/src/data/view_model/favourites_view_model.dart';
 import 'package:outfit/src/data/view_model/photos_view_model.dart';
 import 'package:outfit/src/data/view_model/wardrobe_view_model.dart';
-import 'package:outfit/src/providers/add_helper.dart';
 import 'package:outfit/src/providers/filter_pair_provider.dart';
 import 'package:outfit/src/providers/language_provider.dart';
 import 'package:outfit/src/services/local_storage_service.dart';
@@ -43,8 +41,6 @@ class MyApp extends StatelessWidget {
   static Future<void> initializeAndRun() async {
     runZonedGuarded(() async {
       WidgetsFlutterBinding.ensureInitialized();
-
-      AutoOrientation.portraitAutoMode();
       await Firebase.initializeApp();
       await _initGoogleMobileAds();
       await AppPathProvider.initPath();
@@ -64,7 +60,6 @@ class MyApp extends StatelessWidget {
             ChangeNotifierProvider(create: (_) => ProductsViewModel()),
             ChangeNotifierProvider(create: (_) => ColorsAndStylesViewModel()),
             ChangeNotifierProvider(create: (_) => FavFoldersViewModel()),
-            ChangeNotifierProvider(create: (_) => NativeAdsProvider()),
           ],
           child: const MyApp(),
         ),

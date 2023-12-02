@@ -43,8 +43,9 @@ class _CustomShimmerLoaderState extends State<CustomShimmerLoader> {
 
 class CustomShimmerLoader2 extends StatefulWidget {
   final int itemCount;
-
-  const CustomShimmerLoader2({Key? key, required this.itemCount}) : super(key: key);
+  final bool? fromHome;
+  final NullableIndexedWidgetBuilder? itemBuilder;
+  const CustomShimmerLoader2({Key? key, required this.itemCount, this.fromHome, this.itemBuilder}) : super(key: key);
 
   @override
   State<CustomShimmerLoader2> createState() => _CustomShimmerLoader2State();
@@ -56,13 +57,14 @@ class _CustomShimmerLoader2State extends State<CustomShimmerLoader2> {
     return GridView.builder(
       shrinkWrap: true,
       itemCount: widget.itemCount,
+      physics: ((widget.fromHome??false)==true)?NeverScrollableScrollPhysics():ScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         mainAxisExtent: 226,
         crossAxisSpacing: 15,
         mainAxisSpacing: 16,
       ),
-      itemBuilder: (context, index) {
+      itemBuilder: widget.itemBuilder??(context, index) {
         return ClipRRect(
           borderRadius: BorderRadius.circular(15.0),
           child: GridTile(

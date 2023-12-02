@@ -31,6 +31,10 @@ import 'package:outfit/src/widgets/shimmer_loader.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:showcaseview/showcaseview.dart';
+import 'package:visibility_detector/visibility_detector.dart';
+
+T? ambiguate<T>(T? object) => object;
 
 class OutfitIdeasView extends StatefulWidget {
   final ProductsViewModel productViewModel;
@@ -44,10 +48,8 @@ class OutfitIdeasView extends StatefulWidget {
 class _OutfitIdeasViewState extends State<OutfitIdeasView> {
   final _scrollController = ScrollController();
   final String email = AuthLocalDataSource.getEmail();
-  final String ip = AuthLocalDataSource.getIp();
   bool isLoadAdFailed = false;
   bool filterDrawer = true;
-  NativeAd? _ad;
   bool isLoadedNativeAd = false;
   int pageSize = 8;
   @override
@@ -62,43 +64,24 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
       widget.productViewModel.fetchPhotosList(
         context: context,
         email: email,
-        ip: ip,
       );
     }
     _scrollController.addListener(() {
-      if (!widget.productViewModel.isLoadingImages && _scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
+      var nextPageTrigger = 0.7 * _scrollController.position.maxScrollExtent;
+      print("${_scrollController.position.pixels}:${nextPageTrigger}");
+
+      if (_scrollController.position.pixels >nextPageTrigger) {
         if (widget.productViewModel.getCurrentImage < widget.productViewModel.getTotalImage) {
+          print('its here now');
           widget.productViewModel.setImagesLoading();
           widget.productViewModel.loadMoreImages();
+        } else {
+          if (widget.productViewModel.isLoadingImages) {
+            widget.productViewModel.setImagesLoadingfalse();
+          }
         }
       }
     });
-
-    _ad = NativeAd(
-      adUnitId: AdHelper.nativeAdUnitId,
-      factoryId: 'listTile',
-      request: const AdRequest(),
-      listener: NativeAdListener(
-        onAdLoaded: (ad) {
-          setState(() {
-            _ad = ad as NativeAd;
-            isLoadAdFailed = false;
-          });
-          _ad!.load();
-        },
-        onAdFailedToLoad: (ad, error) {
-          setState(() {
-            isLoadAdFailed = true;
-          });
-        },
-      ),
-    );
-    _ad!.load().then((value) {
-      setState(() {
-        isLoadedNativeAd = true;
-      });
-    });
-
     super.initState();
   }
 
@@ -146,7 +129,7 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
       ),
       height: 230.0,
       errorWidget: (context, error, stackTrace) {
-        return const Column(
+        return  Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Center(
@@ -168,7 +151,6 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
     final filterPairProvider = Provider.of<FilterPairProvider>(context);
     final productViewProvider = Provider.of<ProductsViewModel>(context);
     final colorsViewModelProvider = Provider.of<ColorsAndStylesViewModel>(context);
-    final nativeAdsProvider = Provider.of<NativeAdsProvider>(context).getNativeAd;
     return Scaffold(
       key: scaffoldKey,
       backgroundColor: const Color(0xFFFFFFFF),
@@ -287,7 +269,7 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
                         colorsViewModelProvider.clearStyleAndColorSearch();
                         widget.productViewModel.setCurrentPage(Pages.products);
                         productViewProvider.setPage('outfit');
-                        widget.productViewModel.fetchPhotosList(email: email, ip: ip, context: context);
+                        widget.productViewModel.fetchPhotosList(email: email, context: context);
                       },
                       child: Container(
                         decoration: BoxDecoration(
@@ -365,441 +347,439 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
               top: 4,
             ),
             sliver: SliverToBoxAdapter(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: Showcase(
+                targetPadding: const EdgeInsets.symmetric(horizontal: 20.0),
+                titleTextStyle: const TextStyle(color: Colors.black),
+                descTextStyle: const TextStyle(color: Colors.black, fontSize: 13.0),
+                onToolTipClick: () async {
+                  await AuthLocalDataSource.setTutorial4();
+                },
+                onTargetClick: () async {
+                  await AuthLocalDataSource.setTutorial4();
+                },
+                disposeOnTap: true,
                 key: widget.outfitViewGuideKey,
-                children: [
-                  if (colorsViewModelProvider.selectedGradientColors[0] == null || productViewProvider.getPageName != "search")
-                    Container()
-                  else
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 10.0, top: 10.0),
-                      child: Wrap(
-                        runSpacing: 8,
-                        spacing: 16,
-                        alignment: WrapAlignment.start,
-                        children: colorsViewModelProvider.selectedGradientColors
-                            .asMap()
-                            .map((index, stylecolor) => MapEntry(
-                                index,
-                                Container(
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFFFFBF9),
-                                    borderRadius: BorderRadius.circular(32),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        offset: Offset.zero,
-                                        blurRadius: 2,
-                                        spreadRadius: 0,
-                                        color: Colors.black.withOpacity(0.075),
-                                      ),
-                                    ],
-                                  ),
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 5,
-                                    horizontal: 6,
-                                  ),
-                                  child: Row(mainAxisSize: MainAxisSize.min, children: [
-                                    if (stylecolor != null)
-                                      Wrap(
-                                        children: stylecolor
-                                            .map((key, value) => MapEntry(
-                                                  key,
-                                                  Wrap(
-                                                    children: [
-                                                      if (value.first is Color)
-                                                        circleContainer(value)
-                                                      else
-                                                        ClipRRect(
-                                                          borderRadius: BorderRadius.circular(10.0),
-                                                          child: Image.network(
-                                                            "https://stylorita.com/admin/${value.first}",
-                                                            width: 38.0,
-                                                            height: 18.0,
-                                                            fit: BoxFit.cover,
+                title: AppLocalization.of(context)!.getTranslatedValues("explaination4")!,
+                description: AppLocalization.of(context)!.getTranslatedValues("explaination5")!,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (colorsViewModelProvider.selectedGradientColors[0] == null || productViewProvider.getPageName != "search")
+                      Container()
+                    else
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 10.0, top: 10.0),
+                        child: Wrap(
+                          runSpacing: 8,
+                          spacing: 16,
+                          alignment: WrapAlignment.start,
+                          children: colorsViewModelProvider.selectedGradientColors
+                              .asMap()
+                              .map((index, stylecolor) => MapEntry(
+                                  index,
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFFFFBF9),
+                                      borderRadius: BorderRadius.circular(32),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          offset: Offset.zero,
+                                          blurRadius: 2,
+                                          spreadRadius: 0,
+                                          color: Colors.black.withOpacity(0.075),
+                                        ),
+                                      ],
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 5,
+                                      horizontal: 6,
+                                    ),
+                                    child: Row(mainAxisSize: MainAxisSize.min, children: [
+                                      if (stylecolor != null)
+                                        Wrap(
+                                          children: stylecolor
+                                              .map((key, value) => MapEntry(
+                                                    key,
+                                                    Wrap(
+                                                      children: [
+                                                        if (value.first is Color)
+                                                          circleContainer(value)
+                                                        else
+                                                          ClipRRect(
+                                                            borderRadius: BorderRadius.circular(10.0),
+                                                            child: Image.network(
+                                                              "https://stylorita.com/admin/${value.first}",
+                                                              width: 38.0,
+                                                              height: 18.0,
+                                                              fit: BoxFit.cover,
+                                                            ),
+                                                          ),
+                                                      ],
+                                                    ),
+                                                  ))
+                                              .values
+                                              .toList(),
+                                        ),
+                                      // Image.asset(e.icon, width: 38, height: 20),
+                                      const SizedBox(width: 4),
+                                      if (colorsViewModelProvider.getSearchStyle[index] != null)
+                                        Text(
+                                          currentLanguage.languageCode == "en"
+                                              ? colorsViewModelProvider.getSearchStyle[index]!.en_name!
+                                              : colorsViewModelProvider.getSearchStyle[index]!.name!,
+                                          style: const TextStyle(
+                                            fontSize: 12.0,
+                                            color: AppColors.blackColor,
+                                          ),
+                                        ),
+                                    ]),
+                                  )))
+                              .values
+                              .toList(),
+                        ),
+                      ),
+                    ChangeNotifierProvider.value(
+                      value: widget.productViewModel,
+                      child: Consumer<ProductsViewModel>(
+                        builder: (context, value, child) {
+                          switch (value.productsList.status!) {
+                            case Status.completed:
+                              List<ProductsData> products = value.productsList.data!.data!.data!;
+                              return Column(
+                                children: [
+                                  Wrap(
+                                    runSpacing: 0,
+                                    spacing: 16,
+                                    children: products
+                                        .asMap()
+                                        .map(
+                                          (i, value) => MapEntry(
+                                            i,
+                                            i == 7
+                                                ? Container()
+                                                : i == 6
+                                                    ? Wrap(
+                                                        runSpacing: 0,
+                                                        spacing: 16,
+                                                        children: [
+                                                          GestureDetector(
+                                                            onTap: () {
+                                                              AppNavigation.to(
+                                                                context,
+                                                                DressDetailPage(
+                                                                  productViewModel: widget.productViewModel,
+                                                                  isFavourite: widget.productViewModel.getFavouriteList.contains(6) ? true : false,
+                                                                  dress: AppUrl.webUrl + products[6].url!,
+                                                                  source: products[6].source!,
+                                                                  imageId: products[6].uid.toString(),
+                                                                  index: 6,
+                                                                  id: products[6].uid!,
+                                                                  page: "outfit",
+                                                                  favFoldersViewModel: fav.FavFoldersViewModel(),
+                                                                  loadAdFavFoldersViewModel: fav.FavFoldersViewModel(),
+                                                                  gettingFolderModel: fav.FavFoldersViewModel(),
+                                                                ),
+                                                              );
+                                                            },
+                                                            child: Container(
+                                                              margin: const EdgeInsets.symmetric(vertical: 7.0),
+                                                              width: (width / 2) - 24,
+                                                              decoration: BoxDecoration(
+                                                                color: Colors.grey.withOpacity(0.2),
+                                                                borderRadius: BorderRadius.circular(15.0),
+                                                              ),
+                                                              child: Column(
+                                                                children: [
+                                                                  SizedBox(
+                                                                    height: 230,
+                                                                    child: GridTile(
+                                                                      footer: GridTileBar(
+                                                                        leading: GestureDetector(
+                                                                          onTap: () => AppUtils.share(products[6].uid!, currentLanguage.languageCode),
+                                                                          child: const Icon(
+                                                                            Icons.share,
+                                                                            color: AppColors.blackColor,
+                                                                          ),
+                                                                        ),
+                                                                        title: const Text(""),
+                                                                        trailing: GestureDetector(
+                                                                          onTap: () {
+                                                                            if (widget.productViewModel.favouriteList.contains(6)) {
+                                                                              widget.productViewModel.removeFromFavourite(6);
+                                                                              widget.productViewModel.decrementFromFavourite(6);
+                                                                              widget.productViewModel
+                                                                                  .unLikeImageById(email: email, id: products[6].uid!.toString());
+                                                                            } else {
+                                                                              widget.productViewModel.addFromFavourite(6);
+                                                                              widget.productViewModel.incrementFromFavourite(6);
+                                                                              widget.productViewModel
+                                                                                  .likeImageById(email: email, id: products[6].uid!.toString());
+                                                                            }
+                                                                          },
+                                                                          child: Icon(
+                                                                            widget.productViewModel.favouriteList.contains(6)
+                                                                                ? Icons.favorite
+                                                                                : Icons.favorite_border,
+                                                                            color: widget.productViewModel.favouriteList.contains(6)
+                                                                                ? const Color(0xFFFF2C2C)
+                                                                                : AppColors.blackColor,
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                      child: ClipRRect(
+                                                                        borderRadius: BorderRadius.circular(5.0),
+                                                                        child: _networkImage(
+                                                                          AppUrl.webUrl + products[6].url!,
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  if (productViewProvider.getPageName == "search" &&
+                                                                      filterPairProvider.getSearchColor.length > 1)
+                                                                    ColorWidget(
+                                                                      products: products,
+                                                                      i: 6,
+                                                                    ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          GestureDetector(
+                                                            onTap: () {
+                                                              AppNavigation.to(
+                                                                context,
+                                                                DressDetailPage(
+                                                                  productViewModel: widget.productViewModel,
+                                                                  isFavourite: widget.productViewModel.getFavouriteList.contains(7) ? true : false,
+                                                                  dress: AppUrl.webUrl + products[7].url!,
+                                                                  source: products[7].source!,
+                                                                  imageId: products[7].uid.toString(),
+                                                                  index: 7,
+                                                                  id: products[7].uid!,
+                                                                  page: "outfit",
+                                                                  favFoldersViewModel: fav.FavFoldersViewModel(),
+                                                                  loadAdFavFoldersViewModel: fav.FavFoldersViewModel(),
+                                                                  gettingFolderModel: fav.FavFoldersViewModel(),
+                                                                ),
+                                                              );
+                                                            },
+                                                            child: Container(
+                                                              margin: const EdgeInsets.symmetric(vertical: 7.0),
+                                                              width: (width / 2) - 24,
+                                                              decoration: BoxDecoration(
+                                                                color: Colors.grey.withOpacity(0.2),
+                                                                borderRadius: BorderRadius.circular(15.0),
+                                                              ),
+                                                              child: Column(
+                                                                children: [
+                                                                  SizedBox(
+                                                                    height: 230,
+                                                                    child: GridTile(
+                                                                      footer: GridTileBar(
+                                                                        leading: GestureDetector(
+                                                                          onTap: () => AppUtils.share(products[7].uid!, currentLanguage.languageCode),
+                                                                          child: const Icon(
+                                                                            Icons.share,
+                                                                            color: AppColors.blackColor,
+                                                                          ),
+                                                                        ),
+                                                                        title: const Text(""),
+                                                                        trailing: GestureDetector(
+                                                                          onTap: () {
+                                                                            if (widget.productViewModel.favouriteList.contains(7)) {
+                                                                              widget.productViewModel.removeFromFavourite(7);
+                                                                              widget.productViewModel.decrementFromFavourite(7);
+                                                                              widget.productViewModel
+                                                                                  .unLikeImageById(email: email, id: products[7].uid!.toString());
+                                                                            } else {
+                                                                              widget.productViewModel.addFromFavourite(7);
+                                                                              widget.productViewModel.incrementFromFavourite(7);
+                                                                              widget.productViewModel
+                                                                                  .likeImageById(email: email, id: products[7].uid!.toString());
+                                                                            }
+                                                                          },
+                                                                          child: Icon(
+                                                                            widget.productViewModel.favouriteList.contains(7)
+                                                                                ? Icons.favorite
+                                                                                : Icons.favorite_border,
+                                                                            color: widget.productViewModel.favouriteList.contains(7)
+                                                                                ? const Color(0xFFFF2C2C)
+                                                                                : AppColors.blackColor,
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                      child: ClipRRect(
+                                                                        borderRadius: BorderRadius.circular(5.0),
+                                                                        child: _networkImage(
+                                                                          AppUrl.webUrl + products[7].url!,
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  if (productViewProvider.getPageName == "search" &&
+                                                                      filterPairProvider.getSearchColor.length > 1)
+                                                                    ColorWidget(
+                                                                      products: products,
+                                                                      i: 7,
+                                                                    ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          // _ad != null && isLoadedNativeAd
+                                                          //     ? Container(
+                                                          //         margin: EdgeInsets.zero,
+                                                          //         height: 120.0,
+                                                          //         alignment: Alignment.center,
+                                                          //         child: AdWidget(ad: _ad!),
+                                                          //       )
+                                                          //     : Container(),
+                                                        ],
+                                                      )
+                                                    : GestureDetector(
+                                                        onTap: () {
+                                                          AppNavigation.to(
+                                                            context,
+                                                            DressDetailPage(
+                                                              productViewModel: widget.productViewModel,
+                                                              isFavourite: widget.productViewModel.getFavouriteList.contains(i) ? true : false,
+                                                              dress: AppUrl.webUrl + products[i].url!,
+                                                              source: products[i].source!,
+                                                              imageId: products[i].uid.toString(),
+                                                              index: i,
+                                                              id: products[i].uid!,
+                                                              page: "outfit",
+                                                              favFoldersViewModel: fav.FavFoldersViewModel(),
+                                                              loadAdFavFoldersViewModel: fav.FavFoldersViewModel(),
+                                                              gettingFolderModel: fav.FavFoldersViewModel(),
+                                                            ),
+                                                          );
+                                                        },
+                                                        child: Container(
+                                                          margin: const EdgeInsets.symmetric(vertical: 7.0),
+                                                          width: (width / 2) - 24,
+                                                          decoration: BoxDecoration(
+                                                            color: Colors.grey.withOpacity(0.2),
+                                                            borderRadius: BorderRadius.circular(15.0),
+                                                          ),
+                                                          child: Column(
+                                                            children: [
+                                                              SizedBox(
+                                                                height: 230,
+                                                                child: GridTile(
+                                                                  footer: GridTileBar(
+                                                                    leading: GestureDetector(
+                                                                      onTap: () => AppUtils.share(products[i].uid!, currentLanguage.languageCode),
+                                                                      child: const Icon(
+                                                                        Icons.share,
+                                                                        color: AppColors.blackColor,
+                                                                      ),
+                                                                    ),
+                                                                    title: const Text(""),
+                                                                    trailing: GestureDetector(
+                                                                      onTap: () {
+                                                                        if (widget.productViewModel.favouriteList.contains(i)) {
+                                                                          widget.productViewModel.removeFromFavourite(i);
+                                                                          widget.productViewModel.decrementFromFavourite(i);
+                                                                          widget.productViewModel
+                                                                              .unLikeImageById(email: email, id: products[i].uid!.toString());
+                                                                        } else {
+                                                                          widget.productViewModel.addFromFavourite(i);
+                                                                          widget.productViewModel.incrementFromFavourite(i);
+                                                                          widget.productViewModel
+                                                                              .likeImageById(email: email, id: products[i].uid!.toString());
+                                                                        }
+                                                                      },
+                                                                      child: Icon(
+                                                                        widget.productViewModel.favouriteList.contains(i)
+                                                                            ? Icons.favorite
+                                                                            : Icons.favorite_border,
+                                                                        color: widget.productViewModel.favouriteList.contains(i)
+                                                                            ? const Color(0xFFFF2C2C)
+                                                                            : AppColors.blackColor,
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  child: ClipRRect(
+                                                                    borderRadius: BorderRadius.circular(5.0),
+                                                                    child: _networkImage(
+                                                                      AppUrl.webUrl + products[i].url!,
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              if (productViewProvider.getPageName == "search" &&
+                                                                  filterPairProvider.getSearchColor.length > 1)
+                                                                ColorWidget(
+                                                                  products: products,
+                                                                  i: i,
+                                                                ),
+                                                            ],
                                                           ),
                                                         ),
-                                                    ],
-                                                  ),
-                                                ))
-                                            .values
-                                            .toList(),
+                                                      ),
+                                          ),
+                                        )
+                                        .values
+                                        .take(widget.productViewModel.getDisplayImages.length)
+                                        .toList(),
+                                  ),
+                                  ChangeNotifierProvider.value(
+                                    value: widget.productViewModel,
+                                    child: Consumer<ProductsViewModel>(
+                                      builder: (context, loadingvalue, child) {
+                                        return value.isLoadingImages
+                                            ? CustomShimmerLoader2(
+                                          itemCount: 4
+                                        )
+                                            : Container();
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              );
+                            case Status.error:
+                              return RefreshWidget(
+                                error: value.productsList.message.toString(),
+                                onRefresh: () {
+                                  if (productViewProvider.getPageName == "search") {
+                                    widget.productViewModel.fetchFilterPairList(
+                                      context: context,
+                                      email: email,
+                                      FilterPairModel(
+                                        pairs: [
+                                          for (var i = 0; i < filterPairProvider.getSearchColor.length; i++)
+                                            Pairs(
+                                              type: filterPairProvider.getSearchType[i],
+                                              color: filterPairProvider.getSearchColor[i],
+                                            ),
+                                        ],
+                                        ptn: filterPairProvider.getSearchPattern[0],
                                       ),
-                                    // Image.asset(e.icon, width: 38, height: 20),
-                                    const SizedBox(width: 4),
-                                    if (colorsViewModelProvider.getSearchStyle[index] != null)
-                                      Text(
-                                        currentLanguage.languageCode == "en"
-                                            ? colorsViewModelProvider.getSearchStyle[index]!.en_name!
-                                            : colorsViewModelProvider.getSearchStyle[index]!.name!,
-                                        style: const TextStyle(
-                                          fontSize: 12.0,
-                                          color: AppColors.blackColor,
-                                        ),
-                                      ),
-                                  ]),
-                                )))
-                            .values
-                            .toList(),
+                                    );
+                                  } else if (productViewProvider.getPageName == "filter") {
+                                    widget.productViewModel.filterPhotoPhotosList(
+                                      context: context,
+                                      email: email,
+                                    );
+                                  } else {
+                                    widget.productViewModel.fetchPhotosList(
+                                      context: context,
+                                      email: email,
+                                    );
+                                  }
+                                },
+                              );
+                            case Status.loading:
+                              return const CustomShimmerLoader2(
+                                itemCount: 10,
+                              );
+                          }
+                        },
                       ),
                     ),
-                  ChangeNotifierProvider.value(
-                    value: widget.productViewModel,
-                    child: Consumer<ProductsViewModel>(
-                      builder: (context, value, child) {
-                        switch (value.productsList.status!) {
-                          case Status.completed:
-                            List<ProductsData> products = value.productsList.data!.data!.data!;
-                            return Column(
-                              children: [
-                                Wrap(
-                                  runSpacing: 0,
-                                  spacing: 16,
-                                  children: products
-                                      .asMap()
-                                      .map(
-                                        (i, value) => MapEntry(
-                                          i,
-                                          nativeAdsProvider != null
-                                              ? i == 7
-                                                  ? Container()
-                                                  : i == 6
-                                                      ? Wrap(
-                                                          runSpacing: 0,
-                                                          spacing: 16,
-                                                          children: [
-                                                            GestureDetector(
-                                                              onTap: () {
-                                                                AppNavigation.to(
-                                                                  context,
-                                                                  DressDetailPage(
-                                                                    productViewModel: widget.productViewModel,
-                                                                    isFavourite: widget.productViewModel.getFavouriteList.contains(6) ? true : false,
-                                                                    dress: AppUrl.webUrl + products[6].url!,
-                                                                    source: products[6].source!,
-                                                                    imageId: products[6].uid.toString(),
-                                                                    index: 6,
-                                                                    id: products[6].uid!,
-                                                                    page: "outfit",
-                                                                    favFoldersViewModel: fav.FavFoldersViewModel(),
-                                                                    loadAdFavFoldersViewModel: fav.FavFoldersViewModel(),
-                                                                    gettingFolderModel: fav.FavFoldersViewModel(),
-                                                                  ),
-                                                                ).then((value) {
-                                                                  nativeAdsProvider.load();
-                                                                });
-                                                              },
-                                                              child: Container(
-                                                                margin: const EdgeInsets.symmetric(vertical: 7.0),
-                                                                width: (width / 2) - 24,
-                                                                decoration: BoxDecoration(
-                                                                  color: Colors.grey.withOpacity(0.2),
-                                                                  borderRadius: BorderRadius.circular(15.0),
-                                                                ),
-                                                                child: Column(
-                                                                  children: [
-                                                                    SizedBox(
-                                                                      height: 230,
-                                                                      child: GridTile(
-                                                                        footer: GridTileBar(
-                                                                          leading: GestureDetector(
-                                                                            onTap: () =>
-                                                                                AppUtils.share(products[6].uid!, currentLanguage.languageCode),
-                                                                            child: const Icon(
-                                                                              Icons.share,
-                                                                              color: AppColors.blackColor,
-                                                                            ),
-                                                                          ),
-                                                                          title: const Text(""),
-                                                                          trailing: GestureDetector(
-                                                                            onTap: () {
-                                                                              if (widget.productViewModel.favouriteList.contains(6)) {
-                                                                                widget.productViewModel.removeFromFavourite(6);
-                                                                                widget.productViewModel.decrementFromFavourite(6);
-                                                                                widget.productViewModel.unLikeImageById(
-                                                                                    email: email, ip: ip, id: products[6].uid!.toString());
-                                                                              } else {
-                                                                                widget.productViewModel.addFromFavourite(6);
-                                                                                widget.productViewModel.incrementFromFavourite(6);
-                                                                                widget.productViewModel.likeImageById(
-                                                                                    email: email, ip: ip, id: products[6].uid!.toString());
-                                                                              }
-                                                                            },
-                                                                            child: Icon(
-                                                                              widget.productViewModel.favouriteList.contains(6)
-                                                                                  ? Icons.favorite
-                                                                                  : Icons.favorite_border,
-                                                                              color: widget.productViewModel.favouriteList.contains(6)
-                                                                                  ? const Color(0xFFFF2C2C)
-                                                                                  : AppColors.blackColor,
-                                                                            ),
-                                                                          ),
-                                                                        ),
-                                                                        child: ClipRRect(
-                                                                          borderRadius: BorderRadius.circular(5.0),
-                                                                          child: _networkImage(
-                                                                            AppUrl.webUrl + products[6].url!,
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                    if (productViewProvider.getPageName == "search" &&
-                                                                        filterPairProvider.getSearchColor.length > 1)
-                                                                      ColorWidget(
-                                                                        products: products,
-                                                                        i: 6,
-                                                                      ),
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                            ),
-                                                            GestureDetector(
-                                                              onTap: () {
-                                                                AppNavigation.to(
-                                                                  context,
-                                                                  DressDetailPage(
-                                                                    productViewModel: widget.productViewModel,
-                                                                    isFavourite: widget.productViewModel.getFavouriteList.contains(7) ? true : false,
-                                                                    dress: AppUrl.webUrl + products[7].url!,
-                                                                    source: products[7].source!,
-                                                                    imageId: products[7].uid.toString(),
-                                                                    index: 7,
-                                                                    id: products[7].uid!,
-                                                                    page: "outfit",
-                                                                    favFoldersViewModel: fav.FavFoldersViewModel(),
-                                                                    loadAdFavFoldersViewModel: fav.FavFoldersViewModel(),
-                                                                    gettingFolderModel: fav.FavFoldersViewModel(),
-                                                                  ),
-                                                                ).then((value) {
-                                                                  nativeAdsProvider.load();
-                                                                });
-                                                              },
-                                                              child: Container(
-                                                                margin: const EdgeInsets.symmetric(vertical: 7.0),
-                                                                width: (width / 2) - 24,
-                                                                decoration: BoxDecoration(
-                                                                  color: Colors.grey.withOpacity(0.2),
-                                                                  borderRadius: BorderRadius.circular(15.0),
-                                                                ),
-                                                                child: Column(
-                                                                  children: [
-                                                                    SizedBox(
-                                                                      height: 230,
-                                                                      child: GridTile(
-                                                                        footer: GridTileBar(
-                                                                          leading: GestureDetector(
-                                                                            onTap: () =>
-                                                                                AppUtils.share(products[7].uid!, currentLanguage.languageCode),
-                                                                            child: const Icon(
-                                                                              Icons.share,
-                                                                              color: AppColors.blackColor,
-                                                                            ),
-                                                                          ),
-                                                                          title: const Text(""),
-                                                                          trailing: GestureDetector(
-                                                                            onTap: () {
-                                                                              if (widget.productViewModel.favouriteList.contains(7)) {
-                                                                                widget.productViewModel.removeFromFavourite(7);
-                                                                                widget.productViewModel.decrementFromFavourite(7);
-                                                                                widget.productViewModel.unLikeImageById(
-                                                                                    email: email, ip: ip, id: products[7].uid!.toString());
-                                                                              } else {
-                                                                                widget.productViewModel.addFromFavourite(7);
-                                                                                widget.productViewModel.incrementFromFavourite(7);
-                                                                                widget.productViewModel.likeImageById(
-                                                                                    email: email, ip: ip, id: products[7].uid!.toString());
-                                                                              }
-                                                                            },
-                                                                            child: Icon(
-                                                                              widget.productViewModel.favouriteList.contains(7)
-                                                                                  ? Icons.favorite
-                                                                                  : Icons.favorite_border,
-                                                                              color: widget.productViewModel.favouriteList.contains(7)
-                                                                                  ? const Color(0xFFFF2C2C)
-                                                                                  : AppColors.blackColor,
-                                                                            ),
-                                                                          ),
-                                                                        ),
-                                                                        child: ClipRRect(
-                                                                          borderRadius: BorderRadius.circular(5.0),
-                                                                          child: _networkImage(
-                                                                            AppUrl.webUrl + products[7].url!,
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                    if (productViewProvider.getPageName == "search" &&
-                                                                        filterPairProvider.getSearchColor.length > 1)
-                                                                      ColorWidget(
-                                                                        products: products,
-                                                                        i: 7,
-                                                                      ),
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                            ),
-                                                            isLoadAdFailed
-                                                                ? Container()
-                                                                : _ad != null && isLoadedNativeAd
-                                                                    ? Container(
-                                                                        margin: EdgeInsets.zero,
-                                                                        height: 120.0,
-                                                                        alignment: Alignment.center,
-                                                                        child: AdWidget(ad: _ad!),
-                                                                      )
-                                                                    : Container(),
-                                                          ],
-                                                        )
-                                                      : GestureDetector(
-                                                          onTap: () {
-                                                            AppNavigation.to(
-                                                              context,
-                                                              DressDetailPage(
-                                                                productViewModel: widget.productViewModel,
-                                                                isFavourite: widget.productViewModel.getFavouriteList.contains(i) ? true : false,
-                                                                dress: AppUrl.webUrl + products[i].url!,
-                                                                source: products[i].source!,
-                                                                imageId: products[i].uid.toString(),
-                                                                index: i,
-                                                                id: products[i].uid!,
-                                                                page: "outfit",
-                                                                favFoldersViewModel: fav.FavFoldersViewModel(),
-                                                                loadAdFavFoldersViewModel: fav.FavFoldersViewModel(),
-                                                                gettingFolderModel: fav.FavFoldersViewModel(),
-                                                              ),
-                                                            ).then((value) {
-                                                              nativeAdsProvider.load();
-                                                            });
-                                                          },
-                                                          child: Container(
-                                                            margin: const EdgeInsets.symmetric(vertical: 7.0),
-                                                            width: (width / 2) - 24,
-                                                            decoration: BoxDecoration(
-                                                              color: Colors.grey.withOpacity(0.2),
-                                                              borderRadius: BorderRadius.circular(15.0),
-                                                            ),
-                                                            child: Column(
-                                                              children: [
-                                                                SizedBox(
-                                                                  height: 230,
-                                                                  child: GridTile(
-                                                                    footer: GridTileBar(
-                                                                      leading: GestureDetector(
-                                                                        onTap: () => AppUtils.share(products[i].uid!, currentLanguage.languageCode),
-                                                                        child: const Icon(
-                                                                          Icons.share,
-                                                                          color: AppColors.blackColor,
-                                                                        ),
-                                                                      ),
-                                                                      title: const Text(""),
-                                                                      trailing: GestureDetector(
-                                                                        onTap: () {
-                                                                          if (widget.productViewModel.favouriteList.contains(i)) {
-                                                                            widget.productViewModel.removeFromFavourite(i);
-                                                                            widget.productViewModel.decrementFromFavourite(i);
-                                                                            widget.productViewModel.unLikeImageById(
-                                                                                email: email, ip: ip, id: products[i].uid!.toString());
-                                                                          } else {
-                                                                            widget.productViewModel.addFromFavourite(i);
-                                                                            widget.productViewModel.incrementFromFavourite(i);
-                                                                            widget.productViewModel
-                                                                                .likeImageById(email: email, ip: ip, id: products[i].uid!.toString());
-                                                                          }
-                                                                        },
-                                                                        child: Icon(
-                                                                          widget.productViewModel.favouriteList.contains(i)
-                                                                              ? Icons.favorite
-                                                                              : Icons.favorite_border,
-                                                                          color: widget.productViewModel.favouriteList.contains(i)
-                                                                              ? const Color(0xFFFF2C2C)
-                                                                              : AppColors.blackColor,
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                    child: ClipRRect(
-                                                                      borderRadius: BorderRadius.circular(5.0),
-                                                                      child: _networkImage(
-                                                                        AppUrl.webUrl + products[i].url!,
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                                if (productViewProvider.getPageName == "search" &&
-                                                                    filterPairProvider.getSearchColor.length > 1)
-                                                                  ColorWidget(
-                                                                    products: products,
-                                                                    i: i,
-                                                                  ),
-                                                              ],
-                                                            ),
-                                                          ),
-                                                        )
-                                              : Container(),
-                                        ),
-                                      )
-                                      .values
-                                      .take(widget.productViewModel.getDisplayImages.length)
-                                      .toList(),
-                                ),
-                                ChangeNotifierProvider.value(
-                                  value: widget.productViewModel,
-                                  child: Consumer<ProductsViewModel>(
-                                    builder: (context, loadingvalue, child) {
-                                      return value.currentImage < value.totalImages
-                                          ? const CircularProgressIndicator(
-                                              color: AppColors.primaryColor,
-                                            )
-                                          : Container();
-                                    },
-                                  ),
-                                ),
-                              ],
-                            );
-                          case Status.error:
-                            return RefreshWidget(
-                              error: value.productsList.message.toString(),
-                              onRefresh: () {
-                                nativeAdsProvider!.load();
-                                if (productViewProvider.getPageName == "search") {
-                                  widget.productViewModel.fetchFilterPairList(
-                                    context: context,
-                                    email: email,
-                                    ip: ip,
-                                    FilterPairModel(
-                                      pairs: [
-                                        for (var i = 0; i < filterPairProvider.getSearchColor.length; i++)
-                                          Pairs(
-                                            type: filterPairProvider.getSearchType[i],
-                                            color: filterPairProvider.getSearchColor[i],
-                                          ),
-                                      ],
-                                      ptn: filterPairProvider.getSearchPattern[0],
-                                    ),
-                                  );
-                                } else if (productViewProvider.getPageName == "filter") {
-                                  widget.productViewModel.filterPhotoPhotosList(
-                                    context: context,
-                                    email: email,
-                                    ip: ip,
-                                  );
-                                } else {
-                                  widget.productViewModel.fetchPhotosList(
-                                    context: context,
-                                    email: email,
-                                    ip: ip,
-                                  );
-                                }
-                              },
-                            );
-                          case Status.loading:
-                            return const CustomShimmerLoader2(
-                              itemCount: 10,
-                            );
-                        }
-                      },
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -807,7 +787,7 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
             value: widget.productViewModel,
             child: Consumer<ProductsViewModel>(
               builder: (context, value, child) {
-                return value.getCurrentImage < value.getTotalImage
+                return value.isLoadingImages
                     ? const SliverPadding(padding: EdgeInsets.only(bottom: 80.0))
                     : SliverToBoxAdapter(
                         child: Container(),
@@ -821,7 +801,7 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
               builder: (context, value, child) {
                 switch (value.productsList.status!) {
                   case Status.completed:
-                    return value.currentImage < value.totalImages
+                    return value.isLoadingImages
                         ? SliverToBoxAdapter(child: Container())
                         : SliverToBoxAdapter(
                             child: Padding(
@@ -854,21 +834,18 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
                                                 value.fetchPhotosList(
                                                   context: context,
                                                   email: email,
-                                                  ip: ip,
                                                 );
                                               } else if (value.getCurrentPage == Pages.filter) {
                                                 productViewProvider.setPage("filter");
                                                 value.filterPhotoPhotosList(
                                                   context: context,
                                                   email: email,
-                                                  ip: ip,
                                                 );
                                               } else if (value.getCurrentPage == Pages.search) {
                                                 productViewProvider.setPage("search");
                                                 value.fetchFilterPairList(
                                                   context: context,
                                                   email: email,
-                                                  ip: ip,
                                                   FilterPairModel(
                                                     pairs: [
                                                       for (var i = 0; i < filterPairProvider.getSearchColor.length; i++)
@@ -912,21 +889,18 @@ class _OutfitIdeasViewState extends State<OutfitIdeasView> {
                                         value.fetchPhotosList(
                                           context: context,
                                           email: email,
-                                          ip: ip,
                                         );
                                       } else if (value.getCurrentPage == Pages.filter) {
                                         productViewProvider.setPage("filter");
                                         value.filterPhotoPhotosList(
                                           context: context,
                                           email: email,
-                                          ip: ip,
                                         );
                                       } else if (value.getCurrentPage == Pages.search) {
                                         productViewProvider.setPage("search");
                                         value.fetchFilterPairList(
                                           context: context,
                                           email: email,
-                                          ip: ip,
                                           FilterPairModel(
                                             pairs: [
                                               for (var i = 0; i < filterPairProvider.getSearchColor.length; i++)

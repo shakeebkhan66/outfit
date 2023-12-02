@@ -10,7 +10,6 @@ import 'package:outfit/src/providers/language_provider.dart';
 import 'package:outfit/src/utils/const.dart';
 import 'package:outfit/src/widgets/app_button_widget.dart';
 import 'package:provider/provider.dart';
-import 'package:dart_ipify/dart_ipify.dart';
 
 class LanguageSelectionPage extends StatefulWidget {
   const LanguageSelectionPage({Key? key}) : super(key: key);
@@ -21,17 +20,6 @@ class LanguageSelectionPage extends StatefulWidget {
 
 class _LanguageSelectionPageState extends State<LanguageSelectionPage> {
   var _selectedLanguage = 'en_us';
-  @override
-  void initState() {
-    saveIpAddress();
-    super.initState();
-  }
-
-  saveIpAddress() async {
-    final ipv4 = await Ipify.ipv4();
-    AuthLocalDataSource.setIp(ipv4);
-  }
-
   @override
   Widget build(BuildContext context) {
     final padding = MediaQuery.of(context).padding;

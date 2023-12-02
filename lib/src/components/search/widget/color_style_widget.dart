@@ -124,6 +124,89 @@ class _ColorStyleWidgetState extends State<ColorStyleWidget> {
                                               Expanded(
                                                 child: GestureDetector(
                                                   onTap: () {
+                                                    if (colorsViewModelProvider.isColorExpanded[index] == true) {
+                                                      colorsViewModelProvider.updateIsColorExpanded(index);
+                                                    }
+                                                    colorsViewModelProvider.updateIsStyleExpanded(index);
+                                                  },
+                                                  child: Container(
+                                                    decoration: _dropDownDecoration,
+                                                    padding: const EdgeInsets.symmetric(
+                                                      horizontal: 8,
+                                                      vertical: 14,
+                                                    ),
+                                                    margin: EdgeInsets.only(
+                                                      right: currentLanguage.languageCode == "en" &&
+                                                              !(colorsViewModelProvider.getIsColorExpanded.length <= 1)
+                                                          ? 28
+                                                          : 0.0,
+                                                      left: currentLanguage.languageCode == "en" ||
+                                                              (colorsViewModelProvider.getIsColorExpanded.length <= 1)
+                                                          ? 0.0
+                                                          : 28.0,
+                                                    ),
+                                                    child: Row(
+                                                      children: [
+                                                        const Icon(
+                                                          Icons.apps,
+                                                          color: AppColors.primaryColor,
+                                                        ),
+                                                        Expanded(
+                                                          child: Padding(
+                                                            padding: const EdgeInsets.symmetric(
+                                                              horizontal: 10,
+                                                            ),
+                                                            child: Text(
+                                                              colorsViewModelProvider.getSearchStyle[index] == null
+                                                                  ? AppLocalization.of(context)!.getTranslatedValues("choosestyle")!
+                                                                  : currentLanguage.languageCode == "en"
+                                                                      ? colorsViewModelProvider.getSearchStyle[index]!.en_name!
+                                                                      : colorsViewModelProvider.getSearchStyle[index]!.name!,
+                                                              maxLines: 1,
+                                                              overflow: TextOverflow.clip,
+                                                              style: GoogleFonts.montserrat(
+                                                                fontWeight: FontWeight.w500,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        Icon(
+                                                          colorsViewModelProvider.getIsStyleExpanded[index]
+                                                              ? Icons.keyboard_arrow_up
+                                                              : Icons.keyboard_arrow_down,
+                                                          color: const Color(0xFF9F9F9F),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          Visibility(
+                                            visible: colorsViewModelProvider.getIsStyleExpanded[index],
+                                            child: Container(
+                                              decoration: _menuDecoration,
+                                              margin: const EdgeInsets.only(top: 16),
+                                              child: SearchStyleRadioWidget<Data>(
+                                                groupController: RadioWidgetController<Data>(
+                                                  items: colorsViewModelProvider.colorsList.data!.typesModel.data!,
+                                                  value: colorsViewModelProvider.getSearchStyle[index],
+                                                  onChanged: (_) {
+                                                    filterPairProvider.setType(index, _.tid!);
+                                                    colorsViewModelProvider.updateSearchStyle(index, _);
+                                                    colorsViewModelProvider.updateIsStyleExpanded(index);
+                                                    setState(() {});
+                                                  },
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          Row(
+                                            children: [
+                                              Expanded(
+                                                child: GestureDetector(
+                                                  onTap: () {
                                                     if (colorsViewModelProvider.isStyleExpanded[index] == true) {
                                                       colorsViewModelProvider.updateIsStyleExpanded(index);
                                                     }
@@ -137,6 +220,7 @@ class _ColorStyleWidgetState extends State<ColorStyleWidget> {
                                                       vertical: 14,
                                                     ),
                                                     margin: EdgeInsets.only(
+                                                      top: 13,
                                                       right: currentLanguage.languageCode == "en" &&
                                                               !(colorsViewModelProvider.getIsColorExpanded.length <= 1)
                                                           ? 9.28
@@ -232,6 +316,16 @@ class _ColorStyleWidgetState extends State<ColorStyleWidget> {
                                                     .map(
                                                       (colors) => GestureDetector(
                                                         onTap: () {
+                                                          if (filterPairProvider.getSearchColor.length == 1) {
+                                                            tutorialGuide.createAddSearchTutorial(onClickTarget: (target) {
+                                                              if (target.identify == "Target 3") {
+                                                                widget.target3Pressed.call();
+                                                              }
+                                                            });
+                                                            if (!isShowtutorial) {
+                                                              Future.delayed(Duration.zero, tutorialGuide.showAddSearchTutorial(context));
+                                                            }
+                                                          }
                                                           filterPairProvider.setSearchColor(index, colors.cid!);
                                                           filterPairProvider.setPattern(index, colors.patterned!);
                                                           if (colors.pattern == "") {
@@ -276,100 +370,6 @@ class _ColorStyleWidgetState extends State<ColorStyleWidget> {
                                                       ),
                                                     )
                                                     .toList(),
-                                              ),
-                                            ),
-                                          ),
-                                          Row(
-                                            children: [
-                                              Expanded(
-                                                child: GestureDetector(
-                                                  onTap: () {
-                                                    if (colorsViewModelProvider.isColorExpanded[index] == true) {
-                                                      colorsViewModelProvider.updateIsColorExpanded(index);
-                                                    }
-                                                    colorsViewModelProvider.updateIsStyleExpanded(index);
-                                                  },
-                                                  child: Container(
-                                                    decoration: _dropDownDecoration,
-                                                    padding: const EdgeInsets.symmetric(
-                                                      horizontal: 8,
-                                                      vertical: 14,
-                                                    ),
-                                                    margin: EdgeInsets.only(
-                                                      top: 13,
-                                                      right: currentLanguage.languageCode == "en" &&
-                                                              !(colorsViewModelProvider.getIsColorExpanded.length <= 1)
-                                                          ? 28
-                                                          : 0.0,
-                                                      left: currentLanguage.languageCode == "en" ||
-                                                              (colorsViewModelProvider.getIsColorExpanded.length <= 1)
-                                                          ? 0.0
-                                                          : 28.0,
-                                                    ),
-                                                    child: Row(
-                                                      children: [
-                                                        const Icon(
-                                                          Icons.apps,
-                                                          color: AppColors.primaryColor,
-                                                        ),
-                                                        Expanded(
-                                                          child: Padding(
-                                                            padding: const EdgeInsets.symmetric(
-                                                              horizontal: 10,
-                                                            ),
-                                                            child: Text(
-                                                              colorsViewModelProvider.getSearchStyle[index] == null
-                                                                  ? AppLocalization.of(context)!.getTranslatedValues("choosestyle")!
-                                                                  : currentLanguage.languageCode == "en"
-                                                                      ? colorsViewModelProvider.getSearchStyle[index]!.en_name!
-                                                                      : colorsViewModelProvider.getSearchStyle[index]!.name!,
-                                                              maxLines: 1,
-                                                              overflow: TextOverflow.clip,
-                                                              style: GoogleFonts.montserrat(
-                                                                fontWeight: FontWeight.w500,
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        Icon(
-                                                          colorsViewModelProvider.getIsStyleExpanded[index]
-                                                              ? Icons.keyboard_arrow_up
-                                                              : Icons.keyboard_arrow_down,
-                                                          color: const Color(0xFF9F9F9F),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          Visibility(
-                                            visible: colorsViewModelProvider.getIsStyleExpanded[index],
-                                            child: Container(
-                                              decoration: _menuDecoration,
-                                              margin: const EdgeInsets.only(top: 16),
-                                              child: SearchStyleRadioWidget<Data>(
-                                                groupController: RadioWidgetController<Data>(
-                                                  items: colorsViewModelProvider.colorsList.data!.typesModel.data!,
-                                                  value: colorsViewModelProvider.getSearchStyle[index],
-                                                  onChanged: (_) {
-                                                    if (filterPairProvider.getSearchType.length == 1) {
-                                                      tutorialGuide.createAddSearchTutorial(onClickTarget: (target) {
-                                                        if (target.identify == "Target 3") {
-                                                          widget.target3Pressed.call();
-                                                        }
-                                                      });
-                                                      if (!isShowtutorial) {
-                                                        Future.delayed(Duration.zero, tutorialGuide.showAddSearchTutorial(context));
-                                                      }
-                                                    }
-                                                    filterPairProvider.setType(index, _.tid!);
-                                                    colorsViewModelProvider.updateSearchStyle(index, _);
-                                                    colorsViewModelProvider.updateIsStyleExpanded(index);
-                                                    setState(() {});
-                                                  },
-                                                ),
                                               ),
                                             ),
                                           ),
@@ -423,7 +423,7 @@ class _ColorStyleWidgetState extends State<ColorStyleWidget> {
         title,
         style: GoogleFonts.montserrat(
           fontWeight: FontWeight.w500,
-          fontSize: 11,
+          fontSize: 14,
           color: const Color(0xFF727070),
         ),
       ),

@@ -22,8 +22,11 @@
         android:icon="@mipmap/ic_launcher"
         android:label="Stylorita">
         <meta-data
-            android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-2692469317826110~2603003455"/>
+          android:name="com.google.android.gms.ads.flag.OPTIMIZE_AD_LOADING"
+          android:value="true"/>
+        <meta-data
+          android:name="com.google.android.gms.ads.flag.OPTIMIZE_INITIALIZATION"
+          android:value="true"/>
         <activity
             android:name=".MainActivity"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
@@ -66,5 +69,13 @@
         <meta-data
         android:name="io.flutter.embedding.android.SplashScreenDrawable"
         android:resource="@drawable/launch_background"/>
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-2692469317826110~2603003455"/>
+        <meta-data
+            android:name="com.google.android.gms.ads.AD_MANAGER_APP"
+            android:value="true" />
+        <activity android:name="com.google.android.gms.ads.AdActivity"
+android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"/>
     </application>
 </manifest>

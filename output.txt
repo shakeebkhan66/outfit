@@ -1,0 +1,23 @@
+Launching lib/main.dart on SM G925V in release mode...
+Running Gradle task 'assembleRelease'...                        
+Building with Flutter multidex support enabled.
+Running Gradle task 'assembleRelease'...                          362.0s
+✓  Built build/app/outputs/flutter-apk/app-release.apk (36.4MB).
+Installing build/app/outputs/flutter-apk/app-release.apk...        15.0s
+
+Flutter run key commands.
+h List all available interactive commands.
+c Clear the screen
+q Quit (terminate the application on the device).
+I/flutter (14637): qVtKJXlcOiNUavBQjyuPdoqQWw93
+I/flutter (14637): true
+I/flutter (14637): This is initstate i am calling it now
+I/flutter (14637): false
+I/flutter (14637): i am calling
+I/flutter (14637): https://api.stylorita.com/photos?page=1
+I/flutter (14637): null
+I/flutter (14637): {message: List of photos, data: {current_page: 1, data: [{uid: 44135, url: ./uploads/women outfit ideas (68)-1683970827.jpg, name: nada houam, email: anotherworld654@gmail.com, type: 5, color: 1, type2: 3, color2: 1, type3: 0, color3: 0, type4: 0, color4: 0, hijab: 0, description: , time: 2023-05-13 09:40:27, likes: null, comments: null, favourit: null, approved: 1, source: https://www.instagram.com/lucyswhims/?next=%2F, ptn: 0, ptn2: 0, ptn3: 0, ptn4: 0, above_95: 1, season: ["summer"], moved: 0, jacket: short, approved_by: Admin Approval Page, created_at: 2023-05-13 09:40:27}, {uid: 44134, url: ./uploads/women outfit ideas (67)-1683970768.jpg, name: nada houam, email: anotherworld654@gmail.com, type: 6, color: 2, type2: 5, color2: 1, type3: 2, color3: 1, type4: 0, color4: 0, hijab: 0, description: , time: 2023-05-13 09:39:28, likes: null, comments: null, favourit: null, approved: 1, source: https://www.instagram.com/lucyswhims/?next=%2F, ptn: 1, ptn2: 0, ptn3: 0, ptn4: 0, above_95: 1, season: ["winter"], m
+I/flutter (14637): 1013
+I/flutter (14637): NativeAd loaded.
+I/flutter (14637): NativeAd loaded.
+Application finished.

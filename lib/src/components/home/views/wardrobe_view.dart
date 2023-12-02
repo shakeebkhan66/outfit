@@ -10,7 +10,6 @@ import 'package:outfit/src/data/repository/auth_local_data_repo.dart';
 import 'package:outfit/src/data/response/api_response.dart';
 import 'package:outfit/src/data/view_model/favourites_view_model.dart';
 import 'package:outfit/src/data/view_model/wardrobe_view_model.dart';
-import 'package:outfit/src/providers/add_helper.dart';
 import 'package:outfit/src/providers/language_provider.dart';
 import 'package:outfit/src/utils/const.dart';
 import 'package:outfit/src/utils/tutorial_guide.dart';
@@ -35,28 +34,6 @@ class _WardrobeViewState extends State<WardrobeView> {
   final bool isShowwardrobeTutorial = AuthLocalDataSource.getTutorial6();
   final GlobalKey wardrobeGuideKey = GlobalKey();
   InterstitialAd? interstitialAd;
-  void _loadInterstitialAd({required VoidCallback onCrossPressed}) {
-    InterstitialAd.load(
-      adUnitId: AdHelper.searchAndWardrobeAdUnitId,
-      request: const AdRequest(),
-      adLoadCallback: InterstitialAdLoadCallback(
-        onAdLoaded: (ad) {
-          ad.fullScreenContentCallback = FullScreenContentCallback(
-            onAdDismissedFullScreenContent: (ad) {
-              onCrossPressed();
-            },
-          );
-          setState(() {
-            interstitialAd = ad;
-          });
-          interstitialAd!.show();
-        },
-        onAdFailedToLoad: (err) {
-          debugPrint('Failed to load an interstitial ad: ${err.message}');
-        },
-      ),
-    );
-  }
 
   @override
   void initState() {
@@ -110,14 +87,16 @@ class _WardrobeViewState extends State<WardrobeView> {
     final padding = MediaQuery.of(context).padding;
     return Container(
       color: AppColors.primaryColor,
-      padding: const EdgeInsets.only(top: 30),
+      padding: const EdgeInsets.only(top: 40),
       margin: EdgeInsets.only(
-        top: padding.top,
         bottom: padding.bottom,
       ),
       child: Column(children: [
-        WardrobePageTitleWidget(
-          wardrobeGuideKey: wardrobeGuideKey,
+        Padding(
+          padding: const EdgeInsets.fromLTRB(0, 35, 0, 0),
+          child: WardrobePageTitleWidget(
+            wardrobeGuideKey: wardrobeGuideKey,
+          ),
         ),
         const SizedBox(height: 25),
         ChangeNotifierProvider.value(
@@ -308,8 +287,11 @@ class _WardrobeViewState extends State<WardrobeView> {
                                                                 .contains(colors.cid.toString())) {
                                                               wardrobeViewModel.getSelectedColors[wardrobeViewModel.wardRobe[i].id]!
                                                                   .remove(colors.cid.toString());
-                                                              wardrobeViewModel.getSelectedColorsForDelete[wardrobeViewModel.wardRobe[i].id]!
-                                                                  .add(colors.cid!.toString());
+                                                              if (!wardrobeViewModel.getSelectedColorsForDelete[wardrobeViewModel.wardRobe[i].id]!
+                                                                  .contains(colors.cid!.toString())) {
+                                                                wardrobeViewModel.getSelectedColorsForDelete[wardrobeViewModel.wardRobe[i].id]!
+                                                                    .add(colors.cid!.toString());
+                                                              }
                                                             } else {
                                                               wardrobeViewModel.getSelectedColors[wardrobeViewModel.wardRobe[i].id]!
                                                                   .add(colors.cid!.toString());
@@ -442,7 +424,7 @@ class _WardrobeViewState extends State<WardrobeView> {
                                 padding: const EdgeInsets.only(left: 28.0, right: 28.0, top: 28.0, bottom: 10.0),
                                 child: AppButtonWidget(
                                   onTap: () {
-                                    _loadInterstitialAd(onCrossPressed: () {});
+                                    // _loadInterstitialAd(onCrossPressed: () {});
                                     AppNavigation.to(
                                       context,
                                       FavoriteDetailPage(

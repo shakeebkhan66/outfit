@@ -168,24 +168,25 @@ class FavFoldersViewModel with ChangeNotifier {
     });
   }
 
-  Future<void> favFolderImagesList({required String folderId, required String email, required String ip}) async {
+   favFolderImagesList({required String folderId, required String email}) async {
     setFavImagesList(ApiResponse.loading());
 
-    _myRepo.fetchAllFavImages(folderId: folderId, page: getPage).then((value) {
+  return await _myRepo.fetchAllFavImages(folderId: folderId, page: getPage).then((value) {
       setImagesUrls(value.data!.data!);
-      calculateTotalPages();
-      setDisplayImages();
       setTotalPages(value.data!.last_page!);
-      setFavouriteList(value.data!.data!, email: email, ip: ip);
-      setFavImagesList(ApiResponse.completed(value));
+      setFavouriteList(value.data!.data!, email: email);
+          setFavImagesList(ApiResponse.completed(value));
+          print('likesList:${likesList}');
+          return likesList;
     }).onError((error, stackTrace) {
-      print(stackTrace);
+      print("stackTrace");
 
       setFavImagesList(ApiResponse.error(error.toString()));
+      return likesList;
     });
   }
 
-  Future<void> dressMeImagesList({required String userId, required String email, required String ip}) async {
+  Future<void> dressMeImagesList({required String userId, required String email}) async {
     setFavImagesList(ApiResponse.loading());
 
     _myRepo.wardrobeImages(userId: userId, page: getPage).then((value) {
@@ -197,7 +198,7 @@ class FavFoldersViewModel with ChangeNotifier {
         setImagesUrls(value.data!.data!);
         calculateTotalPages();
         setDisplayImages();
-        setFavouriteList(value.data!.data ?? [], email: email, ip: ip);
+        setFavouriteList(value.data!.data ?? [], email: email);
         setFavImagesList(ApiResponse.completed(value));
       }
     }).onError((error, stackTrace) {
@@ -251,6 +252,8 @@ class FavFoldersViewModel with ChangeNotifier {
     isLoadingImages = true;
     final int startIndex = (currentImage - 1) * pageSize;
     final int endIndex = startIndex + pageSize;
+    print(startIndex);
+    print(endIndex);
     displayImages.addAll(imagesUrls.sublist(startIndex, endIndex));
     Future.delayed(const Duration(milliseconds: 500), () {
       isLoadingImages = false;
@@ -284,9 +287,9 @@ class FavFoldersViewModel with ChangeNotifier {
     return Future.value(true);
   }
 
-  Future<bool> deleteImageToFolderApi({required int id, required String folderName, BuildContext? context}) async {
+  Future<bool> deleteImageToFolderApi({required int imageId, required int folderId, required String folderName, BuildContext? context}) async {
     setLoading(true);
-    await _myRepo.deleteFolderImages(id: id).then((value) {
+    await _myRepo.deleteFolderImages(imageId: imageId, folderId: folderId).then((value) {
       setLoading(false);
       AppUtils.flushBarErrorMessage('Removed from $folderName', context!);
       if (kDebugMode) {
@@ -310,13 +313,15 @@ class FavFoldersViewModel with ChangeNotifier {
 
   List<int> get getlikesList => likesList;
 
-  setFavouriteList(List<ProductsData>? productListData, {required String ip, required String email}) {
+  setFavouriteList(List<ProductsData>? productListData, {required String email}) {
     favouriteList.clear();
     likesList.clear();
     for (int i = 0; i < productListData!.length; i++) {
+      print(productListData[i].likes);
+      print("this is returning");
       if (productListData[i].likes != null) {
         if (productListData[i].likes is String) {
-          if (checkIfLikeExists(list: productListData[i].likes.toString(), email: email == "" ? ip : email)) {
+          if (checkIfLikeExists(list: productListData[i].likes.toString(), email: email)) {
             if (!favouriteList.contains(i)) {
               favouriteList.add(i);
             }
@@ -326,8 +331,9 @@ class FavFoldersViewModel with ChangeNotifier {
           } else {
             likesList.add(likesCount(jsonDecode(productListData[i].likes)));
           }
+          print(likesList);
         } else {
-          if (checkIfLikeExists(list: productListData[i].likes.toString(), email: email == "" ? ip : email)) {
+          if (checkIfLikeExists(list: productListData[i].likes.toString(), email: email)) {
             if (!favouriteList.contains(i)) {
               favouriteList.add(i);
             }
@@ -338,6 +344,7 @@ class FavFoldersViewModel with ChangeNotifier {
         likesList.add(0);
       }
     }
+    print(likesList);
     notifyListeners();
   }
 

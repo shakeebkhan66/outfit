@@ -122,16 +122,19 @@ class LoginPage extends StatelessWidget {
                             context);
                       },
                     ),
-                    SocialAuthButton(
-                      image: AppAssets.facebook,
-                      onPressed: () {
-                        authViewModel.socialLoginApi(
-                            const UserModel(
-                              authProvider: AuthProvider.fb,
-                            ),
-                            context);
-                      },
-                    ),
+                    if (Platform.isIOS)
+                      Container()
+                    else
+                      SocialAuthButton(
+                        image: AppAssets.facebook,
+                        onPressed: () {
+                          authViewModel.socialLoginApi(
+                              const UserModel(
+                                authProvider: AuthProvider.fb,
+                              ),
+                              context);
+                        },
+                      ),
                     if (Platform.isAndroid)
                       Container()
                     else

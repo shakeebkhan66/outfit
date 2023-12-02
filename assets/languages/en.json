@@ -23,7 +23,7 @@
     "firstname": "First name",
     "lastname": "Last name",
     "alreadyhaveaccount": "Already have an account?",
-    "searchfordresses": "Search for dresses",
+    "searchfordresses": "Search...",
     "filter": "Filter",
     "trendydress": "Trendy dresses",
     "source": "Source",
@@ -53,7 +53,7 @@
     "eidt": "Edit",
     "delete": "Delete",
     "youdidntaddimage": "You didn’t add any image to this folder.",
-    "youdidntaddcolor": "You didn’t add any color to wardrobe.",
+    "youdidntaddcolor": "You haven't selected any item, or you forgot to press on save button.",
     "letushelpyoudress": "Let us help you dress like a Fashionista!",
     "showus": "Show us ",
     "yourclothes": "your Clothes",
@@ -80,7 +80,7 @@
     "save": "Save",
     "items": "Items",
     "choosenearestcolor": "Choose nearest color",
-    "choosestyle": "Choose style",
+    "choosestyle": "Choose type",
     "search": "Search",
     "previouspage": "Previous page",
     "nextpage": "Next page",
@@ -141,5 +141,8 @@
     "wardrobeTitle3": "How does \"my wardrobe\" section work?",
     "wardrobeSubtitle1":"\"Clothes matching tool\" doesn't save the clothes you search for, so later if you want to find out if we have added more ways to wear these clothes, you have to enter them again in the search box.\n\nIt is ideal for getting quick ideas for clothes that you know you will not search for repeatedly.",
     "wardrobeSubtitle2":"Here, the website automatically saves everything you search for.\n\nYou can add all the clothes you have in your closet, Therefore, you will find new ideas for wearing them every time you enter this section, without having to search for them again.\n\nIt’s the ideal solution to always wear your clothes in a new way.",
-    "wardrobeSubtitle3": "Check this 1 minute video to see how it works."
-}
+    "wardrobeSubtitle3": "Check this 1 minute video to see how it works.",
+    "wardrobeError": "you have to enter at least 1 color to save, or instead click on \"clear all\" button which under the save button",
+    "deletefolder": "Delete Folder",
+    "suredelete": "do you really need to delete this folder ?"
+    }

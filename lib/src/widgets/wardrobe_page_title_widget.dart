@@ -160,43 +160,49 @@ class _CustomDialogState extends State<CustomDialog> {
                           title: "Next",
                         )
                       : selectedIndex == 1
-                          ? Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                BackBorderButton(
-                                  onBackPressed: () {
-                                    setState(() {
-                                      selectedIndex = 0;
-                                    });
-                                  },
-                                ),
-                                FilledNextButton(
-                                  onNextPressed: () {
-                                    setState(() {
-                                      selectedIndex = 2;
-                                    });
-                                  },
-                                  title: "Next",
-                                ),
-                              ],
+                          ? Directionality(
+                              textDirection: TextDirection.ltr,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  BackBorderButton(
+                                    onBackPressed: () {
+                                      setState(() {
+                                        selectedIndex = 0;
+                                      });
+                                    },
+                                  ),
+                                  FilledNextButton(
+                                    onNextPressed: () {
+                                      setState(() {
+                                        selectedIndex = 2;
+                                      });
+                                    },
+                                    title: "Next",
+                                  ),
+                                ],
+                              ),
                             )
-                          : Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                BackBorderButton(
-                                  onBackPressed: () {
-                                    setState(() {
-                                      selectedIndex = 1;
-                                    });
-                                  },
-                                ),
-                                FilledNextButton(
-                                  onNextPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                  title: "Start",
-                                ),
-                              ],
+                          : Directionality(
+                              textDirection: TextDirection.ltr,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  BackBorderButton(
+                                    onBackPressed: () {
+                                      setState(() {
+                                        selectedIndex = 1;
+                                      });
+                                    },
+                                  ),
+                                  FilledNextButton(
+                                    onNextPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    title: "Start",
+                                  ),
+                                ],
+                              ),
                             ),
                 ),
               ],
