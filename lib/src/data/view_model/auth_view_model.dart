@@ -122,10 +122,11 @@ class AuthViewModel with ChangeNotifier {
         email: value.user!.email,
       ).toJson())
           .then((rvalue) {
+            print('rvalue:${rvalue['data']["id"].toString()}');
             print(value);
 //            print("rvalue:$rvalue:${rvalue['data']["userid"]}:${value.additionalUserInfo!.profile!["sub"]}");
             setDataToLocalStorage(UserModel(
-          userid: rvalue['data']["userid"],
+          userid: (rvalue['data']["id"]).toString(),
           name: value!.user!.displayName,
           type: data.authProvider!.value,
           email: value.user!.email,

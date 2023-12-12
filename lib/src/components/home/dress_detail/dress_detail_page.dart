@@ -394,7 +394,7 @@ class _CustomBottomSheetState extends State<CustomBottomSheet> {
                                               user: userId,
                                               list_name: _,
                                               description: "app",
-                                              type: "evening",
+                                              type: "outfit",
                                             ));
                                         setState(() {});
                                       },
